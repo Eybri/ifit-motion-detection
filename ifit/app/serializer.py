@@ -39,4 +39,17 @@ class LoginSerializer(serializers.Serializer):
             'access': str(refresh.access_token),
             'user': UserSerializer(user).data
         }
+    
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate(self, data):
+        """
+        Ensure the refresh token is valid before blacklisting.
+        """
+        try:
+            RefreshToken(data["refresh"])  # Validate token
+        except Exception:
+            raise serializers.ValidationError("Invalid or expired refresh token.")
+        return data
 

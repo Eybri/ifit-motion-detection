@@ -1,13 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap CSS
 import './App.css';
 import Header from './components/Layout/Header';
 import Footer from './components/Layout/Footer';
 import Register from './pages/validation/Register';
 import Login from './pages/validation/Login';
 import Home from './pages/user/Home';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
 
 const App = () => {
   return (

@@ -32,12 +32,11 @@ const Login = () => {
             try {
                 setLoading(true);
                 const { data } = await axios.post('http://localhost:8000/api/login/', { email, password });
-                
-                if (data.token) {
+        
+                if (data.token && data.user) {  // Ensure both token & user data exist
                     setToken(data.token);
-                    toast.success('Logged in successfully!', {
-                        position: 'bottom-right'
-                    });
+                    localStorage.setItem('user', JSON.stringify(data.user)); // ✅ Store user in localStorage
+                    toast.success('Logged in successfully!', { position: 'bottom-right' });
                     localStorage.setItem('loginSuccess', 'true');
                     navigate(redirect || "/");
                     setTimeout(() => {
@@ -54,6 +53,7 @@ const Login = () => {
                 setLoading(false);
             }
         }
+        
     });
 
     return (

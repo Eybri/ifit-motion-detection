@@ -28,8 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',  # Add this line
     'corsheaders',
-    # 'djoser',
     "rest_framework_simplejwt",
     'app',
 ]
@@ -54,7 +54,8 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'app.CustomUser'
 APPEND_SLASH = False
 
-
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
+CSRF_COOKIE_HTTPONLY = False
 # AUTHENTICATION_BACKENDS = ['app.authentication.EmailBackend']
 # JWT Settings
 SIMPLE_JWT = {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getToken, removeToken } from '../../utils/auth';
 import axios from 'axios';
@@ -7,55 +7,63 @@ import 'react-toastify/dist/ReactToastify.css';
 import '../../App.css';
 
 const Header = () => {
-    const [user, setUser] = useState(null);
+    const [user,] = useState(() => {
+        const storedUser = localStorage.getItem('user');
+        return storedUser ? JSON.parse(storedUser) : null;
+    });
     const [isScrolled, setIsScrolled] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const hasFetched = useRef(false);
 
     // Logout function
     const logoutUser = async () => {
         try {
-            await axios.post('http://localhost:8000/api/logout', {}, {
-                headers: { Authorization: `Bearer ${getToken()}` }
-            });
-            removeToken();
-            setUser(null);
+            const accessToken = getToken(); // Get access token
+            const refreshToken = localStorage.getItem('refresh_token'); // Get refresh token
+    
+            if (!accessToken || !refreshToken) {
+                toast.error("Session expired. Please login again.");
+                removeToken();
+                localStorage.removeItem('user');
+                navigate('/login');
+                return;
+            }
+    
+            await axios.post(
+                'http://localhost:8000/api/logout/', 
+                { refresh: refreshToken }, // Send refresh token
+                {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                }
+            );
+    
+            removeToken(); // Remove token after successful logout
+            localStorage.removeItem('user');
             toast.success('Logged out successfully', { position: 'bottom-right' });
             navigate('/');
             window.location.reload();
         } catch (error) {
-            toast.error(error.response?.data?.message || "Logout failed");
+            console.error("Logout error:", error);
+    
+            if (error.response?.status === 401) {
+                toast.error("Session expired. Please login again.");
+                removeToken();
+                localStorage.removeItem('user');
+                navigate('/login');
+            } else {
+                toast.error(error.response?.data?.message || "Logout failed");
+            }
         }
     };
-
+    
+    
+    
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 0);
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    useEffect(() => {
-        if (hasFetched.current) return;
-        hasFetched.current = true;
-
-        const fetchUser = async () => {
-            try {
-                const token = getToken();
-                if (token) {
-                    const { data } = await axios.get('http://localhost:8000/api/user', {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    setUser(data.user); // Adjusted based on API response
-                }
-            } catch (error) {
-                console.error('Error fetching user:', error);
-            }
-        };
-
-        fetchUser();
     }, []);
 
     const isAdminRoute = location.pathname.startsWith('/admin');

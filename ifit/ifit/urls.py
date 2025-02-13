@@ -12,16 +12,6 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls")),
     path('api/login/', LoginView.as_view(), name='login'), 
     path('api/user/', UserProfileView.as_view(), name='user_profile'),
-
-
-    # path('',include('users.urls')),
-    # path('api/users/', UserView.as_view(), name='users'),
-
-    # path('users/', UserListView.as_view(), name='fetch_users'),
-    # path('user/<int:user_id>/', UserProfileView.as_view(), name='fetch_user'),
-    # path('user/update/', UpdateProfileView.as_view(), name='update_profile'),
-    
-    # path('videos/upload/', VideoUploadView.as_view(), name='upload_video'),
-    # path('videos/', VideoListView.as_view(), name='fetch_videos'),
-    # path('videos/user/<int:user_id>/', UserVideosView.as_view(), name='fetch_user_videos'),
+    path('api/logout/', LogoutView.as_view(), name='logout'),  # Fixed URL
 ]
+

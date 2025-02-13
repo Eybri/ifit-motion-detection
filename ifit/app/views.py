@@ -61,5 +61,24 @@ class UserProfileView(APIView):
     def get(self, request):
         user = request.user
         serializer = UserSerializer(user)
-        return Response({"user": serializer.data}, status=status.HTTP_200_OK)
+        return Response({'user': serializer.data})
+    
 
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        print("Received Refresh Token:", request.data.get("refresh"))
+        print("Authorization Header:", request.headers.get("Authorization"))
+
+        try:
+            refresh_token = request.data.get("refresh")
+            if not refresh_token:
+                return Response({"error": "Refresh token required"}, status=400)
+            
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            
+            return Response({"message": "Logout successful"}, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
