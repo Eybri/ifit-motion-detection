@@ -1,0 +1,9 @@
+# Flask
+instance/
+*.db
+*.sqlite
+
+# .env file
+.env
+
+env/

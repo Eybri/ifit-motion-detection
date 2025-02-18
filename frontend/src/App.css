@@ -1,0 +1,106 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+
+/* HEADER */
+/* Header Navbar */
+.navbar {
+  transition: all 0.3s ease-in-out;
+  padding: 15px 0;
+  margin-bottom: 10px;
+}
+.navbar.scrolled {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Dropdown Menu */
+.dropdown-menu {
+  border-radius: 8px;
+  min-width: 200px;
+}
+.dropdown-item {
+  transition: background 0.2s ease-in-out;
+}
+.dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+/* Avatar Styling */
+.avatar img {
+  border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Login Button */
+#login_btn {
+  transition: background 0.2s ease-in-out;
+}
+#login_btn:hover {
+  background: #333 !important;
+  color: white !important;
+}
+
+/* CUSTOM FORM SPACING */
+.custom-form{
+  margin-top: 200px;
+}
+
+/* FOOTER CSS */
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; 
+}
+
+main {
+  flex: 1; 
+}
+footer{
+  height: 50px;
+}
+
+
