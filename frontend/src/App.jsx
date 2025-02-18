@@ -11,6 +11,8 @@ import Login from './pages/validation/Login';
 import Home from './pages/user/Home';
 import UserProfile from './pages/user/UserProfile';
 import VideoProcess from './pages/user/VideoProcess';
+import Dashboard from './pages/admin/Dashboard';
+import ProtectedRoute from './components/Route/ProtectedRoute';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 
@@ -30,6 +32,14 @@ const App = () => {
             <Route path="/password/forgot" element={<Forgot />} />
             <Route path="/reset-password/:token" element={<Reset />} />
 
+            <Route
+                path="/admin/dashboard"
+                element={
+                    <ProtectedRoute isAdmin={true}>
+                        <Dashboard />
+                    </ProtectedRoute>
+                }
+            />
           </Routes>
         </main>
         <Footer />

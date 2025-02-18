@@ -35,8 +35,14 @@ class User:
     def update_user_password(self, user_id, new_password):
         self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": {"password": new_password}})
         
+        
     def delete_user(self, user_id):
         """Delete a user by ID."""
         result = self.collection.delete_one({"_id": ObjectId(user_id)})
         return result.deleted_count
+    
+    def update_user(self, user_id, data):
+        """Update user profile details."""
+        self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": data})
+    
 

@@ -22,13 +22,9 @@ export const getToken = () => {
 
 // access user name from session storage
 export const getUser = () => {
-    if (window !== 'undefined') {
-        if (sessionStorage.getItem('user')) {
-            return JSON.parse(sessionStorage.getItem('user'));
-        } else {
-            return false;
-        }
-    }
+    // Example: retrieve user from localStorage or any other storage mechanism
+    const user = JSON.parse(localStorage.getItem('user'));
+    return user || false;
 };
 
 // remove token from session storage

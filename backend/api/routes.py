@@ -6,6 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from cloudinary.uploader import upload
 from flask_mail import Message
 from services.mail_config import mail
+from bson.objectid import ObjectId
 
 routes = Blueprint("routes", __name__, url_prefix="/api")
 db = get_db()
@@ -114,7 +115,7 @@ def get_user_profile(user_id):
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    user["_id"] = str(user["_id"])  # Convert ObjectId to string for JSON compatibility
+    user["_id"] = str(user["_id"])  
     return jsonify({"user": user}), 200
 
 @routes.route("/user/<user_id>", methods=["DELETE"])
@@ -154,6 +155,29 @@ The iFit Team
 
     return jsonify({"message": "User deleted successfully"}), 200
 
+
+@routes.route("/user/<user_id>", methods=["PUT"])
+@require_auth
+def update_user_profile(user_id):
+    """Update user profile details."""
+    user = user_model.find_user_by_id(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Get the updated data from the request (e.g., from the form or modal in frontend)
+    data = request.json
+
+    # Remove '_id' if it's in the data (it shouldn't be, but just in case)
+    if '_id' in data:
+        del data['_id']
+
+    # Filter out password if it's not being changed here (assuming password change is handled separately)
+    updated_data = {key: value for key, value in data.items() if key != "password"}
+
+    # Update the user details in the database
+    user_model.collection.update_one({"_id": ObjectId(user_id)}, {"$set": updated_data})
+
+    return jsonify({"message": "Profile updated successfully"}), 200
 
 
 

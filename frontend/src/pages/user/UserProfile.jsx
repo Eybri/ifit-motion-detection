@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Box, Typography, Paper } from '@mui/material';
+import { Button, Box, Typography, Paper, Modal, TextField } from '@mui/material';
 import { getToken } from '../../utils/auth';
 import axios from 'axios';
 import Loader from '../../components/Layout/Loader'; 
@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 const UserProfile = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [openModal, setOpenModal] = useState(false);
+    const [formData, setFormData] = useState({});
     const navigate = useNavigate();
 
     // Fetch user profile
@@ -28,6 +30,7 @@ const UserProfile = () => {
                 });
 
                 setUser(data.user);
+                setFormData(data.user);
             } catch (error) {
                 const errorMessage = error.response?.data?.error || 'Failed to load user profile.';
                 toast.error(errorMessage, { position: 'bottom-right' });
@@ -61,15 +64,34 @@ const UserProfile = () => {
         }
     };
 
-    // Handle profile edit (redirect to an edit page)
-    const handleEditProfile = () => {
-        navigate('/edit-profile');
+    // Handle profile update
+    const handleProfileUpdate = async () => {
+        try {
+            const token = getToken();
+            const userId = JSON.parse(localStorage.getItem('user')).id;
+
+            await axios.put(`http://localhost:5000/api/user/${userId}`, formData, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            toast.success('Profile updated successfully.', { position: 'bottom-right' });
+            setOpenModal(false);
+        } catch (error) {
+            const errorMessage = error.response?.data?.error || 'Failed to update profile.';
+            toast.error(errorMessage, { position: 'bottom-right' });
+        }
     };
 
-    // Handle image edit
-    const handleImageEdit = () => {
-        toast.info('Image edit feature coming soon!', { position: 'bottom-right' });
+    // Handle input changes for form data
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
+
+        // Handle image edit
+        const handleImageEdit = () => {
+            toast.info('Image edit feature coming soon!', { position: 'bottom-right' });
+        };
 
     if (loading) return <Loader />;
 
@@ -116,7 +138,7 @@ const UserProfile = () => {
                                 variant="contained"
                                 color="primary"
                                 sx={{ boxShadow: 5, marginRight: 2 }}
-                                onClick={handleEditProfile}
+                                onClick={() => setOpenModal(true)}
                             >
                                 Edit Profile
                             </Button>
@@ -132,6 +154,68 @@ const UserProfile = () => {
                     </Box>
                 </Box>
             </Paper>
+
+            {/* Modal for Profile Update */}
+            <Modal open={openModal} onClose={() => setOpenModal(false)}>
+                <Box sx={{
+                    position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                    width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4
+                }}>
+                    <Typography variant="h6" sx={{ marginBottom: 2 }}>Edit Profile</Typography>
+                    <TextField
+                        label="Name"
+                        fullWidth
+                        margin="normal"
+                        name="name"
+                        value={formData.name || ''}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        label="Email"
+                        fullWidth
+                        margin="normal"
+                        name="email"
+                        value={formData.email || ''}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        label="Gender"
+                        fullWidth
+                        margin="normal"
+                        name="gender"
+                        value={formData.gender || ''}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        label="Date of Birth"
+                        fullWidth
+                        margin="normal"
+                        name="date_of_birth"
+                        value={formData.date_of_birth || ''}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        label="Height (cm)"
+                        fullWidth
+                        margin="normal"
+                        name="height"
+                        value={formData.height || ''}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        label="Weight (kg)"
+                        fullWidth
+                        margin="normal"
+                        name="weight"
+                        value={formData.weight || ''}
+                        onChange={handleInputChange}
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
+                        <Button variant="contained" onClick={handleProfileUpdate}>Save Changes</Button>
+                        <Button variant="contained" color="error" onClick={() => setOpenModal(false)}>Cancel</Button>
+                    </Box>
+                </Box>
+            </Modal>
         </div>
     );
 };
