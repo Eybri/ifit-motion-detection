@@ -3,7 +3,7 @@ from services.db import get_db
 from models.user import User
 from services.token_utils import generate_token, require_auth, decode_token
 from werkzeug.security import check_password_hash, generate_password_hash
-from cloudinary.uploader import upload
+from cloudinary.uploader import upload, destroy
 from flask_mail import Message
 from services.mail_config import mail
 from bson.objectid import ObjectId
@@ -18,21 +18,11 @@ def register():
     if user_model.find_user_by_email(data["email"]):
         return jsonify({"error": "User already exists"}), 400
 
-    # Handle image upload
     file = request.files.get("image")
-    image_url = ""
-    if file:
-        try:
-            upload_result = upload(file, folder="profile")
-            image_url = upload_result.get("secure_url")
-        except Exception as e:
-            return jsonify({"error": "Image upload failed", "details": str(e)}), 500
+    image_url = upload(file, folder="profile").get("secure_url") if file else ""
 
-    data = dict(data)
-    data["image"] = image_url
-    user_model.create_user(data)
+    user_model.create_user({**data, "image": image_url})
     return jsonify({"message": "User registered successfully"}), 201
-
 
 @routes.route("/login", methods=["POST"])
 def login():
@@ -52,13 +42,10 @@ def login():
         }), 200
     return jsonify({"error": "Invalid email or password"}), 401
 
-
 @routes.route("/logout", methods=["POST"])
 @require_auth
 def logout(user_id):
-    # Placeholder for token invalidation logic
     return jsonify({"message": "Logged out successfully"}), 200
-
 
 @routes.route("/forgot-password", methods=["POST"])
 def forgot_password():
@@ -67,117 +54,91 @@ def forgot_password():
     if not user:
         return jsonify({"error": "Email not found"}), 404
 
-    # Generate reset token
     reset_token = generate_token(str(user["_id"]), expires_in=1)
     reset_link = url_for("routes.reset_password", token=reset_token, _external=True)
 
-    # Send email
     msg = Message(
         subject="Password Reset Request",
         sender="no-reply@ifit.com",
-        recipients=[user["email"]]
+        recipients=[user["email"]],
+        body=f"Hi {user['name']},\n\nTo reset your password, click the link below:\n{reset_link}\n\nIf you did not request this, please ignore this email.\n\nThanks,\nThe iFit Team"
     )
-    msg.body = f"Hi {user['name']},\n\nTo reset your password, click the link below:\n{reset_link}\n\nIf you did not request this, please ignore this email.\n\nThanks,\nThe iFit Team"
     mail.send(msg)
 
     return jsonify({"message": "Password reset link sent to your email"}), 200
-
 
 @routes.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_password(token):
     if request.method == "GET":
         return redirect(f"http://localhost:3000/reset-password/{token}", code=302)
 
-    if request.method == "POST":
-        try:
-            decoded = decode_token(token)
-            user_id = decoded["user_id"]
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
+    try:
+        user_id = decode_token(token)["user_id"]
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
-        user = user_model.find_user_by_id(user_id)
-        if not user:
-            return jsonify({"error": "User not found"}), 404
+    new_password = request.json.get("password")
+    if not new_password:
+        return jsonify({"error": "Password is required"}), 400
 
-        new_password = request.json.get("password")
-        if not new_password:
-            return jsonify({"error": "Password is required"}), 400
-
-        hashed_password = generate_password_hash(new_password)
-        user_model.update_user_password(user_id, hashed_password)
-        return jsonify({"message": "Password reset successful"}), 200
+    user_model.update_user_password(user_id, generate_password_hash(new_password))
+    return jsonify({"message": "Password reset successful"}), 200
 
 @routes.route("/user/<user_id>", methods=["GET"])
 @require_auth
 def get_user_profile(user_id):
-    """Fetch user profile details."""
     user = user_model.find_user_by_id(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    user["_id"] = str(user["_id"])  
+    user["_id"] = str(user["_id"])
     return jsonify({"user": user}), 200
 
 @routes.route("/user/<user_id>", methods=["DELETE"])
 @require_auth
 def delete_user(user_id):
-    """Delete a user."""
     user = user_model.find_user_by_id(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    # Delete the user from the database
-    deleted_count = user_model.delete_user(user_id)
-    if deleted_count == 0:
+    if user_model.delete_user(user_id) == 0:
         return jsonify({"error": "Failed to delete user"}), 500
 
-    # Send account deletion confirmation email
-    try:
-        msg = Message(
-            subject="Account Deletion Confirmation",
-            sender="no-reply@ifit.com",
-            recipients=[user["email"]]
-        )
-        msg.body = f"""
-Hi {user['name']},
-
-We want to confirm that your account associated with this email has been successfully deleted.
-
-If this action was not authorized by you or you have any concerns, please contact our support team immediately.
-
-Thanks,
-The iFit Team
-"""
-        mail.send(msg)
-    except Exception as e:
-        # Log email sending failure (optional)
-        print(f"Failed to send email: {e}")
+    msg = Message(
+        subject="Account Deletion Confirmation",
+        sender="no-reply@ifit.com",
+        recipients=[user["email"]],
+        body=f"Hi {user['name']},\n\nYour account has been successfully deleted.\n\nThanks,\nThe iFit Team"
+    )
+    mail.send(msg)
 
     return jsonify({"message": "User deleted successfully"}), 200
-
 
 @routes.route("/user/<user_id>", methods=["PUT"])
 @require_auth
 def update_user_profile(user_id):
-    """Update user profile details."""
     user = user_model.find_user_by_id(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    # Get the updated data from the request (e.g., from the form or modal in frontend)
-    data = request.json
-
-    # Remove '_id' if it's in the data (it shouldn't be, but just in case)
-    if '_id' in data:
-        del data['_id']
-
-    # Filter out password if it's not being changed here (assuming password change is handled separately)
-    updated_data = {key: value for key, value in data.items() if key != "password"}
-
-    # Update the user details in the database
-    user_model.collection.update_one({"_id": ObjectId(user_id)}, {"$set": updated_data})
-
+    data = {k: v for k, v in request.json.items() if k != "password" and k != "_id"}
+    user_model.collection.update_one({"_id": ObjectId(user_id)}, {"$set": data})
     return jsonify({"message": "Profile updated successfully"}), 200
 
+@routes.route("/user/<user_id>/image", methods=["PUT"])
+@require_auth
+def update_user_image(user_id):
+    user = user_model.find_user_by_id(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
 
+    file = request.files.get("image")
+    if not file:
+        return jsonify({"error": "No image file provided"}), 400
 
+    if user.get("image"):
+        destroy(user["image"].split("/")[-1].split(".")[0])
+
+    image_url = upload(file, folder="profile").get("secure_url")
+    user_model.collection.update_one({"_id": ObjectId(user_id)}, {"$set": {"image": image_url}})
+    return jsonify({"message": "Image updated successfully", "image_url": image_url}), 200

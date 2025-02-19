@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Box, Typography, Paper, Modal, TextField } from '@mui/material';
 import { getToken } from '../../utils/auth';
 import axios from 'axios';
-import Loader from '../../components/Layout/Loader'; 
+import Loader from '../../components/Layout/Loader';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,9 @@ const UserProfile = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [openModal, setOpenModal] = useState(false);
+    const [imageModalOpen, setImageModalOpen] = useState(false); // State for image modal
     const [formData, setFormData] = useState({});
+    const [newImage, setNewImage] = useState(null); // State for new image file
     const navigate = useNavigate();
 
     // Fetch user profile
@@ -82,16 +84,48 @@ const UserProfile = () => {
         }
     };
 
+    // Handle image file selection
+    const handleImageChange = (event) => {
+        setNewImage(event.target.files[0]);
+    };
+
+    // Handle image update
+    const handleImageUpdate = async () => {
+        if (!newImage) {
+            toast.error('Please select an image to upload.', { position: 'bottom-right' });
+            return;
+        }
+
+        const token = getToken();
+        const userId = JSON.parse(localStorage.getItem('user')).id;
+
+        const formData = new FormData();
+        formData.append('image', newImage);
+
+        try {
+            const { data } = await axios.put(`http://localhost:5000/api/user/${userId}/image`, formData, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            setUser((prevUser) => ({
+                ...prevUser,
+                image: data.image_url,
+            }));
+
+            toast.success('Profile image updated successfully.', { position: 'bottom-right' });
+            setImageModalOpen(false);
+            setNewImage(null);
+        } catch (error) {
+            const errorMessage = error.response?.data?.error || 'Failed to update profile image.';
+            toast.error(errorMessage, { position: 'bottom-right' });
+        }
+    };
+
     // Handle input changes for form data
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
-
-        // Handle image edit
-        const handleImageEdit = () => {
-            toast.info('Image edit feature coming soon!', { position: 'bottom-right' });
-        };
 
     if (loading) return <Loader />;
 
@@ -116,7 +150,7 @@ const UserProfile = () => {
                                 backgroundColor: 'rgba(0,0,0,0.5)',
                                 padding: '6px',
                             }}
-                            onClick={handleImageEdit}
+                            onClick={() => setImageModalOpen(true)} // Open image modal
                         >
                             Edit Image
                         </Button>
@@ -213,6 +247,26 @@ const UserProfile = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
                         <Button variant="contained" onClick={handleProfileUpdate}>Save Changes</Button>
                         <Button variant="contained" color="error" onClick={() => setOpenModal(false)}>Cancel</Button>
+                    </Box>
+                </Box>
+            </Modal>
+
+            {/* Modal for Image Update */}
+            <Modal open={imageModalOpen} onClose={() => setImageModalOpen(false)}>
+                <Box sx={{
+                    position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                    width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4
+                }}>
+                    <Typography variant="h6" sx={{ marginBottom: 2 }}>Update Profile Image</Typography>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        style={{ width: '100%' }}
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
+                        <Button variant="contained" onClick={handleImageUpdate}>Save Image</Button>
+                        <Button variant="contained" color="error" onClick={() => setImageModalOpen(false)}>Cancel</Button>
                     </Box>
                 </Box>
             </Modal>

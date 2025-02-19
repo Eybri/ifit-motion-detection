@@ -20,14 +20,11 @@ export const getToken = () => {
     }
 };
 
-// access user name from session storage
 export const getUser = () => {
-    // Example: retrieve user from localStorage or any other storage mechanism
     const user = JSON.parse(localStorage.getItem('user'));
     return user || false;
 };
 
-// remove token from session storage
 export const logout = next => {
     if (window !== 'undefined') {
         sessionStorage.removeItem('token');
