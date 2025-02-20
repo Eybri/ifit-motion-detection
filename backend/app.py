@@ -1,6 +1,7 @@
 from flask import Flask
 from config import Config
-from api.routes import routes
+from api.routes import *
+from api.categoryRoutes import *
 from flask_cors import CORS
 from services.mail_config import configure_mail
 from dotenv import load_dotenv
@@ -22,6 +23,7 @@ CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 # Register Blueprints
 app.register_blueprint(routes)
+app.register_blueprint(category_routes)
 
 if __name__ == "__main__":
     app.run(debug=True)
