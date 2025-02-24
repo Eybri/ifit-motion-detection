@@ -11,7 +11,7 @@ import Reset from './pages/validation/ResetPassword';
 import Login from './pages/validation/Login';
 import Home from './pages/user/Home';
 import UserProfile from './pages/user/UserProfile';
-import VideoProcess from './pages/user/VideoProcess';
+import UserVideoList from './pages/user/UserVideoList';
 import Dashboard from './pages/admin/Dashboard';
 import ProtectedRoute from './components/Route/ProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
@@ -21,6 +21,7 @@ import VideoList from './pages/admin/video/VideoList';
 
 const App = () => {
   return (
+    
     <Router>
       <ToastContainer />
       <Routes>
@@ -30,7 +31,7 @@ const App = () => {
           <Route path="/me" element={<UserProfile />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Home />} />
-          <Route path="/upload/video" element={<VideoProcess />} />
+          <Route path="/video/list" element={<UserVideoList />} />
           <Route path="/password/forgot" element={<Forgot />} />
           <Route path="/reset-password/:token" element={<Reset />} />
         </Route>

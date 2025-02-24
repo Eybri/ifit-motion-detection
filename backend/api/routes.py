@@ -142,3 +142,4 @@ def update_user_image(user_id):
     image_url = upload(file, folder="profile").get("secure_url")
     user_model.collection.update_one({"_id": ObjectId(user_id)}, {"$set": {"image": image_url}})
     return jsonify({"message": "Image updated successfully", "image_url": image_url}), 200
+

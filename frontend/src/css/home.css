@@ -1,0 +1,137 @@
+body {
+    font-family: "Be Vietnam Pro", "Noto Sans", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #181115;
+    color: white;
+    scroll-behavior: smooth;
+  }
+
+  
+  /* Icon Styles */
+  .icons {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .search-button,
+  .login-button {
+    background-color: #382933;
+    border-radius: 50%;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .search-button:hover,
+  .login-button:hover {
+    background-color: #e619a2;
+    transform: scale(1.1);
+  }
+  
+  /* Hero Section */
+  .hero-section {
+    background: url("https://cdn.usegalileo.ai/sdxl10/24db16d8-9f94-4554-81cd-c23eb95b405f.png") no-repeat center center/cover;
+    color: white;
+    padding: 80px 40px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    background-attachment: fixed;
+  }
+  
+  .hero-section h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 20px;
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  .hero-section h2 {
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 30px;
+  }
+  
+  /* Parallax Scrolling Effect */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Grid Layout */
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 40px;
+    position: relative;
+    perspective: 1000px;
+  }
+  
+  .grid-item {
+    position: relative;
+    background: #333;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform-style: preserve-3d;
+  }
+  
+  .grid-item:hover {
+    transform: rotateY(10deg) rotateX(10deg);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .grid-item img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+  
+  .grid-item:hover img {
+    transform: scale(1.1);
+  }
+  
+  /* Hover Effects on the Dance List */
+  .dance-list-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5rem;
+    padding: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .grid-item:hover .dance-list-overlay {
+    opacity: 1; /* Show overlay on hover */
+  }
+  
+  /* Footer */
+  
+  /* Animation for sections */
+  .hero-section h1,
+  .hero-section h2 {
+    animation: fadeIn 1s ease-in-out;
+  }
+  

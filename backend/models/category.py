@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 class Category:
     def __init__(self, db):
         self.collection = db["categories"]
-        self.video_collection = db["videos"]  # Reference to videos collection
+        self.video_collection = db["videos"]  
 
     def create_category(self, name, description=""):
         """Insert a new category."""

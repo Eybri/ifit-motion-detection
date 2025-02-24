@@ -85,22 +85,33 @@
 }
 
 /* FOOTER CSS */
+/* FOOTER CSS */
 html, body {
   height: 100%;
+  margin: 0;
   overflow-x: hidden;
 }
 
-#app {
+#root {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; 
+  min-height: 100vh; /* Ensure that the root covers the full height */
 }
 
 main {
-  flex: 1; 
+  flex: 1; /* Allow main content to grow and take available space */
 }
-footer{
+
+footer {
   height: 50px;
+  background-color: #28204e; /* Example footer background */
+  color: white;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto; /* Push the footer to the bottom */
 }
+
 
 

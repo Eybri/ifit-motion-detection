@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import Loader from "../../components/Layout/Loader";
+import { Box, Container, Paper, Typography, TextField, Button, CircularProgress } from "@mui/material";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");
@@ -24,35 +26,89 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="container custom-form">
-            {loading && <Loader />}
-            <div className="row justify-content-center">
-                <div className="col-md-6">
-                    <div className="card shadow-sm">
-                        <div className="card-body">
-                            <h3 className="text-center mb-4">Forgot Password</h3>
+        <Box
+            sx={{
+                height: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundImage: 'url(/images/bg1.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+            }}
+        >
+            <Container maxWidth="md">
+                <Paper elevation={5} sx={{ padding: 4, borderRadius: 5, backgroundColor: '#F7F7F7', opacity: '0.95' }}>
+                    <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }}>
+
+                        {/* First Column: Profile/Image */}
+                        <Box
+                            flex={1}
+                            display="flex"
+                            flexDirection="column"
+                            justifyContent="center"
+                            alignItems="center"
+                            sx={{
+                                backgroundColor: '#577D86',
+                                borderRadius: '10px',
+                                padding: 3,
+                                color: 'white',
+                                marginRight: { md: 3 },
+                                marginBottom: { xs: 3, md: 0 },
+                            }}
+                        >
+                            <Typography variant="h5" align="center" sx={{ fontWeight: 'bold', mb: 2 }}>
+                                Forgot Your Password?
+                            </Typography>
+                            <Typography align="center" sx={{ opacity: 0.9 }}>
+                                Enter your email to reset your password and regain access to your account.
+                            </Typography>
+                        </Box>
+
+                        {/* Second Column: Form */}
+                        <Box flex={1}>
+                            <Typography
+                                variant="h4"
+                                align="center"
+                                gutterBottom
+                                sx={{ fontWeight: 'bold', color: '#577D86', mb: 3 }}
+                            >
+                                Reset Password
+                            </Typography>
                             <form onSubmit={submitHandler}>
-                                <div className="form-group mb-3">
-                                    <label htmlFor="email_field">Email Address</label>
-                                    <input
-                                        type="email"
-                                        id="email_field"
-                                        className="form-control"
-                                        placeholder="Enter your email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <button type="submit" className="btn btn-dark w-100">
-                                    Send Reset Link
-                                </button>
+                                <TextField
+                                    label="Email Address"
+                                    type="email"
+                                    fullWidth
+                                    required
+                                    margin="normal"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    InputProps={{ sx: { backgroundColor: 'white' } }}
+                                />
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    fullWidth
+                                    sx={{
+                                        mt: 3,
+                                        bgcolor: '#577D86',
+                                        color: '#fff',
+                                        '&:hover': { bgcolor: '#569DAA' },
+                                        borderRadius: '40px',
+                                    }}
+                                    disabled={loading}
+                                >
+                                    {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : "Send Reset Link"}
+                                </Button>
                             </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        </Box>
+                    </Box>
+                </Paper>
+                <ToastContainer />
+            </Container>
+        </Box>
     );
 };
 

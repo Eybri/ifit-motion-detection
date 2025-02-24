@@ -4,9 +4,9 @@ const Footer = () => {
     return (
         <Fragment>
             
-            <footer className="py-1 bg-dark text-light">
+            <footer className="py-1 bg-dark text-light" style={{BackgroundColor:'#577D86'}}>
                 <p className="text-center mt-1">
-                    i-FIT. - 2024, All Rights Reserved
+                    i-FIT. - 2025, All Rights Reserved
                 </p>
             </footer>
         </Fragment>

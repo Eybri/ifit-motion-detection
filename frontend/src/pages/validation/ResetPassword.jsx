@@ -1,81 +1,128 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import axios from "axios";
-import Loader from "../../components/Layout/Loader";
+import { 
+  TextField, Button, Container, Typography, Box, Paper, CircularProgress 
+} from "@mui/material";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ResetPassword = () => {
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const { token } = useParams();
-    const navigate = useNavigate();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { token } = useParams();
+  const navigate = useNavigate();
 
-    const submitHandler = async (e) => {
-        e.preventDefault();
+  const submitHandler = async (e) => {
+    e.preventDefault();
 
-        if (password !== confirmPassword) {
-            toast.error("Passwords do not match!", { position: "bottom-right" });
-            return;
-        }
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match!", { position: "bottom-right" });
+      return;
+    }
 
-        setLoading(true);
+    setLoading(true);
 
-        try {
-            const { data } = await axios.post(`http://localhost:5000/api/reset-password/${token}`, { password });
-            toast.success(data.message, { position: "bottom-right" });
-            navigate("/login");
-        } catch (error) {
-            const errorMessage = error.response?.data?.error || "Something went wrong!";
-            toast.error(errorMessage, { position: "bottom-right" });
-        } finally {
-            setLoading(false);
-        }
-    };
+    try {
+      const { data } = await axios.post(`http://localhost:5000/api/reset-password/${token}`, { password });
+      toast.success(data.message, { position: "bottom-right" });
+      setTimeout(() => navigate("/login"), 1500);
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || "Something went wrong!";
+      toast.error(errorMessage, { position: "bottom-right" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="container custom-form">
-            {loading && <Loader />}
-            <div className="row justify-content-center">
-                <div className="col-md-6">
-                    <div className="card shadow-sm">
-                        <div className="card-body">
-                            <h3 className="text-center mb-4">Reset Password</h3>
-                            <form onSubmit={submitHandler}>
-                                <div className="form-group mb-3">
-                                    <label htmlFor="password_field">New Password</label>
-                                    <input
-                                        type="password"
-                                        id="password_field"
-                                        className="form-control"
-                                        placeholder="Enter your new password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group mb-3">
-                                    <label htmlFor="confirm_password_field">Confirm Password</label>
-                                    <input
-                                        type="password"
-                                        id="confirm_password_field"
-                                        className="form-control"
-                                        placeholder="Re-enter your new password"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <button type="submit" className="btn btn-dark w-100">
-                                    Reset Password
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+  return (
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundImage: "url(/images/bg1.jpg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={5}
+          sx={{
+            padding: 4,
+            borderRadius: 5,
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.8)",
+            backgroundColor: "#F7F7F7",
+            opacity: 0.9,
+          }}
+        >
+          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: "bold", color: "#577D86" }}>
+            Reset Password
+          </Typography>
+
+          <form onSubmit={submitHandler}>
+            <TextField
+              label="New Password"
+              variant="outlined"
+              fullWidth
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              margin="normal"
+              sx={{
+                backgroundColor: "#f5f5f5",
+                borderRadius: "40px",
+                '& .MuiOutlinedInput-root': { borderRadius: "40px" },
+              }}
+            />
+            <TextField
+              label="Confirm Password"
+              variant="outlined"
+              fullWidth
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              margin="normal"
+              sx={{
+                backgroundColor: "#f5f5f5",
+                borderRadius: "40px",
+                '& .MuiOutlinedInput-root': { borderRadius: "40px" },
+              }}
+            />
+            
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{
+                mt: 3,
+                bgcolor: "#577D86",
+                color: "#fff",
+                '&:hover': { bgcolor: "#569DAA" },
+                padding: 1.5,
+                fontSize: "1rem",
+                borderRadius: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} sx={{ color: "#" }} /> : "Reset Password"}
+            </Button>
+          </form>
+        </Paper>
+      </Container>
+
+      <ToastContainer />
+    </Box>
+  );
 };
 
 export default ResetPassword;

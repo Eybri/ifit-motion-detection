@@ -1,90 +1,93 @@
-import React, { Fragment } from 'react';
-import MetaData from '../../components/Layout/Metadata';
-import { Carousel, Container, Row, Col } from 'react-bootstrap';
+import React from 'react';
+import './../../css/home.css';
 
 const Home = () => {
-    return (
-        <>
-            <MetaData title={'Welcome to Our Store'} />
 
-            <Fragment>
-                {/* Hero Section - Carousel */}
-                <section className="hero-section">
-                    <Carousel fade indicators={false} interval={3000} pause={false}>
-                        <Carousel.Item>
-                            <img
-                                className="d-block w-100"
-                                src="../images/im1.jpg" 
-                                alt="Latest Fashion Trends"
-                                style={{ height: '600px', objectFit: 'cover', filter: 'brightness(70%)' }}
-                            />
-                            <Carousel.Caption className="text-white">
-                                <h2 className="fw-bold">Latest Fashion Trends</h2>
-                                <p className="lead">Shop the best styles of the season</p>
-                                <button className="btn btn-dark btn-lg">Explore Now</button>
-                            </Carousel.Caption>
-                        </Carousel.Item>
-                        <Carousel.Item>
-                            <img
-                                className="d-block w-100"
-                                src="../images/im2.jpg"
-                                alt="Spring Collection"
-                                style={{ height: '600px', objectFit: 'cover', filter: 'brightness(70%)' }}
-                            />
-                            <Carousel.Caption className="text-white">
-                                <h2 className="fw-bold">Spring Collection</h2>
-                                <p className="lead">Discover our latest arrivals</p>
-                                <button className="btn btn-primary btn-lg">Leader Boards</button>
-                            </Carousel.Caption>
-                        </Carousel.Item>
-                        <Carousel.Item>
-                            <img
-                                className="d-block w-100"
-                                src="../images/im3.jpg"
-                                alt="New Arrivals"
-                                style={{ height: '600px', objectFit: 'cover', filter: 'brightness(70%)' }}
-                            />
-                            <Carousel.Caption className="text-white">
-                                <h2 className="fw-bold">New Arrivals</h2>
-                                <p className="lead">Check out the newest pieces</p>
-                                <button className="btn btn-light btn-lg text-dark">Browse Collection</button>
-                            </Carousel.Caption>
-                        </Carousel.Item>
-                    </Carousel>
-                </section>
 
-                {/* Welcome Section */}
-                <Container className="text-center my-5">
-                    <h1 className="fw-bold">Welcome to Our Store</h1>
-                    <p className="lead text-muted">
-                        Discover the latest trends, exclusive collections, and premium quality fashion. 
-                        We bring style to your doorstep!
-                    </p>
-                    <button className="btn btn-primary btn-lg mt-3">Get Started</button>
-                </Container>
+  return (
+    <div>
+      <div className="particles-container">
+        <div className="particle" style={{ top: '20%', left: '30%' }}></div>
+        <div className="particle" style={{ top: '40%', left: '70%' }}></div>
+        <div className="particle" style={{ top: '60%', left: '50%' }}></div>
+        <div className="particle" style={{ top: '80%', left: '10%' }}></div>
+      </div>
 
-                {/* Featured Video Section */}
-                <section className="featured-video-section bg-light py-5">
-                    <Container>
-                        <h2 className="text-center fw-bold mb-4">Featured Video</h2>
-                        <Row className="justify-content-center">
-                            <Col md={8}>
-                                <div className="embed-responsive embed-responsive-16by9">
-                                    <iframe
-                                        className="embed-responsive-item w-100"
-                                        height="400"
-                                        src="https://www.youtube.com/embed/your-video-id" // Replace with your actual video URL
-                                        title="Featured Video"
-                                        allowFullScreen
-                                    ></iframe>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Container>
-                </section>
-            </Fragment>
-        </>
-    );
-}
+      <section className="hero-section">
+        <h1>The world's best dance classes</h1>
+        <h2>Stream the best dance classes from the world's top studios. Try it free for 30 days. Terms Apply</h2>
+        <button className="btn btn-dark text-light">Get Started</button>
+      </section>
+
+      <div className="container mt-4 ">
+        <div className="row">
+          <div className="col-md-3 mb-4">
+            <div className="grid-item">
+              <img
+                src="https://cdn.usegalileo.ai/sdxl10/2c8322e5-718a-4560-8969-9fef3d2c6c2c.png"
+                alt="Dance style 1"
+                className="img-fluid"
+              />
+              <div className="dance-list-overlay">
+                <ul>
+                  <li>Ballet</li>
+                  <li>Hip Hop</li>
+                  <li>Jazz</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3 mb-4">
+            <div className="grid-item">
+              <img
+                src="https://cdn.usegalileo.ai/sdxl10/3bde3e72-3ca9-477b-a3ef-d0a218582831.png"
+                alt="Dance style 2"
+                className="img-fluid"
+              />
+              <div className="dance-list-overlay">
+                <ul>
+                  <li>Contemporary</li>
+                  <li>Ballroom</li>
+                  <li>Salsa</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3 mb-4">
+            <div className="grid-item">
+              <img
+                src="https://cdn.usegalileo.ai/sdxl10/afe72876-a785-475b-ab5e-2bdf3c0dc7ca.png"
+                alt="Dance style 3"
+                className="img-fluid"
+              />
+              <div className="dance-list-overlay">
+                <ul>
+                  <li>Tango</li>
+                  <li>Tap Dance</li>
+                  <li>Breakdancing</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3 mb-4">
+            <div className="grid-item">
+              <img
+                src="https://cdn.usegalileo.ai/sdxl10/020526c8-c03e-4311-816c-fe632f0be2bc.png"
+                alt="Dance style 4"
+                className="img-fluid"
+              />
+              <div className="dance-list-overlay">
+                <ul>
+                  <li>Modern Dance</li>
+                  <li>Classical</li>
+                  <li>Street Dance</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>  );
+};
 
 export default Home;

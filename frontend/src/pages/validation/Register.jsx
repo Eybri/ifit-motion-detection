@@ -1,8 +1,22 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import "../../App.css";
-import Loader from '../../components/Layout/Loader';
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Box,
+  Paper,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Grid,
+  CircularProgress,
+} from "@mui/material";
+import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -14,9 +28,9 @@ const Register = () => {
     date_of_birth: "",
     height: "",
     weight: "",
-    image: null, // File upload
+    image: null,
   });
-  const [preview, setPreview] = useState(null); // Image preview
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -27,7 +41,7 @@ const Register = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setFormData({ ...formData, image: file });
-    setPreview(URL.createObjectURL(file)); // Generate preview
+    setPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e) => {
@@ -41,170 +55,188 @@ const Register = () => {
       });
 
       await axios.post("http://localhost:5000/api/register", form);
-      navigate("/login"); // Redirect after success
+      toast.success("Registered Successfully!", { position: "bottom-right" });
+      setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
-      console.error("Registration failed:", error.response?.data || error.message);
+      toast.error("Registration failed!", { position: "bottom-right" });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container" style={{ marginTop: "125px" }}>
-      {loading && <Loader />} {/* Show loader during submission */}
-      <div className="row justify-content-center">
-        <div className="col-md-10">
-          <div className="card shadow-sm p-4">
-            <h2 className="text-center mb-4">Register</h2>
-            <form onSubmit={handleSubmit}>
-              {/* Profile Image Upload */}
-              <div className="mb-4 text-center">
-                <label htmlFor="image" className="form-label d-block">
-                  <strong>Profile Picture</strong>
-                </label>
-                <input
-                  type="file"
-                  id="image"
-                  name="image"
-                  className="form-control"
-                  onChange={handleFileChange}
-                  accept="image/*"
-                />
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundImage: "url(/images/bg1.jpg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <Container maxWidth="md">
+        <Paper
+          elevation={5}
+          sx={{
+            padding: 4,
+            borderRadius: 5,
+            backgroundColor: "#F7F7F7",
+            opacity: 0.95,
+          }}
+        >
+          <Typography
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{ fontWeight: "bold", color: "#577D86", mb: 3 }}
+          >
+            Create an Account
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={4}>
+              {/* Profile Section */}
+              <Grid item xs={12} md={5}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ fontWeight: "bold", color: "#577D86" }}
+                >
+                  Profile Information
+                </Typography>
+                <Button
+                  variant="contained"
+                  component="label"
+                  fullWidth
+                  sx={{
+                    borderRadius: "40px",
+                    bgcolor: "#577D86",
+                    color: "white",
+                    "&:hover": { bgcolor: "#569DAA" },
+                  }}
+                >
+                  Upload Profile Picture
+                  <input type="file" hidden onChange={handleFileChange} />
+                </Button>
                 {preview && (
-                  <div className="mt-3">
+                  <Box mt={2} display="flex" justifyContent="center">
                     <img
                       src={preview}
                       alt="Preview"
-                      className="rounded-circle"
-                      style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                      style={{ width: 150, height: 150, borderRadius: "50%" }}
                     />
-                  </div>
+                  </Box>
                 )}
-              </div>
 
-              {/* Two-Column Form */}
-              <div className="row">
-                <div className="col-md-6">
-                  <div className="mb-3">
-                    <label htmlFor="name" className="form-label">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      className="form-control"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="email" className="form-label">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      className="form-control"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="password" className="form-label">
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      id="password"
-                      name="password"
-                      className="form-control"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="col-md-6">
-                  <div className="mb-3">
-                    <label htmlFor="gender" className="form-label">
-                      Gender
-                    </label>
-                    <select
-                      id="gender"
-                      name="gender"
-                      className="form-select"
-                      value={formData.gender}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="date_of_birth" className="form-label">
-                      Date of Birth
-                    </label>
-                    <input
-                      type="date"
-                      id="date_of_birth"
-                      name="date_of_birth"
-                      className="form-control"
-                      value={formData.date_of_birth}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="height" className="form-label">
-                      Height (in cm)
-                    </label>
-                    <input
-                      type="number"
-                      id="height"
-                      name="height"
-                      className="form-control"
-                      value={formData.height}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="weight" className="form-label">
-                      Weight (in kg)
-                    </label>
-                    <input
-                      type="number"
-                      id="weight"
-                      name="weight"
-                      className="form-control"
-                      value={formData.weight}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
+                <TextField
+                  label="Full Name"
+                  name="name"
+                  fullWidth
+                  required
+                  margin="normal"
+                  onChange={handleChange}
+                  InputProps={{ sx: { backgroundColor: "white" } }}
+                />
+                <TextField
+                  label="Email"
+                  type="email"
+                  name="email"
+                  fullWidth
+                  required
+                  margin="normal"
+                  onChange={handleChange}
+                  InputProps={{ sx: { backgroundColor: "white" } }}
+                />
+                <TextField
+                  label="Password"
+                  type="password"
+                  name="password"
+                  fullWidth
+                  required
+                  margin="normal"
+                  onChange={handleChange}
+                  InputProps={{ sx: { backgroundColor: "white" } }}
+                />
+              </Grid>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className="btn btn-dark w-100 mt-3"
-                disabled={loading}
-              >
-                {loading ? "Registering..." : "Register"}
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+              {/* Other Fields Section */}
+              <Grid item xs={12} md={7}>
+                <FormControl fullWidth margin="normal" sx={{ backgroundColor: "white" }}>
+                  <InputLabel>Gender</InputLabel>
+                  <Select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    required
+                  >
+                    <MenuItem value="male">Male</MenuItem>
+                    <MenuItem value="female">Female</MenuItem>
+                    <MenuItem value="other">Other</MenuItem>
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="Date of Birth"
+                  type="date"
+                  name="date_of_birth"
+                  fullWidth
+                  required
+                  margin="normal"
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{ sx: { backgroundColor: "white" } }}
+                />
+                <TextField
+                  label="Height (cm)"
+                  type="number"
+                  name="height"
+                  fullWidth
+                  required
+                  margin="normal"
+                  onChange={handleChange}
+                  InputProps={{ sx: { backgroundColor: "white" } }}
+                />
+                <TextField
+                  label="Weight (kg)"
+                  type="number"
+                  name="weight"
+                  fullWidth
+                  required
+                  margin="normal"
+                  onChange={handleChange}
+                  InputProps={{ sx: { backgroundColor: "white" } }}
+                />
+                {/* Already have acc */}
+                <Typography align="right" sx={{ mt: 1 }}>
+                  <Link to="/login" style={{ textDecoration: 'underline', color: '#577D86' }}>
+                    Already have an account?
+                  </Link>
+                </Typography>
+              </Grid>
+            </Grid>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{
+                mt: 3,
+                bgcolor: "#577D86",
+                color: "#fff",
+                "&:hover": { bgcolor: "#569DAA" },
+                borderRadius: "40px",
+              }}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Register"}
+            </Button>
+          </form>
+        </Paper>
+      </Container>
+      <ToastContainer />
+    </Box>
   );
 };
 
