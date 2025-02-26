@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container } from "react-bootstrap";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, EffectCoverflow } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/effect-coverflow";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { FaStar } from "react-icons/fa"; // Star icon for ratings
 
 const UserVideoList = () => {
   const [videos, setVideos] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedIndex, setSelectedIndex] = useState(0); // Track center video
+  const navigate = useNavigate(); // useNavigate hook for navigation
 
   useEffect(() => {
     fetchCategories();
-    fetchVideos();  // Fetch videos when the component loads
+    fetchVideos();
   }, [selectedCategory]);
 
   const fetchVideos = async () => {
@@ -39,17 +47,27 @@ const UserVideoList = () => {
   };
 
   const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value); // Update selected category
-    setLoading(true); // Set loading state to true while fetching
+    setSelectedCategory(e.target.value);
+    setLoading(true);
+  };
+
+  const handleVideoSelect = (videoId) => {
+    navigate(`/video/dance/${videoId}`);
+  };
+
+  const renderStars = (rating) => {
+    return [...Array(5)].map((_, index) => (
+      <FaStar key={index} color={index < rating ? "gold" : "gray"} />
+    ));
   };
 
   return (
-    <Container className="mt-4">
+    <Container className="mt-5 text-center with-padding-top">
       <ToastContainer />
-      <h2 className="mb-4">Select Your Video</h2>
+      <h2 className="mb-4 text-white">Select Your Dance</h2>
 
-      {/* Category Filter */}
-      <select className="form-select mb-4" value={selectedCategory} onChange={handleCategoryChange}>
+      {/* Category Dropdown */}
+      <select className="form-select mb-4 w-50 mx-auto" value={selectedCategory} onChange={handleCategoryChange}>
         <option value="">All Categories</option>
         {categories.map((category) => (
           <option key={category.id} value={category.id}>
@@ -58,33 +76,51 @@ const UserVideoList = () => {
         ))}
       </select>
 
-      {/* Video Grid Display */}
+      {/* Just Dance Style Carousel */}
       {loading ? (
-        <p>Loading videos...</p>
+        <p className="text-white">Loading videos...</p>
+      ) : videos.length === 0 ? (
+        <p className="text-white">No videos available for this category.</p>
       ) : (
-        <Row>
-          {videos.length === 0 ? (
-            <p>No videos available for this category.</p>
-          ) : (
-            videos.map((video) => (
-              <Col key={video.id} md={3} className="mb-4">
-                <div className="grid-item">
-                  <img
-                    src={video.thumbnail_url || "https://via.placeholder.com/300"}
-                    alt={video.title}
-                    className="img-fluid"
-                  />
-                  <div className="dance-list-overlay">
-                    <ul>
-                      {/* Replace with your video categories or tags */}
-                      <li>{categories.find((cat) => cat.id === video.category_id)?.name}</li>
-                    </ul>
+        <Swiper
+          modules={[Navigation, EffectCoverflow]}
+          effect="coverflow"
+          centeredSlides
+          slidesPerView={3}
+          spaceBetween={30}
+          navigation
+          coverflowEffect={{
+            rotate: 0,
+            stretch: 50,
+            depth: 150,
+            modifier: 1,
+            slideShadows: false,
+          }}
+          onSlideChange={(swiper) => setSelectedIndex(swiper.realIndex)}
+          className="just-dance-carousel"
+        >
+          {videos.map((video, index) => (
+            <SwiperSlide key={video.id}>
+              <div
+                className={`video-card ${index === selectedIndex ? "selected" : "blurred"}`}
+                onClick={() => handleVideoSelect(video.id)} // Navigate on select
+              >
+                <img
+                  src={video.thumbnail_url || "https://via.placeholder.com/300"}
+                  alt={video.title}
+                  className="video-thumbnail"
+                />
+                {index === selectedIndex && (
+                  <div className="video-title-overlay">
+                    <h3>{video.title}</h3>
+                    <p>{video.artist}</p>
+                    <div>{renderStars(video.rating)}</div>
                   </div>
-                </div>
-              </Col>
-            ))
-          )}
-        </Row>
+                )}
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       )}
     </Container>
   );

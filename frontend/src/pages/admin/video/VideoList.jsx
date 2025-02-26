@@ -90,9 +90,9 @@ const VideoList = () => {
     <Container className="mt-4">
       <ToastContainer />
       <h2 className="mb-4">Video List</h2>
-      <Button variant="primary" onClick={() => { setShowModal(true); setEditMode(false); }}>Add Video</Button>
+      <Button variant="primary" onClick={() => { setShowModal(true); setEditMode(false); }} className="add-video-btn">Add Video</Button>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal show={showModal} onHide={() => setShowModal(false)} className="modal-3d">
         <Modal.Header closeButton>
           <Modal.Title>{editMode ? "Edit Video" : "Upload Video"}</Modal.Title>
         </Modal.Header>
@@ -127,8 +127,8 @@ const VideoList = () => {
       {loading ? <Spinner animation="border" /> : (
         <div className="d-flex flex-wrap gap-4 mt-4">
           {videos.map(({ id, title, description, category_id, video_url, thumbnail_url }) => (
-            <Card key={id} sx={{ width: 300 }}>
-              <CardMedia component="img" height="150" image={thumbnail_url || "https://via.placeholder.com/150"} alt={title} onClick={() => setPlayingVideo(id === playingVideo ? null : id)} style={{ cursor: "pointer" }} />
+            <Card key={id} className="video-card-3d">
+              <CardMedia component="img" height="150" image={thumbnail_url || "https://via.placeholder.com/150"} alt={title} onClick={() => setPlayingVideo(id === playingVideo ? null : id)} className="card-img" />
               <CardContent>
                 <Typography variant="h6">{title}</Typography>
                 <Typography variant="body2" color="text.secondary">{description}</Typography>

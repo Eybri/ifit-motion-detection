@@ -18,6 +18,7 @@ import AdminLayout from './layouts/AdminLayout';
 import UserLayout from './layouts/UserLayout';
 import CategoryList from './pages/admin/category/CategoryList';
 import VideoList from './pages/admin/video/VideoList';
+import Dance from './pages/user/Dance';
 
 const App = () => {
   return (
@@ -34,6 +35,8 @@ const App = () => {
           <Route path="/video/list" element={<UserVideoList />} />
           <Route path="/password/forgot" element={<Forgot />} />
           <Route path="/reset-password/:token" element={<Reset />} />
+          <Route path="/video/dance/:videoId" element={<Dance />} />
+
         </Route>
 
         {/* Admin Layout */}

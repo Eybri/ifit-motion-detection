@@ -2,11 +2,11 @@ from datetime import datetime
 from bson.objectid import ObjectId
 import cloudinary 
 import cloudinary.uploader
-import os
 
 class Video:
     def __init__(self, db):
         self.collection = db["videos"]
+        self.motion_collection = db["motion_data"]
     
     def upload_video(self, category_id, title, video_file, description="", folder="fitness_videos"):
         """Upload video to a folder in Cloudinary and store it in the database."""
@@ -56,14 +56,21 @@ class Video:
         return result.modified_count
 
     def delete_video(self, video_id):
-        """Delete a video from the database and Cloudinary."""
+        """Delete a video and its related motion data from the database and Cloudinary."""
         video = self.find_video_by_id(video_id)
         if not video:
             return False
         
-        # Delete from Cloudinary
+        # Delete motion data related to this video (CASCADE DELETE)
+        self.motion_collection.delete_many({"video_id": ObjectId(video_id)})
+
+        # Delete video from Cloudinary
         cloudinary.uploader.destroy(video["cloudinary_public_id"], resource_type="video")
 
-        # Delete from MongoDB
+        # Delete video from MongoDB
         self.collection.delete_one({"_id": ObjectId(video_id)})
         return True
+    
+    
+    
+

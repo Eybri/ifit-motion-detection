@@ -79,6 +79,62 @@
   color: white !important;
 }
 
+
+body {
+  background-color: #0a0a0a;
+  color: white;
+}
+
+/* Just Dance-Style Carousel */
+.just-dance-carousel {
+  width: 90%;
+  margin: auto;
+  padding-top: 20px;
+}
+
+/* Video Card Styles */
+.video-card {
+  position: relative;
+  text-align: center;
+  transition: transform 0.4s ease-in-out, filter 0.4s ease-in-out;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+/* Centered (Selected) Video */
+.video-card.selected {
+  transform: scale(1.2);
+  filter: brightness(1);
+  border: 4px solid #00f;
+  box-shadow: 0px 0px 15px #00f;
+}
+
+/* Side Videos (Blurred Effect) */
+.video-card.blurred {
+  transform: scale(0.8);
+  filter: brightness(0.4);
+}
+
+/* Thumbnail Styles */
+.video-thumbnail {
+  width: 100%;
+  border-radius: 15px;
+}
+
+/* Glowing Title for Selected Video */
+.video-title-overlay {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  background: rgba(0, 0, 255, 0.6);
+  color: white;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 8px;
+  border-radius: 10px;
+}
+
 /* CUSTOM FORM SPACING */
 .custom-form{
   margin-top: 200px;
@@ -114,4 +170,172 @@ footer {
 }
 
 
+
+/* Style for the selected and blurred states of the video card */
+/* Add transition effects to the video card */
+.video-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.video-card.selected {
+  transform: scale(1.1); /* Enlarges the card when selected */
+  opacity: 1;
+}
+
+.video-card.blurred {
+  opacity: 0.5; /* Fades the card when not selected */
+}
+
+/* Add smooth transition on hover as well */
+.video-card:hover {
+  transform: scale(1.05); /* Slightly enlarge the card on hover */
+}
+
+.video-thumbnail {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.video-card:hover .video-thumbnail {
+  transform: scale(1.05); /* Slightly enlarge the thumbnail on hover */
+}
+
+.video-title-overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+}
+
+.video-title-overlay h3 {
+  margin: 0;
+}
+
+.video-title-overlay p {
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.profile-icon img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.player-name {
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.controls .btn {
+  padding: 10px 20px;
+  font-size: 16px;
+}
+/* Adding padding to the top of the container */
+.with-padding-top {
+  padding-top: 50px; /* Adjust this value as needed */
+}
+
+
+.dance-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  background-color: #121212;
+  color: white;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.dance-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.dance-video,
+.dance-camera {
+  width: 45%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 10px;
+  border: 3px solid #ff4081;
+  box-shadow: 0px 0px 10px rgba(255, 64, 129, 0.6);
+}
+
+.accuracy-score {
+  font-size: 1.5rem;
+  margin-top: 15px;
+  font-weight: bold;
+  color: #ff4081;
+}
+
+/* Card 3D effect */
+.video-card-3d {
+  width: 300px;
+  border-radius: 10px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.video-card-3d:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.card-img {
+  border-radius: 10px;
+}
+
+/* Button 3D effect */
+.add-video-btn, .btn-primary, .btn-warning, .btn-danger {
+  border-radius: 10px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.add-video-btn:hover, .btn-primary:hover, .btn-warning:hover, .btn-danger:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Modal 3D effect */
+.modal-3d .modal-content {
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
 

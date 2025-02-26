@@ -1,8 +1,8 @@
 import React from 'react';
 import './../../css/home.css';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
-
 
   return (
     <div>
@@ -16,7 +16,9 @@ const Home = () => {
       <section className="hero-section">
         <h1>The world's best dance classes</h1>
         <h2>Stream the best dance classes from the world's top studios. Try it free for 30 days. Terms Apply</h2>
-        <button className="btn btn-dark text-light">Get Started</button>
+        <Link to="/video/list" className="btn btn-dark text-light">
+          Get Started
+        </Link>
       </section>
 
       <div className="container mt-4 ">

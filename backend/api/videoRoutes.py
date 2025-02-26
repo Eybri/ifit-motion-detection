@@ -1,31 +1,54 @@
 from flask import Blueprint, request, jsonify
 from models.video import Video
+from models.motion import MotionData
 from services.db import get_db
+import tempfile
 from bson.objectid import ObjectId
+import numpy as np
+import cv2
+import mediapipe as mp
+import os
 
 video_routes = Blueprint("video_routes", __name__, url_prefix="/api/videos")
 db = get_db()
 video_model = Video(db)
+motion_model = MotionData(db)
+
+# MediaPipe Pose setup for real-time comparison
+mp_pose = mp.solutions.pose
+pose = mp_pose.Pose(static_image_mode=False, model_complexity=1, smooth_landmarks=True)
 
 @video_routes.route("/", methods=["POST"])
 def upload_video():
-    """Upload a new video for a category"""
+    """Upload a new video and extract motion data."""
     data = request.form
     category_id = data.get("category_id")
     title = data.get("title")
-    description = data.get("description", "")  # Optional description
-    video_file = request.files.get("video_file")  # Video file is required
+    description = data.get("description", "")
+    video_file = request.files.get("video_file")
 
-    # Ensure required fields are provided
     if not category_id or not title or not video_file:
         return jsonify({"error": "Category ID, title, and video file are required"}), 400
 
-    # Upload video and store it in the database (Cloudinary and MongoDB handled in the model)
     try:
-        video = video_model.upload_video(category_id, title, video_file, description)
-        return jsonify({"message": "Video uploaded successfully", "id": str(video.inserted_id)}), 201
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
+            video_file.save(temp_video.name)
+            temp_path = temp_video.name
+
+        # Upload and extract motion data
+        video = video_model.upload_video(category_id, title, temp_path, description)
+        video_id = str(video.inserted_id)
+        motion_model.extract_motion_data(temp_path, video_id)
+
+        os.remove(temp_path)  # Cleanup after processing
+
+        return jsonify({"message": "Video uploaded and motion data extracted", "id": video_id}), 201
     except Exception as e:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)  # Ensure cleanup on failure
         return jsonify({"error": str(e)}), 500
+
+
 
 @video_routes.route("/", methods=["GET"])
 def get_videos():
@@ -42,10 +65,11 @@ def get_videos():
             "thumbnail_url": video.get("thumbnail_url", ""),  # Include thumbnail URL
             "category_id": str(video["category_id"]), 
             "created_at": video["created_at"],
-            "updated_at": video["updated_at"]
+            "updated_at": video["updated_at"],
         }
         for video in videos
     ]), 200
+
 
 @video_routes.route("/<video_id>", methods=["GET"])
 def get_video_by_id(video_id):
@@ -53,6 +77,9 @@ def get_video_by_id(video_id):
     video = video_model.find_video_by_id(video_id)
     if not video:
         return jsonify({"error": "Video not found"}), 404
+    
+    motion_data = motion_model.get_motion_data(video_id)
+    motion_keypoints = motion_data["keypoints"] if motion_data else []
 
     return jsonify({
         "id": str(video["_id"]),
@@ -62,8 +89,10 @@ def get_video_by_id(video_id):
         "thumbnail_url": video.get("thumbnail_url", ""),  # Include thumbnail URL
         "category_id": str(video["category_id"]),
         "created_at": video["created_at"],
-        "updated_at": video["updated_at"]
+        "updated_at": video["updated_at"],
+        "motion_data": motion_keypoints, 
     }), 200
+
 
 @video_routes.route("/<video_id>", methods=["DELETE"])
 def delete_video(video_id):
@@ -73,6 +102,7 @@ def delete_video(video_id):
         return jsonify({"error": "Video not found"}), 404
 
     return jsonify({"message": "Video deleted successfully"}), 200
+
 
 @video_routes.route("/<video_id>", methods=["PUT"])
 def update_video(video_id):
@@ -91,25 +121,30 @@ def update_video(video_id):
         "category_id": ObjectId(data["category_id"]),
     }
 
-    # If a new video file is uploaded, upload it to Cloudinary and generate a thumbnail
+    # If a new video file is provided, update it
     if video_file:
-        try:
-            upload_result = cloudinary.uploader.upload(
-                video_file,
-                resource_type="video",
-                folder="fitness_videos",
-                eager=[{"width": 150, "height": 150, "crop": "fill", "format": "jpg"}]  # Generate thumbnail
-            )
-            updated_data["video_url"] = upload_result["secure_url"]
-            updated_data["cloudinary_public_id"] = upload_result["public_id"]
-            updated_data["thumbnail_url"] = upload_result["eager"][0]["secure_url"]  # Use thumbnail URL
-        except Exception as e:
-            return jsonify({"error": f"Video file upload failed: {str(e)}"}), 500
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
+            video_file.save(temp_video.name)
+            temp_path = temp_video.name
+            video_model.upload_video(data["category_id"], data["title"], temp_path, data.get("description", ""))
 
-    # Update the video data in the database
-    modified_count = video_model.update_video(video_id, updated_data)
-
-    if modified_count == 0:
-        return jsonify({"message": "No changes made to the video"}), 200
+    # Update video metadata
+    video_model.update_video(video_id, updated_data)
 
     return jsonify({"message": "Video updated successfully"}), 200
+
+
+@video_routes.route("/<video_id>/motion", methods=["GET"])
+def get_motion_data(video_id):
+    """Get motion data for a specific video."""
+    try:
+        motion_data = motion_model.get_motion_data(video_id)
+        if not motion_data:
+            return jsonify({"error": "No motion data found for this video"}), 404
+
+        return jsonify({
+            "fps": motion_data["fps"],
+            "keypoints": motion_data["keypoints"],
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

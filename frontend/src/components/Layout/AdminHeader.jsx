@@ -73,11 +73,11 @@ const AdminHeader = () => {
               </ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItem>
-            <ListItem button component={Link} to="admin/users/list">
+            <ListItem button component={Link} to="admin/category/list">
               <ListItemIcon>
                 <GroupIcon />
               </ListItemIcon>
-              <ListItemText primary="Users" />
+              <ListItemText primary="Category" />
             </ListItem>
             <ListItem button component={Link} to="admin/video/list">
               <ListItemIcon>
