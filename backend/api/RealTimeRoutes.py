@@ -1,5 +1,6 @@
 from flask_socketio import SocketIO, emit
 import numpy as np
+from flask import Blueprint
 from bson.objectid import ObjectId
 from models.motion import MotionData
 from models.RealTimeScore import RealTimeScore
