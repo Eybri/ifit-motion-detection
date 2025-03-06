@@ -22,7 +22,21 @@ def register():
     image_url = upload(file, folder="profile").get("secure_url") if file else ""
 
     user_model.create_user({**data, "image": image_url})
-    return jsonify({"message": "User registered successfully"}), 201
+
+    message = Message(
+        "Welcome to Ifit!",
+        sender="your-email@example.com",  
+        recipients=[data["email"]]
+    )
+    message.body = f"Hello {data['name']},\n\nThank you for registering on our platform! We're excited to have you.\n\nBest regards,\nIfit Team"
+
+    try:
+        mail.send(message)
+    except Exception as e:
+        return jsonify({"error": "Error sending email", "message": str(e)}), 500
+
+    return jsonify({"message": "User registered successfully, confirmation email sent"}), 201
+
 
 @routes.route("/login", methods=["POST"])
 def login():
@@ -46,6 +60,17 @@ def login():
 @require_auth
 def logout(user_id):
     return jsonify({"message": "Logged out successfully"}), 200
+
+@routes.route("/users", methods=["GET"])
+@require_auth
+def get_all_users(user_id):
+    """Fetches all users. Requires authentication."""
+    users = list(user_model.collection.find({}))  
+    for user in users:
+        user["_id"] = str(user["_id"])  
+        user.pop("password", None) 
+    return jsonify({"users": users}), 200
+
 
 @routes.route("/forgot-password", methods=["POST"])
 def forgot_password():

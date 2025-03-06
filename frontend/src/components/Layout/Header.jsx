@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getToken, clearAuth, isAuthenticated } from "../../utils/auth";
+import { jwtDecode } from "jwt-decode";
 import Loader from "../../components/Layout/Loader";
 import "../../App.css";
 import styled, { createGlobalStyle } from "styled-components";
@@ -16,7 +17,7 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const Header = () => {
-  const [user,] = useState(() => {
+  const [user, setUser] = useState(() => {
     try {
       const storedUser = localStorage.getItem("user");
       return storedUser ? JSON.parse(storedUser) : null;
@@ -38,6 +39,32 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Auto logout when token expires
+  useEffect(() => {
+    const checkTokenExpiration = () => {
+      const token = getToken();
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          const currentTime = Date.now() / 1000; // Convert milliseconds to seconds
+          if (decoded.exp < currentTime) {
+            clearAuth();
+            navigate("/login");
+          }
+        } catch (error) {
+          console.error("Error decoding token:", error);
+          clearAuth();
+          navigate("/login");
+        }
+      }
+    };
+
+    checkTokenExpiration();
+    const interval = setInterval(checkTokenExpiration, 60000); // Check every 60 seconds
+
+    return () => clearInterval(interval);
+  }, [navigate]);
 
   const handleLogout = async () => {
     try {
@@ -68,7 +95,7 @@ const Header = () => {
       <NavContainer className={`navbar navbar-expand-lg fixed-top ${isScrolled ? "scrolled" : ""}`}>
         <div className="container">
           <Link to="/" className="navbar-brand">
-            <img src={isAdminRoute ? "/images/admin.png" : "/images/2.png"} alt="iFit Logo" className="logo" width="100" />
+            <Logo>I-FIT</Logo>
           </Link>
 
           {/* Navbar Toggler for Mobile */}
@@ -88,7 +115,10 @@ const Header = () => {
                     <Link className="nav-link" to="/upload/video">Video Compare</Link>
                   </NavItem>
                   <NavItem>
-                    <Link className="nav-link" to="/review">Review</Link>
+                    <Link className="nav-link" to="/leader-boards">Leader Boards</Link>
+                  </NavItem>
+                  <NavItem>
+                    <Link className="nav-link" to="/aboutus">About Us</Link>
                   </NavItem>
                 </>
               )}
@@ -137,22 +167,28 @@ export default Header;
 
 // Styled Components
 const NavContainer = styled.nav`
-  background-color: #F7F7F7;
+  background-color: #000;
   opacity: 0.9;
   transition: all 0.3s ease-in-out;
   border-bottom: solid 1px rgba(0, 0, 0, 0.1);
   font-family: "Montserrat", sans-serif;
 `;
 
+const Logo = styled.div`
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+`;
+
 const NavItem = styled.li`
   .nav-link {
     font-weight: 700;
-    color: #577D86;
+    color: #fff;
     text-transform: uppercase;
     transition: color 0.3s ease;
 
     &:hover {
-      color: white;
+      color: orange;
     }
   }
 `;
@@ -198,4 +234,3 @@ const LoginButton = styled(Link)`
     color: white;
   }
 `;
-

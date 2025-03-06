@@ -1,0 +1,148 @@
+/* Container for sidebar and header */
+.container {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: row; /* Arrange sidebar and main content side by side */
+}
+
+/* Sidebar */
+.sidebar {
+  height: 100%;
+  width: 250px; /* Fixed width for sidebar */
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #333;
+  color: #fff;
+  padding: 20px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.sidebarContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.logo h1 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Navbar */
+.navbar ul {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 30px; /* Adjust the space from the logo */
+}
+
+.navbar ul li {
+  margin: 20px 0;
+  padding-left: 10px; /* Add slight padding to align better */
+}
+
+.navbar ul li a {
+  color: #fff; /* White text */
+  font-size: 1.1rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 8px 0; /* Adjust padding for space */
+  border-radius: 4px; /* Rounded corners for hover effect */
+  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.navbar ul li a:hover {
+  background-color: rgba(255, 99, 71, 0.2); /* Subtle background color on hover */
+  color: #ff6347; /* Orange color on hover */
+  transform: scale(1.05); /* Slight zoom effect */
+}
+
+.navbar ul li a svg {
+  margin-right: 10px; /* Add space between icon and text */
+  font-size: 1.3rem; /* Slightly larger icons */
+}
+
+.navbar ul li a.active {
+  background-color: #ff6347; /* Highlight active link with a solid color */
+  color: white; /* White text for active link */
+}
+
+.navbar ul li a.active svg {
+  color: white; /* Ensure icon is white for active link */
+}
+
+/* Floating Header */
+.floatingHeader {
+  position: fixed;
+  top: 0;
+  left: 250px; 
+  width: calc(100% - 250px); 
+  background: #333;
+  color: #fff;
+  padding: 8px 20px; 
+  border-radius: 15px; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  display: flex;
+  justify-content: space-between; /* Space out header elements */
+  align-items: center;
+}
+
+.floatingHeader .headerContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.floatingHeader .headerContent h2 {
+  font-size: 1.4rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.floatingHeader .headerContent p {
+  font-size: 1rem;
+  margin: 5px 0 0 0;
+}
+
+/* Profile Dropdown in Header */
+.profileDropdown {
+  position: relative;
+}
+
+/* Main Content */
+.mainContent {
+  margin-left: 25px; /* Adjust content to account for sidebar width */
+  margin-top: 80px;
+  padding: 20px;
+  flex-grow: 1;
+  transition: margin-left 0.3s ease; /* Smooth transition for responsive changes */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .floatingHeader {
+    left: 200px;
+    width: calc(100% - 200px);
+  }
+
+  .mainContent {
+    margin-left: 150px;
+  }
+
+  /* Adjust font size and layout for smaller screens */
+  .navbar ul li a {
+    font-size: 1rem;
+    padding: 6px 0;
+  }
+}

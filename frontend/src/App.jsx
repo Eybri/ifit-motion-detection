@@ -9,7 +9,7 @@ import Register from './pages/validation/Register';
 import Forgot from './pages/validation/ForgotPassword';
 import Reset from './pages/validation/ResetPassword';
 import Login from './pages/validation/Login';
-import Home from './pages/user/Home';
+import Home from './pages/user/landing/Home';
 import UserProfile from './pages/user/UserProfile';
 import UserVideoList from './pages/user/UserVideoList';
 import Dashboard from './pages/admin/Dashboard';
@@ -17,8 +17,12 @@ import ProtectedRoute from './components/Route/ProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
 import UserLayout from './layouts/UserLayout';
 import CategoryList from './pages/admin/category/CategoryList';
+import UserList from './pages/admin/UserList';
+
 import VideoList from './pages/admin/video/VideoList';
 import Dance from './pages/user/Dance';
+import AboutUs from './pages/user/AboutUs';
+import LeaderBoards from './pages/user/LeaderBoards';
 
 const App = () => {
   return (
@@ -36,6 +40,8 @@ const App = () => {
           <Route path="/password/forgot" element={<Forgot />} />
           <Route path="/reset-password/:token" element={<Reset />} />
           <Route path="/video/dance/:videoId" element={<Dance />} />
+          <Route path="/aboutus" element={<AboutUs />} />
+          <Route path="/leader-boards" element={<LeaderBoards />} />
 
         </Route>
 
@@ -46,6 +52,14 @@ const App = () => {
             element={
               <ProtectedRoute isAdmin={true}>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/user/list"
+            element={
+              <ProtectedRoute isAdmin={true}>
+                <UserList />
               </ProtectedRoute>
             }
           />

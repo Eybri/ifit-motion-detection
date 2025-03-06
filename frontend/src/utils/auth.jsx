@@ -1,43 +1,53 @@
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 // Store the token in localStorage
 export const setToken = (token) => {
   localStorage.setItem("token", token);
 };
 
-// Retrieve the token from localStorage
+// Retrieve the token from localStorage and check expiration
 export const getToken = () => {
-  return localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode(token);
+    const currentTime = Date.now() / 1000; // Convert to seconds
+    if (decoded.exp < currentTime) {
+      clearAuth();
+      return null;
+    }
+    return token;
+  } catch (error) {
+    console.error("Invalid token:", error);
+    clearAuth();
+    return null;
+  }
 };
 
 // Remove the token and user data from localStorage
 export const clearAuth = () => {
   localStorage.removeItem("token");
+  localStorage.removeItem("user");
 };
 
 // Check if the user is authenticated
 export const isAuthenticated = () => {
   const token = getToken();
-  return !!token; // Returns true if token exists
+  if (!token) return false;
+
+  try {
+    const decoded = jwtDecode(token);
+    const currentTime = Date.now() / 1000; // Convert milliseconds to seconds
+    if (decoded.exp < currentTime) {
+      clearAuth();
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("Invalid token:", error);
+    clearAuth();
+    return false;
+  }
 };
 
-// Retrieve the current user ID from the token
-export const getUserId = () => {
-    const token = getToken();
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        return decoded.user_id || null; // Use the key from your token payload
-      } catch (error) {
-        console.error("Error decoding token:", error);
-        // Fall back to the user object in localStorage
-        const user = JSON.parse(localStorage.getItem('user'));
-        return user?.id || null;
-      }
-    }
-    return null;
-  };
-  
-  
-  
-  

@@ -4,15 +4,14 @@ import mediapipe as mp
 import cv2
 import numpy as np
 
-
 class MotionData:
     def __init__(self, db):
         self.collection = db["motion_data"]
-        self.pose = mp.solutions.pose.Pose(model_complexity=1)  # Use BlazePose (more accurate for dance)
+        self.pose = mp.solutions.pose.Pose(model_complexity=1)  # Use BlazePose
 
-        # Important keypoints for dance motion tracking
+        # Store only essential keypoints
         self.important_joints = {
-            0: "nose", 11: "left_shoulder", 12: "right_shoulder",
+            11: "left_shoulder", 12: "right_shoulder",
             13: "left_elbow", 14: "right_elbow",
             15: "left_wrist", 16: "right_wrist",
             23: "left_hip", 24: "right_hip",
@@ -20,22 +19,8 @@ class MotionData:
             27: "left_ankle", 28: "right_ankle"
         }
 
-    def get_realtime_keypoints(self, frame):
-        """Detect keypoints from a live camera feed."""
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = self.pose.process(rgb_frame)
-
-        keypoints = {}
-        if results.pose_landmarks:
-            for idx, landmark in enumerate(results.pose_landmarks.landmark):
-                if idx in self.important_joints:
-                    keypoints[self.important_joints[idx]] = [
-                        round(landmark.x, 3), round(landmark.y, 3), round(landmark.z, 3)
-                    ]
-        return keypoints
-    
-    def extract_motion_data(self, video_path, video_id, fps=30, frame_skip=3):
-        """Extracts keypoints from a video and saves optimized motion data to MongoDB."""
+    def extract_motion_data(self, video_path, video_id, fps=30, frame_skip=6):
+        """Extract keypoints from video and store optimized motion data."""
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             raise Exception("Error opening video file")
@@ -43,7 +28,7 @@ class MotionData:
         motion_data = {
             "video_id": ObjectId(video_id),
             "fps": fps,
-            "keypoints": [],
+            "frames": [],
             "created_at": datetime.utcnow()
         }
 
@@ -51,38 +36,36 @@ class MotionData:
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
-                break  # End of video
+                break
 
-            # Skip frames to optimize storage and processing
             if frame_number % frame_skip != 0:
                 frame_number += 1
                 continue
 
-            # Convert frame to RGB for MediaPipe processing
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             results = self.pose.process(rgb_frame)
 
             if results.pose_landmarks:
-                keypoints = {}
+                keypoints = []
                 for idx, landmark in enumerate(results.pose_landmarks.landmark):
                     if idx in self.important_joints:
-                        keypoints[self.important_joints[idx]] = [
-                            round(landmark.x, 3), round(landmark.y, 3), round(landmark.z, 3)
-                        ]  # Store 3D keypoints with 3 decimal places
+                        keypoints.append({
+                            "joint": self.important_joints[idx],
+                            "x": round(landmark.x, 3),
+                            "y": round(landmark.y, 3),
+                            "score": round(landmark.visibility, 3)
+                        })
 
-                motion_data["keypoints"].append({
-                    "frame": frame_number,
-                    "joints": keypoints
+                motion_data["frames"].append({
+                    "frame_no": frame_number,
+                    "keypoints": keypoints
                 })
 
             frame_number += 1
 
         cap.release()
         return self.collection.insert_one(motion_data)
-    
+
     def get_motion_data(self, video_id):
-        """Retrieve motion data for a given video."""
-        return self.collection.find_one({"video_id": ObjectId(video_id)})
-    
-    
-    
+        """Retrieve motion data for accuracy comparison."""
+        return self.collection.find_one({"video_id": ObjectId(video_id)}, {"_id": 0})

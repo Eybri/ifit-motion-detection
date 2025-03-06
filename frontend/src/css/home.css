@@ -134,4 +134,187 @@ body {
   .hero-section h2 {
     animation: fadeIn 1s ease-in-out;
   }
+
   
+  body {
+    font-family: "Be Vietnam Pro", "Noto Sans", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #181115;
+    color: white;
+    scroll-behavior: smooth;
+  }
+/* Fade-in and smooth transition for page load */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero Section */
+.hero-section {
+  background: url("https://cdn.usegalileo.ai/sdxl10/24db16d8-9f94-4554-81cd-c23eb95b405f.png") no-repeat center center/cover;
+  color: white;
+  padding: 80px 40px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  background-attachment: fixed;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 1s ease-in-out, transform 1.5s ease-in-out;
+}
+
+.hero-section.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.hero-section h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 20px;
+}
+
+.hero-section h2 {
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-bottom: 30px;
+}
+
+/* How It Works Section */
+/* How It Works Section */
+.how-it-works {
+  padding: 40px;
+  background-color: #222;
+  text-align: center;
+}
+
+.how-it-works h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.steps {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.step {
+  flex: 1 1 200px;
+  padding: 20px;
+  margin: 10px;
+  background-color: #333;
+  border-radius: 8px;
+  border: 2px solid #577D86; /* Added border with the specified color */
+}
+
+.step h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.step p {
+  font-size: 1rem;
+}
+
+
+/* Carousel Styles */
+.carousel-container {
+  width: 90%;
+  margin: 3rem auto;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease-in-out, transform 1.5s ease-in-out;
+}
+
+.carousel-container.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.carousel-slide {
+  padding: 10px;
+  transition: transform 0.5s ease-in-out;
+  opacity: 0.7;
+}
+
+.carousel-img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease-in-out, opacity 1s ease-in-out;
+}
+
+.carousel-img:hover {
+  transform: scale(1.2);
+  opacity: 1;
+}
+
+.slick-center .carousel-img {
+  transform: scale(1);
+}
+
+.slick-prev, .slick-next {
+  display: none !important;
+}
+
+/* CTA Section */
+.cta {
+  text-align: center;
+  padding: 40px;
+  background-color: #111;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease-in-out, transform 1.5s ease-in-out;
+}
+
+.cta.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cta h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.cta .btn {
+  background-color: #577D86;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1.25rem;
+  transition: background-color 0.3s;
+}
+
+.cta .btn:hover {
+  background-color: #ff4500;
+}
+
+  
+  /* Button Styling */
+  /* .btn {
+    text-decoration: none;
+    padding: 10px 20px;
+    background-color: #e619a2;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    transition: background 0.3s ease-in-out;
+  } */
+  
+  /* .btn:hover {
+    background: #ff3cbe;
+  }
+   */

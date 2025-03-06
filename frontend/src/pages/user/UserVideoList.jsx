@@ -64,10 +64,10 @@ const UserVideoList = () => {
   return (
     <Container className="mt-5 text-center with-padding-top">
       <ToastContainer />
-      <h2 className="mb-4 text-white">Select Your Dance</h2>
+      <h2 className="mb-4 text-white title-center">Select Your Dance</h2>
 
       {/* Category Dropdown */}
-      <select className="form-select mb-4 w-50 mx-auto" value={selectedCategory} onChange={handleCategoryChange}>
+      <select className="form-select mb-4 w-50 mx-auto category-dropdown" value={selectedCategory} onChange={handleCategoryChange}>
         <option value="">All Categories</option>
         {categories.map((category) => (
           <option key={category.id} value={category.id}>

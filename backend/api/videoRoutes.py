@@ -77,21 +77,30 @@ def get_video_by_id(video_id):
     video = video_model.find_video_by_id(video_id)
     if not video:
         return jsonify({"error": "Video not found"}), 404
-    
+
     motion_data = motion_model.get_motion_data(video_id)
-    motion_keypoints = motion_data["keypoints"] if motion_data else []
+    
+    # Ensure motion_data exists before accessing frames
+    if motion_data and "frames" in motion_data:
+        motion_keypoints = [frame["keypoints"] for frame in motion_data["frames"]]
+    else:
+        motion_keypoints = []
 
     return jsonify({
         "id": str(video["_id"]),
         "title": video["title"],
         "description": video["description"],
-        "video_url": video["video_url"],
-        "thumbnail_url": video.get("thumbnail_url", ""),  # Include thumbnail URL
+        "video_url": video.get("video_url", ""),
+        "thumbnail_url": video.get("thumbnail_url", ""),
         "category_id": str(video["category_id"]),
         "created_at": video["created_at"],
         "updated_at": video["updated_at"],
-        "motion_data": motion_keypoints, 
+        "motion_data": {
+            "fps": motion_data["fps"],
+            "frames": motion_keypoints
+        } if motion_data else None
     }), 200
+
 
 
 @video_routes.route("/<video_id>", methods=["DELETE"])
@@ -133,18 +142,3 @@ def update_video(video_id):
 
     return jsonify({"message": "Video updated successfully"}), 200
 
-
-@video_routes.route("/<video_id>/motion", methods=["GET"])
-def get_motion_data(video_id):
-    """Get motion data for a specific video."""
-    try:
-        motion_data = motion_model.get_motion_data(video_id)
-        if not motion_data:
-            return jsonify({"error": "No motion data found for this video"}), 404
-
-        return jsonify({
-            "fps": motion_data["fps"],
-            "keypoints": motion_data["keypoints"],
-        }), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
