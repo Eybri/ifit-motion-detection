@@ -20,7 +20,7 @@ class MotionData:
         }
 
     def extract_motion_data(self, video_path, video_id, fps=30, frame_skip=6):
-        """Extract keypoints from video and store optimized motion data."""
+        """Extract keypoints from video and store in MongoDB."""
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             raise Exception("Error opening video file")
@@ -46,15 +46,15 @@ class MotionData:
             results = self.pose.process(rgb_frame)
 
             if results.pose_landmarks:
-                keypoints = []
-                for idx, landmark in enumerate(results.pose_landmarks.landmark):
-                    if idx in self.important_joints:
-                        keypoints.append({
-                            "joint": self.important_joints[idx],
-                            "x": round(landmark.x, 3),
-                            "y": round(landmark.y, 3),
-                            "score": round(landmark.visibility, 3)
-                        })
+                keypoints = {
+                    f"keypoint_{idx}": {
+                        "x": round(landmark.x, 3),
+                        "y": round(landmark.y, 3),
+                        "z": round(landmark.z, 3),
+                        "score": round(landmark.visibility, 3)
+                    }
+                    for idx, landmark in enumerate(results.pose_landmarks.landmark)
+                }
 
                 motion_data["frames"].append({
                     "frame_no": frame_number,

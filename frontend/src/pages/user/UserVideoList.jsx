@@ -51,8 +51,14 @@ const UserVideoList = () => {
     setLoading(true);
   };
 
-  const handleVideoSelect = (videoId) => {
-    navigate(`/video/dance/${videoId}`);
+  const handleVideoSelect = async (videoId) => {
+    try {
+      // Navigate to the video detail page
+      navigate(`/video/dance/${videoId}`);
+    } catch (error) {
+      console.error("Failed to fetch video details", error);
+      toast.error("Failed to fetch video details.");
+    }
   };
 
   const renderStars = (rating) => {
