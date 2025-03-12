@@ -39,44 +39,6 @@ function VideoDetailPage() {
     }
   };
 
-  // Refined styles for a more classy look
-  const cardStyles = {
-    maxWidth: "600px", // Adjusted card size for a more refined look
-    margin: "40px auto", // Center card with spacing
-    backgroundColor: "#ffffff", // Clean white background
-    border: "none", // Removed border for a sleek look
-    borderRadius: "12px", // More rounded corners
-    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)", // Softer, more elegant shadow
-    overflow: "hidden", // Ensures no content overflows card
-  };
-
-  const cardTitleStyles = {
-    fontSize: "1.75rem", // Slightly larger title for emphasis
-    fontWeight: "600", // Bolder font weight
-    color: "#333", // Darker title color
-    marginBottom: "15px", // Space between title and content
-  };
-
-  const cardTextStyles = {
-    fontSize: "1rem",
-    color: "#666", // Softer text color for description
-    marginBottom: "20px", // Space at the bottom
-  };
-
-  const buttonStyles = {
-    backgroundColor: "#007bff", // Classy blue for the button
-    borderColor: "#007bff", // Consistent border color
-    padding: "12px 30px", // Slightly larger padding for a premium feel
-    fontSize: "1.15rem", // Slightly larger font for the button
-    borderRadius: "25px", // Rounded corners for the button
-    transition: "all 0.3s ease", // Smooth transition for hover effect
-  };
-
-  const buttonHoverStyles = {
-    backgroundColor: "#0056b3", // Darker shade on hover for elegance
-    borderColor: "#0056b3", // Matching border on hover
-  };
-
   return (
     <Container className="text-center" style={{ marginTop: '90px' }}>
       <ToastContainer />

@@ -20,7 +20,7 @@ import CategoryList from './pages/admin/category/CategoryList';
 import UserList from './pages/admin/UserList';
 
 import VideoList from './pages/admin/video/VideoList';
-import VideoDetailPage from './pages/user/VideoDetailPage';
+import PoseComparison from './pages/user/PoseComparison';
 import AboutUs from './pages/user/AboutUs';
 import LeaderBoards from './pages/user/LeaderBoards';
 
@@ -39,7 +39,7 @@ const App = () => {
           <Route path="/video/list" element={<UserVideoList />} />
           <Route path="/password/forgot" element={<Forgot />} />
           <Route path="/reset-password/:token" element={<Reset />} />
-          <Route path="/video/dance/:videoId" element={<VideoDetailPage />} />
+          <Route path="/compare/:videoId" element={<PoseComparison />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/leader-boards" element={<LeaderBoards />} />
 

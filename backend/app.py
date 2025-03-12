@@ -1,53 +1,42 @@
-import json
 import threading
 import numpy as np
 import cv2
+import base64
+import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit
 import mediapipe as mp
 from services.db import get_db
-from bson.objectid import ObjectId
-from models.motion import MotionData
 from models.video import Video
+from models.result import Result
+from models.user import User
 from config import Config
-from api.routes import *
-from api.categoryRoutes import *
+from api.routes import routes
+from api.categoryRoutes import category_routes
 from api.videoRoutes import video_routes
-# from api.motionRoutes import motion_routes
-# from api.RealTimeRoutes import session_routes
 from services.mail_config import configure_mail
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-# Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(Config)
-
-# Configure Mailtrap
 configure_mail(app)
-
-# Enable CORS
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Database instance
 db = get_db()
 app.config["VIDEO_INSTANCE"] = Video(db)
 
-# Initialize Pose Estimation using MediaPipe
 mp_pose = mp.solutions.pose
-mp_drawing = mp.solutions.drawing_utils
 pose = mp_pose.Pose()
 
-comparison_running = False  # Track comparison status
-
-# Setup models
+comparison_running = False
 video_model = Video(db)
-motion_model = MotionData(db)
+user_model = User(db)
 
-# ✅ Function to extract keypoints from video frames
-def extract_keypoints_from_video(video_url):
+def extract_keypoints(video_url):
     cap = cv2.VideoCapture(video_url)
     keypoints_list = []
 
@@ -60,83 +49,100 @@ def extract_keypoints_from_video(video_url):
         results = pose.process(frame_rgb)
 
         if results.pose_landmarks:
-            keypoints = {
-                f"keypoint_{i}": {
-                    "x": lm.x,
-                    "y": lm.y,
-                    "z": lm.z
-                } for i, lm in enumerate(results.pose_landmarks.landmark)
-            }
+            keypoints = {f"keypoint_{i}": {"x": lm.x, "y": lm.y, "z": lm.z} for i, lm in enumerate(results.pose_landmarks.landmark)}
             keypoints_list.append({"keypoints": keypoints})
 
     cap.release()
     return keypoints_list
 
-# ✅ Function to draw stickman visualization using keypoint names
-def draw_stickman(frame, pose_landmarks, color):
+def draw_stickman(frame, landmarks, color):
     for connection in mp_pose.POSE_CONNECTIONS:
         part1_idx, part2_idx = connection
+        keypoint1 = landmarks.get(f"keypoint_{part1_idx}")
+        keypoint2 = landmarks.get(f"keypoint_{part2_idx}")
 
-        # Convert indices to keypoint names based on the number of keypoints
-        keypoint_name1 = f"keypoint_{part1_idx}"
-        keypoint_name2 = f"keypoint_{part2_idx}"
-
-        # Ensure both keypoints exist in the pose_landmarks
-        if keypoint_name1 in pose_landmarks and keypoint_name2 in pose_landmarks:
-            part1 = pose_landmarks[keypoint_name1]
-            part2 = pose_landmarks[keypoint_name2]
-
-            # Get the coordinates of the two connected parts
-            x1, y1 = int(part1['x'] * frame.shape[1]), int(part1['y'] * frame.shape[0])
-            x2, y2 = int(part2['x'] * frame.shape[1]), int(part2['y'] * frame.shape[0])
-
-            # Draw the connection and the two parts (keypoints)
+        if keypoint1 and keypoint2:
+            x1, y1 = int(keypoint1['x'] * frame.shape[1]), int(keypoint1['y'] * frame.shape[0])
+            x2, y2 = int(keypoint2['x'] * frame.shape[1]), int(keypoint2['y'] * frame.shape[0])
             cv2.line(frame, (x1, y1), (x2, y2), color, 3)
             cv2.circle(frame, (x1, y1), 5, color, -1)
             cv2.circle(frame, (x2, y2), 5, color, -1)
 
-# ✅ Function to calculate pose similarity
-def calculate_similarity(reference_pose, live_pose):
-    if len(reference_pose) != len(live_pose):
+def calculate_similarity(ref_pose, live_pose):
+    if len(ref_pose) != len(live_pose):
         return 0
 
     total_score = 0
-    num_keypoints = len(reference_pose)
+    num_keypoints = len(ref_pose)
 
     for i in range(num_keypoints):
-        ref_keypoint_name = f"keypoint_{i}"
-        live_keypoint_name = f"keypoint_{i}"
+        ref_key = f"keypoint_{i}"
+        live_key = f"keypoint_{i}"
 
-        # Make sure the keypoint exists in both reference and live pose
-        if ref_keypoint_name in reference_pose and live_keypoint_name in live_pose:
-            ref_coords = np.array([reference_pose[ref_keypoint_name]['x'], reference_pose[ref_keypoint_name]['y']])
-            live_coords = np.array([live_pose[live_keypoint_name]['x'], live_pose[live_keypoint_name]['y']])
+        if ref_key in ref_pose and live_key in live_pose:
+            ref_coords = np.array([ref_pose[ref_key]['x'], ref_pose[ref_key]['y']])
+            live_coords = np.array([live_pose[live_key]['x'], live_pose[live_key]['y']])
             distance = np.linalg.norm(ref_coords - live_coords)
-
-            score = max(0, 1 - distance)
-            total_score += score
+            total_score += max(0, 1 - distance)
 
     return (total_score / num_keypoints) * 100  
 
-# ✅ Function to compare live pose with reference pose from video
-def compare_live_pose(video_id):
+def get_feedback(score):
+    if score >= 90:
+        return "PERFECT!", (0, 255, 0)
+    elif score >= 75:
+        return "GREAT!", (0, 200, 255)
+    elif score >= 50:
+        return "GOOD!", (0, 165, 255)
+    else:
+        return "KEEP TRYING!", (0, 0, 255)
+
+def calculate_metrics(weight_kg, duration_minutes, steps_taken, accuracy_score, active_frames, total_frames):
+    # Calculate activity level: percentage of frames where the user was active
+    activity_level = active_frames / total_frames if total_frames > 0 else 0
+
+    # Adjust MET value based on activity level
+    # MET = 1.0 for no activity (resting), 5.0 for full activity
+    met_value = 1.0 + (4.0 * activity_level)  # Scales from 1.0 to 5.0 based on activity
+
+    # Calculate calories burned based on adjusted MET value
+    calories_burned = (met_value * weight_kg * duration_minutes) / 60
+
+    # Calculate other metrics
+    steps_per_minute = steps_taken / duration_minutes if duration_minutes > 0 else 0
+    energy_expenditure = calories_burned * 4184  # Convert calories to joules
+    movement_efficiency = (accuracy_score / 100) * steps_taken
+    performance_score = (accuracy_score + movement_efficiency) / 2
+
+    return calories_burned, steps_per_minute, energy_expenditure, movement_efficiency, performance_score
+
+def compare_live_pose(video_id, user_id):
     global comparison_running
     comparison_running = True
 
     video = video_model.find_video_by_id(video_id)
-    if not video:
-        return jsonify({"error": "Video not found"}), 404
+    user = user_model.find_user_by_id(user_id)
+    if not video or not user:
+        socketio.emit('comparison_error', {'message': 'Video or User not found'})
+        comparison_running = False
+        return
 
-    reference_poses = extract_keypoints_from_video(video["video_url"])
+    reference_poses = extract_keypoints(video["video_url"])
     if not reference_poses:
-        return jsonify({"error": "No keypoints extracted from video"}), 404
+        socketio.emit('comparison_error', {'message': 'No keypoints extracted from video'})
+        comparison_running = False
+        return
 
+    weight_kg = float(user["weight"])
     cap_webcam = cv2.VideoCapture(0)
     cap_video = cv2.VideoCapture(video["video_url"])
 
     frame_index = 0
     total_score = 0
-    frame_count = 0
+    total_frames = 0  # Track all frames
+    active_frames = 0  # Track frames where the user is actively detected
+    start_time = time.time()
+    steps_taken = 0
 
     while cap_webcam.isOpened() and cap_video.isOpened():
         ret_webcam, frame_webcam = cap_webcam.read()
@@ -151,34 +157,35 @@ def compare_live_pose(video_id):
         frame_rgb = cv2.cvtColor(frame_webcam, cv2.COLOR_BGR2RGB)
         results = pose.process(frame_rgb)
 
+        total_frames += 1  # Count all frames
+
         if results.pose_landmarks:
-            live_keypoints = {
-                f"keypoint_{i}": {
-                    "x": lm.x,
-                    "y": lm.y,
-                    "z": lm.z
-                } for i, lm in enumerate(results.pose_landmarks.landmark)
-            }
+            active_frames += 1  # Count frames where the user is actively detected
+            live_keypoints = {f"keypoint_{i}": {"x": lm.x, "y": lm.y, "z": lm.z} for i, lm in enumerate(results.pose_landmarks.landmark)}
 
             if frame_index < len(reference_poses):
                 reference_pose = reference_poses[frame_index]["keypoints"]
                 frame_score = calculate_similarity(reference_pose, live_keypoints)
-
                 total_score += frame_score
-                frame_count += 1
-
-                color = (0, 255, 0) if frame_score > 80 else (0, 255, 255) if frame_score > 50 else (0, 0, 255)
-
+                feedback, color = get_feedback(frame_score)
                 draw_stickman(frame_webcam, live_keypoints, color)
                 draw_stickman(frame_video_resized, reference_pose, (255, 255, 255))
+                text_size = cv2.getTextSize(feedback, cv2.FONT_HERSHEY_SIMPLEX, 2, 5)[0]
+                text_x = (frame_webcam.shape[1] - text_size[0]) // 2
+                text_y = (frame_webcam.shape[0] + text_size[1]) // 2
+                cv2.putText(frame_webcam, feedback, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 2, color, 5)
+                cv2.putText(frame_webcam, f"Score: {frame_score:.2f}%", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-                cv2.putText(frame_webcam, f"Score: {frame_score:.2f}%", (10, 50),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-            frame_index += 1
+                steps_taken += 1  # Only count steps when a person is detected
+                frame_index += 1
+        else:
+            # Assign a score of 0 for frames where no person is detected
+            total_score += 0
 
         combined_frame = cv2.hconcat([frame_webcam, frame_video_resized])
-        cv2.imshow("Live Comparison", combined_frame)
+        _, buffer = cv2.imencode('.jpg', combined_frame)
+        frame_base64 = base64.b64encode(buffer).decode('utf-8')
+        socketio.emit('video_frame', {'frame': frame_base64})
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -188,41 +195,63 @@ def compare_live_pose(video_id):
     cv2.destroyAllWindows()
 
     comparison_running = False
+    final_average_score = total_score / total_frames if total_frames > 0 else 0  # Average over all frames
+    duration_minutes = float((time.time() - start_time) / 60)
 
-    # ✅ Compute the final average score
-    final_average_score = total_score / frame_count if frame_count > 0 else 0
+    # Calculate metrics with activity level
+    calories_burned, steps_per_minute, energy_expenditure, movement_efficiency, performance_score = calculate_metrics(
+        weight_kg, duration_minutes, steps_taken, final_average_score, active_frames, total_frames
+    )
+
+    weight_loss_kg = calories_burned / 7700
+    new_weight = weight_kg - weight_loss_kg
+    user_model.update_user(user_id, {"weight": new_weight})
+
+    result = Result(db)
+    result.create_result(
+        video_id=video_id,
+        user_id=user_id,
+        accuracy_score=final_average_score,
+        calories_burned=calories_burned,
+        exercise_duration=duration_minutes,
+        steps_taken=steps_taken,
+        movement_efficiency=movement_efficiency,
+        performance_score=performance_score,
+        motion_matching_score=final_average_score,
+        user_feedback=get_feedback(final_average_score)[0],
+        energy_expenditure=energy_expenditure,
+        steps_per_minute=steps_per_minute
+    )
+
+    socketio.emit('comparison_complete', {'final_score': final_average_score})
     print(f"Final Average Accuracy Score: {final_average_score:.2f}%")
 
-# ✅ API: Start comparison
 comparison_lock = threading.Lock()
+
 @app.route('/start_comparison', methods=['POST'])
 def start_comparison():
     global comparison_running
 
     video_id = request.json.get("video_id")
-    if not video_id:
-        return jsonify({"error": "Video ID is required"}), 400
+    user_id = request.json.get("user_id")
+    if not video_id or not user_id:
+        return jsonify({"error": "Video ID and User ID are required"}), 400
 
     with comparison_lock:
         if comparison_running:
             return jsonify({"error": "Comparison already running"}), 400
         comparison_running = True
 
-    threading.Thread(target=compare_live_pose, args=(video_id,)).start()
+    threading.Thread(target=compare_live_pose, args=(video_id, user_id)).start()
     return jsonify({"message": "Comparison started"}), 200
 
-# ✅ API: Get status of comparison
 @app.route('/status', methods=['GET'])
 def get_status():
     return jsonify({"comparison_running": comparison_running})
 
-# Register other Blueprints
 app.register_blueprint(routes)
 app.register_blueprint(category_routes)
 app.register_blueprint(video_routes)
-# app.register_blueprint(motion_routes)
-# app.register_blueprint(session_routes)
 
-# Run Flask app
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000)

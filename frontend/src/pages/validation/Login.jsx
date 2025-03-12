@@ -8,7 +8,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { setToken } from '../../utils/auth';
+import { setToken, setUserId } from '../../utils/auth'; // Import setUserId
+import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -34,8 +35,12 @@ const Login = () => {
         const { data } = await axios.post('http://localhost:5000/api/login', values);
 
         if (data.token) {
-          setToken(data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
+          setToken(data.token); // Store the token in localStorage
+          const decodedToken = jwtDecode(data.token); // Decode the token
+          const userId = decodedToken.user_id; // Extract user_id from the token
+
+          setUserId(userId); // Store user_id in session storage
+          localStorage.setItem('user', JSON.stringify(data.user)); // Store user data in localStorage
           toast.success('Logged in successfully!', { position: 'bottom-right' });
 
           setTimeout(() => {

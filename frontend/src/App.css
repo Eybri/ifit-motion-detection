@@ -367,18 +367,6 @@ footer {
   border-radius: 10px;
 }
 
-/* Button 3D effect */
-.add-video-btn, .btn-primary, .btn-warning, .btn-danger {
-  border-radius: 10px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.add-video-btn:hover, .btn-primary:hover, .btn-warning:hover, .btn-danger:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
-
 /* Modal 3D effect */
 .modal-3d .modal-content {
   border-radius: 10px;
@@ -386,8 +374,31 @@ footer {
 }
 
 
+/* UserVideoList.css */
+.just-dance-carousel {
+  margin: 20px auto;
+}
 
+.video-card {
+  position: relative;
+  cursor: pointer;
+}
 
+.video-thumbnail {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.video-title-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  border-radius: 0 0 10px 10px;
+}
 
 
 

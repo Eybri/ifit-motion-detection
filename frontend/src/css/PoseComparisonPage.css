@@ -1,0 +1,91 @@
+.pose-comparison-page {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    background: linear-gradient(135deg, #ff6f61, #6b5b95);
+    overflow: hidden;
+  }
+  
+  .background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+  }
+  
+  .start-button, .stop-button {
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background: #ff6f61;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .start-button:hover, .stop-button:hover {
+    background: #ff4a3d;
+  }
+  
+  .comparison-results {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .frame-container {
+    border: 5px solid white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+  
+  .live-frame {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+  }
+  
+  .score-feedback {
+    margin-top: 20px;
+  }
+  
+  .summary-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+  }
+  
+  .summary-screen h1 {
+    margin-bottom: 20px;
+  }
+  
+  .summary-screen .results {
+    margin-bottom: 20px;
+  }
+  
+  .summary-screen button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background: #ff6f61;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+  }

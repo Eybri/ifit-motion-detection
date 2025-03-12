@@ -29,6 +29,7 @@ export const getToken = () => {
 export const clearAuth = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  sessionStorage.removeItem("user_id"); // Clear user_id from session storage
 };
 
 // Check if the user is authenticated
@@ -51,3 +52,12 @@ export const isAuthenticated = () => {
   }
 };
 
+// Store user_id in session storage
+export const setUserId = (userId) => {
+  sessionStorage.setItem("user_id", userId);
+};
+
+// Retrieve user_id from session storage
+export const getUserId = () => {
+  return sessionStorage.getItem("user_id");
+};

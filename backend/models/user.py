@@ -8,7 +8,7 @@ class User:
         self.collection = db["users"]
 
     def create_user(self, data):
-        """Insert a new user."""
+        """Insert a new user with status (default: Active)."""
         hashed_password = generate_password_hash(data["password"])
         user_data = {
             "name": data["name"],
@@ -20,6 +20,7 @@ class User:
             "weight": data["weight"],
             "is_admin": data.get("is_admin", False),
             "image": data.get("image", ""),
+            "status": data.get("status", "Active"),
             "created_at": datetime.utcnow()
         }
         return self.collection.insert_one(user_data)
@@ -33,9 +34,16 @@ class User:
         return self.collection.find_one({"_id": ObjectId(user_id)})
 
     def update_user_password(self, user_id, new_password):
-        self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": {"password": new_password}})
+        """Update user password."""
+        hashed_password = generate_password_hash(new_password)
+        self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": {"password": hashed_password}})
         
-        
+    def update_user_status(self, user_id, status):
+        """Update user status (Active or Inactive)."""
+        if status not in ["Active", "Inactive"]:
+            raise ValueError("Status must be 'Active' or 'Inactive'")
+        self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": {"status": status}})
+
     def delete_user(self, user_id):
         """Delete a user by ID."""
         result = self.collection.delete_one({"_id": ObjectId(user_id)})
@@ -44,5 +52,3 @@ class User:
     def update_user(self, user_id, data):
         """Update user profile details."""
         self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": data})
-    
-

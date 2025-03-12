@@ -7,16 +7,16 @@ import { Navigation, EffectCoverflow } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/effect-coverflow";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import { FaStar } from "react-icons/fa"; // Star icon for ratings
+import { useNavigate } from "react-router-dom";
+import { FaStar } from "react-icons/fa";
 
 const UserVideoList = () => {
   const [videos, setVideos] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(true);
-  const [selectedIndex, setSelectedIndex] = useState(0); // Track center video
-  const navigate = useNavigate(); // useNavigate hook for navigation
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCategories();
@@ -51,14 +51,8 @@ const UserVideoList = () => {
     setLoading(true);
   };
 
-  const handleVideoSelect = async (videoId) => {
-    try {
-      // Navigate to the video detail page
-      navigate(`/video/dance/${videoId}`);
-    } catch (error) {
-      console.error("Failed to fetch video details", error);
-      toast.error("Failed to fetch video details.");
-    }
+  const handleVideoSelect = (videoId) => {
+    navigate(`/compare/${videoId}`); // Navigate to PoseComparisonPage
   };
 
   const renderStars = (rating) => {
@@ -72,7 +66,6 @@ const UserVideoList = () => {
       <ToastContainer />
       <h2 className="mb-4 text-white title-center">Select Your Dance</h2>
 
-      {/* Category Dropdown */}
       <select className="form-select mb-4 w-50 mx-auto category-dropdown" value={selectedCategory} onChange={handleCategoryChange}>
         <option value="">All Categories</option>
         {categories.map((category) => (
@@ -82,7 +75,6 @@ const UserVideoList = () => {
         ))}
       </select>
 
-      {/* Just Dance Style Carousel */}
       {loading ? (
         <p className="text-white">Loading videos...</p>
       ) : videos.length === 0 ? (
@@ -109,7 +101,7 @@ const UserVideoList = () => {
             <SwiperSlide key={video.id}>
               <div
                 className={`video-card ${index === selectedIndex ? "selected" : "blurred"}`}
-                onClick={() => handleVideoSelect(video.id)} // Navigate on select
+                onClick={() => handleVideoSelect(video.id)}
               >
                 <img
                   src={video.thumbnail_url || "https://via.placeholder.com/300"}

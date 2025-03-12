@@ -168,3 +168,20 @@ def update_user_image(user_id):
     user_model.collection.update_one({"_id": ObjectId(user_id)}, {"$set": {"image": image_url}})
     return jsonify({"message": "Image updated successfully", "image_url": image_url}), 200
 
+@routes.route("/admin/update-status/<user_id>", methods=["PUT"])
+@require_auth
+def update_user_status(user_id):
+    """Admin can change user status to Active or Inactive."""
+    admin_user = user_model.find_user_by_id(user_id)
+
+    if not admin_user or not admin_user.get("is_admin"):
+        return jsonify({"error": "Unauthorized"}), 403  # Only admins can change status
+
+    data = request.json
+    new_status = data.get("status")
+
+    if new_status not in ["Active", "Inactive"]:
+        return jsonify({"error": "Invalid status. Must be 'Active' or 'Inactive'."}), 400
+
+    user_model.update_user_status(user_id, new_status)
+    return jsonify({"message": f"User status updated to {new_status}"}), 200
