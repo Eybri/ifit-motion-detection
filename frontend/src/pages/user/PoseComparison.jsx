@@ -82,7 +82,7 @@ const PoseComparisonPage = () => {
     <div className="pose-comparison-page">
       {!comparisonStatus ? (
         <div className="header">
-          <h1>Pose Comparison</h1>
+          <h1>Start Dancing</h1>
           <div className="controls">
             <button className="start-button" onClick={startComparison}>
               Start Comparison

@@ -41,17 +41,19 @@ const Dashboard = () => {
   const [overweightUsers, setOverweightUsers] = useState([]);
   const [obeseUsers, setObeseUsers] = useState([]);
   const [bmiData, setBmiData] = useState([]);
+  const [leaderboardData, setLeaderboardData] = useState([]); // Initialize with empty array
   const [loading, setLoading] = useState(true);
   const token = getToken();
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/users", {
+        // Fetch users data
+        const usersResponse = await axios.get("http://localhost:5000/api/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const users = response.data.users;
+        const users = usersResponse.data.users;
         setTotalUsers(users.length);
 
         // Filter and store user names
@@ -73,14 +75,30 @@ const Dashboard = () => {
         setNormalUsers(bmiValues.filter((user) => user.bmi >= 18.5 && user.bmi < 25));
         setOverweightUsers(bmiValues.filter((user) => user.bmi >= 25 && user.bmi < 30));
         setObeseUsers(bmiValues.filter((user) => user.bmi >= 30));
+
+        // Fetch leaderboard data
+        const leaderboardResponse = await axios.get("http://localhost:5000/api/leaderboard", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // Log the response for debugging
+        console.log("Leaderboard Response:", leaderboardResponse.data);
+
+        // Set leaderboard data directly (response is an array)
+        if (Array.isArray(leaderboardResponse.data)) {
+          setLeaderboardData(leaderboardResponse.data);
+        } else {
+          console.error("Unexpected leaderboard response structure:", leaderboardResponse.data);
+          setLeaderboardData([]); // Set to empty array if data is not in the expected format
+        }
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUsers();
+    fetchData();
   }, [token]);
 
   // Pie Chart Data (Active vs. Inactive Users)
@@ -138,6 +156,19 @@ const Dashboard = () => {
         ],
         backgroundColor: ["#FFEB3B", "#4CAF50", "#FF9800", "#F44336"],
         hoverBackgroundColor: ["#FBC02D", "#388E3C", "#F57C00", "#D32F2F"],
+      },
+    ],
+  };
+
+  // Bar Chart Data (Leaderboard - Average Accuracy)
+  const barChartDataLeaderboard = {
+    labels: leaderboardData.map((user) => user.name),
+    datasets: [
+      {
+        label: "Average Accuracy",
+        data: leaderboardData.map((user) => user.average_accuracy),
+        backgroundColor: "#9C27B0",
+        hoverBackgroundColor: "#7B1FA2",
       },
     ],
   };
@@ -299,9 +330,32 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </Grid>
+
+        {/* Bar Chart - Leaderboard (Average Accuracy) */}
+        <Grid item xs={12}>
+          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+            <CardContent>
+              <Typography variant="h6" align="center" gutterBottom>
+                Leaderboard - Average Accuracy
+              </Typography>
+              {loading ? (
+                <CircularProgress />
+              ) : leaderboardData.length > 0 ? (
+                <div style={{ width: "80%", height: "auto", margin: "auto" }}>
+                  <Bar data={barChartDataLeaderboard} options={barChartOptions} />
+                </div>
+              ) : (
+                <Typography variant="body1" align="center">
+                  No leaderboard data available.
+                </Typography>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
     </Container>
   );
 };
 
 export default Dashboard;
+

@@ -1,3 +1,4 @@
+// LeaderBoards.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -14,6 +15,7 @@ import {
 } from "@mui/material";
 import "./../../css/leaderboards.css"; // Custom CSS for additional styling
 import { getUserId, getToken } from "../../utils/auth"; // Import auth utilities
+import CurrentUserStanding from "./UserStanding"; // Import the new component
 
 const LeaderBoards = () => {
   const [leaderboard, setLeaderboard] = useState([]);
@@ -41,6 +43,8 @@ const LeaderBoards = () => {
             name: userStanding.name,
             average_accuracy: userStanding.average_accuracy,
             total_dances: userStanding.total_dances,
+            image: userStanding.image,
+            email: userStanding.email,
           });
         }
       }
@@ -126,18 +130,7 @@ const LeaderBoards = () => {
       </TableContainer>
 
       {/* Display current user's standing if authenticated */}
-      {currentUserStanding && (
-        <div className="current-standing" style={{ marginTop: "20px", textAlign: "center" }}>
-          <Typography variant="h5" style={{ color: "rgba(255, 255, 255, 0.9)" }}>
-            Your Current Standing
-          </Typography>
-          <Typography variant="body1" style={{ color: "rgba(255, 255, 255, 0.7)" }}>
-            Rank: #{currentUserStanding.rank} | {currentUserStanding.name} | Average Accuracy:{" "}
-            {currentUserStanding.average_accuracy.toFixed(2)}% | Total Dances:{" "}
-            {currentUserStanding.total_dances}
-          </Typography>
-        </div>
-      )}
+      <CurrentUserStanding currentUserStanding={currentUserStanding} />
     </div>
   );
 };

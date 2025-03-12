@@ -23,6 +23,7 @@ import VideoList from './pages/admin/video/VideoList';
 import PoseComparison from './pages/user/PoseComparison';
 import AboutUs from './pages/user/AboutUs';
 import LeaderBoards from './pages/user/LeaderBoards';
+import History from './pages/user/HistoryResults';
 
 const App = () => {
   return (
@@ -43,6 +44,7 @@ const App = () => {
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/leader-boards" element={<LeaderBoards />} />
           <Route path="/feedback" element={<Feedback />} />
+          <Route path="/history" element={<History />} />
 
         </Route>
 

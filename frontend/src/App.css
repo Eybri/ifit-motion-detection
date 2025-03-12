@@ -400,7 +400,82 @@ footer {
   border-radius: 0 0 10px 10px;
 }
 
+/* Custom Modal Header */
+.modal-header-custom {
+  background-color: #5b7088 !important; /* Updated header color */
+  color: #FFF8E1; /* Light beige for contrast */
+  border-bottom: none;
+  padding: 20px; /* Increased padding */
+}
 
+.modal-header-custom .modal-title {
+  font-size: 24px; /* Increased font size */
+  font-weight: bold;
+}
+
+/* Results Container */
+.results-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px; /* Increased padding */
+}
+
+/* Text Results */
+.text-results {
+  flex: 1;
+  padding: 20px; /* Increased padding */
+  background-color: #b8dbeb; /* Light blue background */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 500px; /* Increased height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+}
+
+.text-results p {
+  margin: 10px 0; /* Increased margin */
+  font-size: 18px; /* Increased font size */
+  color: #2c3e50; /* Darker text color for better contrast */
+  line-height: 1.6; /* Increased line height */
+}
+
+/* Chart Results */
+.chart-results {
+  flex: 1;
+  padding: 20px; /* Increased padding */
+  background-color: #b8dbeb; /* Light blue background */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 500px; /* Increased height */
+  display: flex;
+  align-items: center; /* Center chart vertically */
+  justify-content: center; /* Center chart horizontally */
+}
+
+/* Radar Chart Customization */
+.chart-results canvas {
+  color: #b8dbeb; /* Darker text color for chart labels */
+  width: 100% !important; /* Make chart responsive */
+  height: 100% !important; /* Make chart responsive */
+  max-width: 600px; /* Increased max-width */
+  max-height: 600px; /* Increased max-height */
+}
+
+/* Button Styling */
+.btn-secondary {
+  background-color: #8D6E63; /* Medium brown */
+  border: none;
+  color: #FFF8E1; /* Light beige text */
+  padding: 10px 20px; /* Increased padding */
+  font-size: 18px; /* Increased font size */
+  border-radius: 4px; /* Uniform border radius */
+}
+
+.btn-secondary:hover {
+  background-color: #6D4C41; /* Darker brown on hover */
+}
 
 
 

@@ -35,6 +35,10 @@ class Result:
         """Find results by video ID."""
         return list(self.collection.find({"video_id": ObjectId(video_id)}))
 
+    def get_all_results(self):
+        """Fetch all results."""
+        return list(self.collection.find({}))
+
     def get_leaderboard(self, user_id=None):
         """Fetch leaderboard or ranking for a specific user."""
         pipeline = [
