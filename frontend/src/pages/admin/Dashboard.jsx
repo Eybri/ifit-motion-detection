@@ -15,6 +15,7 @@ import {
   LineElement,
   PointElement,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 // Register Chart.js components
 ChartJS.register(
@@ -25,7 +26,8 @@ ChartJS.register(
   LinearScale,
   BarElement,
   LineElement,
-  PointElement
+  PointElement,
+  ChartDataLabels
 );
 
 const Dashboard = () => {
@@ -93,6 +95,22 @@ const Dashboard = () => {
     ],
   };
 
+  // Pie Chart Options
+  const pieChartOptions = {
+    plugins: {
+      datalabels: {
+        color: "#fff",
+        font: {
+          weight: "bold",
+          size: 14,
+        },
+        formatter: (value, context) => {
+          return `${context.chart.data.labels[context.dataIndex]}\n${value}`;
+        },
+      },
+    },
+  };
+
   // Bar Chart Data (Users by Gender)
   const barChartDataGender = {
     labels: ["Male", "Female"],
@@ -124,6 +142,24 @@ const Dashboard = () => {
     ],
   };
 
+  // Bar Chart Options
+  const barChartOptions = {
+    plugins: {
+      datalabels: {
+        color: "#000",
+        anchor: "end",
+        align: "top",
+        font: {
+          weight: "bold",
+          size: 12,
+        },
+        formatter: (value) => {
+          return value;
+        },
+      },
+    },
+  };
+
   // Line Chart Data (BMI Distribution with User Names)
   const lineChartData = {
     labels: bmiData.map((user) => user.name),
@@ -136,6 +172,33 @@ const Dashboard = () => {
         tension: 0.3,
       },
     ],
+  };
+
+  // Line Chart Options
+  const lineChartOptions = {
+    plugins: {
+      datalabels: {
+        color: "#000",
+        anchor: "end",
+        align: "top",
+        font: {
+          weight: "bold",
+          size: 12,
+        },
+        formatter: (value) => {
+          return value.toFixed(2); // Format BMI to 2 decimal places
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          autoSkip: false,
+          maxRotation: 90,
+          minRotation: 90,
+        },
+      },
+    },
   };
 
   return (
@@ -191,7 +254,7 @@ const Dashboard = () => {
                 Active vs. Inactive Users
               </Typography>
               <div style={{ width: "70%", height: "auto", margin: "auto" }}>
-                <Pie data={pieChartData} />
+                <Pie data={pieChartData} options={pieChartOptions} />
               </div>
             </CardContent>
           </Card>
@@ -205,7 +268,7 @@ const Dashboard = () => {
                 Users by Gender
               </Typography>
               <div style={{ width: "80%", height: "auto", margin: "auto" }}>
-                <Bar data={barChartDataGender} />
+                <Bar data={barChartDataGender} options={barChartOptions} />
               </div>
             </CardContent>
           </Card>
@@ -219,7 +282,7 @@ const Dashboard = () => {
                 Users by BMI Category
               </Typography>
               <div style={{ width: "80%", height: "auto", margin: "auto" }}>
-                <Bar data={barChartDataBMI} />
+                <Bar data={barChartDataBMI} options={barChartOptions} />
               </div>
             </CardContent>
           </Card>
@@ -232,20 +295,7 @@ const Dashboard = () => {
               <Typography variant="h6" align="center" gutterBottom>
                 BMI Distribution
               </Typography>
-              <Line
-                data={lineChartData}
-                options={{
-                  scales: {
-                    x: {
-                      ticks: {
-                        autoSkip: false,
-                        maxRotation: 90,
-                        minRotation: 90,
-                      },
-                    },
-                  },
-                }}
-              />
+              <Line data={lineChartData} options={lineChartOptions} />
             </CardContent>
           </Card>
         </Grid>

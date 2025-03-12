@@ -1,93 +1,144 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Box } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  CircularProgress,
+  Typography,
+  Avatar,
+  Paper,
+} from "@mui/material";
+import "./../../css/leaderboards.css"; // Custom CSS for additional styling
+import { getUserId, getToken } from "../../utils/auth"; // Import auth utilities
 
-const LeaderBoards = ({ currentUser }) => {
-  const [leaderboardData, setLeaderboardData] = useState([
-    { id: 1, name: 'Alex Thompson', score: 98, avatar: 'https://i.pravatar.cc/150?img=1' },
-    { id: 2, name: 'Emily White', score: 95, avatar: 'https://i.pravatar.cc/150?img=2' },
-    { id: 3, name: 'Jordan Lee', score: 92, avatar: 'https://i.pravatar.cc/150?img=3' },
-    { id: 4, name: 'Sophia Green', score: 89, avatar: 'https://i.pravatar.cc/150?img=4' },
-    { id: 5, name: 'Noah Brown', score: 87, avatar: 'https://i.pravatar.cc/150?img=5' },
-  ]);
+const LeaderBoards = () => {
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentUserStanding, setCurrentUserStanding] = useState(null); // Store current user's standing
 
-  const StyledTableCell = styled(TableCell)(({ theme }) => ({
-    [`&.${TableHead}-head`]: {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.common.white,
-    },
-    borderBottom: `1px solid ${theme.palette.divider}`,
-  }));
+  // Fetch leaderboard data
+  const fetchLeaderboard = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/leaderboard", {
+        headers: {
+          Authorization: `Bearer ${getToken()}`, // Include token for authenticated requests
+        },
+      });
+      setLeaderboard(response.data);
 
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    '&:nth-of-type(odd)': {
-      backgroundColor: theme.palette.action.hover,
-    },
-    '&:last-child td, &:last-child th': {
-      border: 0,
-    },
-  }));
+      // If the user is authenticated, find their standing
+      const userId = getUserId();
+      if (userId) {
+        const userStanding = response.data.find((user) => user.user_id === userId);
+        if (userStanding) {
+          setCurrentUserStanding({
+            rank: response.data.indexOf(userStanding) + 1,
+            name: userStanding.name,
+            average_accuracy: userStanding.average_accuracy,
+            total_dances: userStanding.total_dances,
+          });
+        }
+      }
 
-  const findCurrentUserRank = () => {
-    if (!currentUser) return null;
-
-    const userRank = leaderboardData.findIndex((user) => user.name === currentUser.name) + 1;
-    return userRank > 0 ? userRank : null;
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to fetch leaderboard data.");
+      setLoading(false);
+    }
   };
 
-  const currentUserRank = findCurrentUserRank();
-
   useEffect(() => {
-    setLeaderboardData((prevData) =>
-      [...prevData].sort((a, b) => b.score - a.score)
-    );
+    fetchLeaderboard();
   }, []);
 
-  return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4, paddingTop: '64px' }}> {/* Added paddingTop */}
-      <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mb: 3 }}>
-        Leaderboards
-      </Typography>
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <CircularProgress />
+        <Typography variant="body1">Loading leaderboard...</Typography>
+      </div>
+    );
+  }
 
-      {currentUserRank && (
-        <Typography variant="body1" align="center" sx={{ mb: 2 }}>
-          Your current rank: {currentUserRank}
+  if (error) {
+    return (
+      <div className="error-container">
+        <Typography variant="h6" color="error">
+          {error}
         </Typography>
-      )}
+      </div>
+    );
+  }
 
-      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-        <Table aria-label="leaderboard table">
+  return (
+    <div className="leaderboard-container">
+      <Typography variant="h3" className="leaderboard-title">
+        ˏˋ°•*⁀➷ Dance Leaderboard ˏˋ°•*⁀➷
+      </Typography>
+      <TableContainer component={Paper} className="leaderboard-table">
+        <Table>
           <TableHead>
             <TableRow>
-              <StyledTableCell align="center">Rank</StyledTableCell>
-              <StyledTableCell align="left">User</StyledTableCell>
-              <StyledTableCell align="center">Score</StyledTableCell>
+              <TableCell>Rank</TableCell>
+              <TableCell>User</TableCell>
+              <TableCell align="right">Average Accuracy</TableCell>
+              <TableCell align="right">Total Dances</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {leaderboardData.map((row, index) => (
-              <StyledTableRow key={row.id}>
-                <StyledTableCell align="center">
-                  {index === 0 ? (
-                    <EmojiEventsIcon color="primary" />
-                  ) : (
-                    index + 1
-                  )}
-                </StyledTableCell>
-                <StyledTableCell align="left">
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar alt={row.name} src={row.avatar} sx={{ mr: 2 }} />
-                    <Typography variant="body1">{row.name}</Typography>
-                  </Box>
-                </StyledTableCell>
-                <StyledTableCell align="center">{row.score}</StyledTableCell>
-              </StyledTableRow>
+            {leaderboard.map((user, index) => (
+              <TableRow key={user.user_id} className="leaderboard-row">
+                <TableCell>#{index + 1}</TableCell>
+                <TableCell>
+                  <div className="user-info">
+                    <Avatar
+                      src={user.image || `https://via.placeholder.com/50?text=${user.name[0]}`}
+                      alt={user.name}
+                      className="user-image"
+                    />
+                    <div className="user-details">
+                      <Typography variant="subtitle1">{user.name}</Typography>
+                      <Typography variant="body2" style={{ color: "rgba(255, 255, 255, 0.7)" }}>
+                        {user.email}
+                      </Typography>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell align="right">
+                  <Typography variant="body1">
+                    <span className="accuracy">{user.average_accuracy.toFixed(2)}%</span>
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Typography variant="body1">
+                    <span className="dances">{user.total_dances}</span>
+                  </Typography>
+                </TableCell>
+              </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-    </Container>
+
+      {/* Display current user's standing if authenticated */}
+      {currentUserStanding && (
+        <div className="current-standing" style={{ marginTop: "20px", textAlign: "center" }}>
+          <Typography variant="h5" style={{ color: "rgba(255, 255, 255, 0.9)" }}>
+            Your Current Standing
+          </Typography>
+          <Typography variant="body1" style={{ color: "rgba(255, 255, 255, 0.7)" }}>
+            Rank: #{currentUserStanding.rank} | {currentUserStanding.name} | Average Accuracy:{" "}
+            {currentUserStanding.average_accuracy.toFixed(2)}% | Total Dances:{" "}
+            {currentUserStanding.total_dances}
+          </Typography>
+        </div>
+      )}
+    </div>
   );
 };
 

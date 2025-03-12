@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, url_for, redirect
 from services.db import get_db
 from models.user import User
+from models.result import Result
 from services.token_utils import generate_token, require_auth, decode_token
 from werkzeug.security import check_password_hash, generate_password_hash
 from cloudinary.uploader import upload, destroy
@@ -11,7 +12,27 @@ from bson.objectid import ObjectId
 routes = Blueprint("routes", __name__, url_prefix="/api")
 db = get_db()
 user_model = User(db)
+result_model = Result(db)
 
+@routes.route("/leaderboard", methods=["GET"])
+def leaderboard():
+    user_id = request.args.get("user_id")  # Optional: Fetch ranking for a specific user
+    leaderboard_data = result_model.get_leaderboard(user_id)
+    
+    # Enrich the leaderboard data with user details
+    enriched_leaderboard = []
+    for entry in leaderboard_data:
+        user = user_model.find_user_by_id(entry["_id"])
+        if user:
+            enriched_leaderboard.append({
+                "user_id": str(entry["_id"]),
+                "name": user["name"],
+                "email": user["email"],
+                "average_accuracy": entry["average_accuracy"],
+                "total_dances": entry["total_dances"]
+            })
+    
+    return jsonify(enriched_leaderboard), 200
 @routes.route("/register", methods=["POST"])
 def register():
     data = request.form

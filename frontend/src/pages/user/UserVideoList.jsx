@@ -7,16 +7,17 @@ import { Navigation, EffectCoverflow } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/effect-coverflow";
-import { useNavigate } from "react-router-dom";
-import { FaStar } from "react-icons/fa";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { FaStar } from "react-icons/fa"; // Star icon for ratings
 
 const UserVideoList = () => {
   const [videos, setVideos] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(true);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const navigate = useNavigate();
+  const [selectedIndex, setSelectedIndex] = useState(0); // Track center video
+  const [previewVideo, setPreviewVideo] = useState(null); // State for preview video
+  const navigate = useNavigate(); // useNavigate hook for navigation
 
   useEffect(() => {
     fetchCategories();
@@ -51,8 +52,14 @@ const UserVideoList = () => {
     setLoading(true);
   };
 
-  const handleVideoSelect = (videoId) => {
-    navigate(`/compare/${videoId}`); // Navigate to PoseComparisonPage
+  const handleVideoSelect = async (videoId) => {
+    try {
+      // Navigate to the video detail page
+      navigate(`/compare/${videoId}`);
+    } catch (error) {
+      console.error("Failed to fetch video details", error);
+      toast.error("Failed to fetch video details.");
+    }
   };
 
   const renderStars = (rating) => {
@@ -66,6 +73,7 @@ const UserVideoList = () => {
       <ToastContainer />
       <h2 className="mb-4 text-white title-center">Select Your Dance</h2>
 
+      {/* Category Dropdown */}
       <select className="form-select mb-4 w-50 mx-auto category-dropdown" value={selectedCategory} onChange={handleCategoryChange}>
         <option value="">All Categories</option>
         {categories.map((category) => (
@@ -75,6 +83,7 @@ const UserVideoList = () => {
         ))}
       </select>
 
+      {/* Just Dance Style Carousel */}
       {loading ? (
         <p className="text-white">Loading videos...</p>
       ) : videos.length === 0 ? (
@@ -101,15 +110,38 @@ const UserVideoList = () => {
             <SwiperSlide key={video.id}>
               <div
                 className={`video-card ${index === selectedIndex ? "selected" : "blurred"}`}
-                onClick={() => handleVideoSelect(video.id)}
+                onClick={() => handleVideoSelect(video.id)} // Navigate on select
+                onMouseEnter={() => setPreviewVideo(video.id)}
+                onMouseLeave={() => setPreviewVideo(null)}
+                style={{ position: "relative" }}
               >
-                <img
-                  src={video.thumbnail_url || "https://via.placeholder.com/300"}
-                  alt={video.title}
-                  className="video-thumbnail"
-                />
+                {previewVideo === video.id ? (
+                  <video
+                    style={{ width: "100%", height: "300px", objectFit: "cover" }}
+                    autoPlay
+                    muted
+                    loop
+                  >
+                    <source src={video.video_url} type="video/mp4" />
+                  </video>
+                ) : (
+                  <img
+                    src={video.thumbnail_url || "https://via.placeholder.com/300"}
+                    alt={video.title}
+                    style={{ width: "100%", height: "300px", objectFit: "cover" }}
+                  />
+                )}
                 {index === selectedIndex && (
-                  <div className="video-title-overlay">
+                  <div style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    width: "100%",
+                    background: "rgba(0, 0, 0, 0.5)",
+                    color: "white",
+                    padding: "10px",
+                    textAlign: "left"
+                  }}>
                     <h3>{video.title}</h3>
                     <p>{video.artist}</p>
                     <div>{renderStars(video.rating)}</div>

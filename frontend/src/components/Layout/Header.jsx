@@ -111,14 +111,15 @@ const Header = () => {
                   <NavItem>
                     <Link className="nav-link" to="/">Home</Link>
                   </NavItem>
-                  <NavItem>
-                    <Link className="nav-link" to="/upload/video">Video Compare</Link>
-                  </NavItem>
+                 
                   <NavItem>
                     <Link className="nav-link" to="/leader-boards">Leader Boards</Link>
                   </NavItem>
                   <NavItem>
                     <Link className="nav-link" to="/aboutus">About Us</Link>
+                  </NavItem> 
+                  <NavItem>
+                    <Link className="nav-link" to="/feedback">Feedbacks</Link>
                   </NavItem>
                 </>
               )}

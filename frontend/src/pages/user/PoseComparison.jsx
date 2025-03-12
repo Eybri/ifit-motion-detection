@@ -3,15 +3,18 @@ import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "axios";
 import { getUserId } from "../../utils/auth";
-import "./../../css/PoseComparisonPage.css"; // Import a CSS file for styling
+import Loader from '../../components/Layout/Loader'; // Import the Loader component
+import ResultsModal from './ResultModal'; // Import the ResultsModal component
+import "./../../css/PoseComparisonPage.css";
 
 const PoseComparisonPage = () => {
   const { videoId } = useParams();
   const [comparisonStatus, setComparisonStatus] = useState(false);
   const [liveFrame, setLiveFrame] = useState(null);
-  const [score, setScore] = useState(0);
-  const [feedback, setFeedback] = useState("");
   const [socket, setSocket] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // State to manage loading status
+  const [showResultsModal, setShowResultsModal] = useState(false); // State to control modal visibility
+  const [results, setResults] = useState({}); // State to store comparison results
 
   useEffect(() => {
     // Initialize SocketIO connection
@@ -21,19 +24,16 @@ const PoseComparisonPage = () => {
     // Listen for video frames
     newSocket.on("video_frame", (data) => {
       setLiveFrame(data.frame);
-    });
-
-    // Listen for scores
-    newSocket.on("score_update", (data) => {
-      setScore(data.score);
-      setFeedback(data.feedback);
+      setIsLoading(false); // Stop loading when the frame is received
     });
 
     // Listen for comparison completion
     newSocket.on("comparison_complete", (data) => {
       setComparisonStatus(false);
       setLiveFrame(null); // Clear the live frame
-      alert(`Comparison complete! Final Score: ${data.final_score.toFixed(2)}%`);
+      setIsLoading(false); // Stop loading when the comparison is complete
+      setResults(data); // Store the results
+      setShowResultsModal(true); // Show the results modal
     });
 
     // Cleanup on unmount
@@ -49,6 +49,7 @@ const PoseComparisonPage = () => {
       return;
     }
 
+    setIsLoading(true); // Start loading when comparison starts
     try {
       const response = await axios.post("http://localhost:5000/start_comparison", {
         video_id: videoId,
@@ -60,6 +61,7 @@ const PoseComparisonPage = () => {
     } catch (error) {
       console.error("Error starting comparison", error);
       setComparisonStatus(false);
+      setIsLoading(false); // Stop loading if there's an error
     }
   };
 
@@ -68,43 +70,55 @@ const PoseComparisonPage = () => {
       socket.emit("stop_comparison");
       setComparisonStatus(false);
       setLiveFrame(null); // Clear the live frame
+      setIsLoading(false); // Stop loading when comparison is stopped
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowResultsModal(false); // Close the modal
   };
 
   return (
     <div className="pose-comparison-page">
-      <div className="header">
-        <h1>Pose Comparison</h1>
-        <div className="controls">
-          {!comparisonStatus ? (
+      {!comparisonStatus ? (
+        <div className="header">
+          <h1>Pose Comparison</h1>
+          <div className="controls">
             <button className="start-button" onClick={startComparison}>
               Start Comparison
             </button>
-          ) : (
-            <button className="stop-button" onClick={stopComparison}>
-              Stop Comparison
-            </button>
-          )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="controls">
+          <button className="stop-button" onClick={stopComparison}>
+            Stop Comparison
+          </button>
+        </div>
+      )}
 
       {comparisonStatus && (
         <div className="comparison-results">
           <div className="frame-container">
-            {liveFrame && (
+            {isLoading ? (
+              <Loader /> // Display the Loader while loading
+            ) : liveFrame ? (
               <img
                 src={`data:image/jpeg;base64,${liveFrame}`}
                 alt="Live Comparison"
                 className="live-frame"
               />
-            )}
-          </div>
-          <div className="score-feedback">
-            <h2 className="score">Score: {score.toFixed(2)}%</h2>
-            <h3 className="feedback">Feedback: {feedback}</h3>
+            ) : null}
           </div>
         </div>
       )}
+
+      {/* Results Modal */}
+      <ResultsModal
+        show={showResultsModal}
+        onHide={handleCloseModal}
+        results={results}
+      />
     </div>
   );
 };

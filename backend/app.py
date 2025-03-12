@@ -17,7 +17,7 @@ from api.categoryRoutes import category_routes
 from api.videoRoutes import video_routes
 from services.mail_config import configure_mail
 from dotenv import load_dotenv
-
+from api.feedbackRoutes import feedback_routes
 load_dotenv()
 
 app = Flask(__name__)
@@ -170,11 +170,15 @@ def compare_live_pose(video_id, user_id):
                 feedback, color = get_feedback(frame_score)
                 draw_stickman(frame_webcam, live_keypoints, color)
                 draw_stickman(frame_video_resized, reference_pose, (255, 255, 255))
+
+                # Calculate text position for feedback at the top
                 text_size = cv2.getTextSize(feedback, cv2.FONT_HERSHEY_SIMPLEX, 2, 5)[0]
-                text_x = (frame_webcam.shape[1] - text_size[0]) // 2
-                text_y = (frame_webcam.shape[0] + text_size[1]) // 2
+                text_x = (frame_webcam.shape[1] - text_size[0]) // 2  # Center horizontally
+                text_y = text_size[1] + 10  # Place at the top with a small margin
                 cv2.putText(frame_webcam, feedback, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 2, color, 5)
-                cv2.putText(frame_webcam, f"Score: {frame_score:.2f}%", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+                # Place the score below the feedback
+                cv2.putText(frame_webcam, f"Score: {frame_score:.2f}%", (10, text_y + text_size[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                 steps_taken += 1  # Only count steps when a person is detected
                 frame_index += 1
@@ -223,7 +227,18 @@ def compare_live_pose(video_id, user_id):
         steps_per_minute=steps_per_minute
     )
 
-    socketio.emit('comparison_complete', {'final_score': final_average_score})
+    # Emit all results to the frontend
+    socketio.emit('comparison_complete', {
+        'final_score': final_average_score,
+        'calories_burned': calories_burned,
+        'steps_taken': steps_taken,
+        'steps_per_minute': steps_per_minute,
+        'exercise_duration': duration_minutes,
+        'movement_efficiency': movement_efficiency,
+        'performance_score': performance_score,
+        'energy_expenditure': energy_expenditure,
+        'user_feedback': get_feedback(final_average_score)[0]
+    })
     print(f"Final Average Accuracy Score: {final_average_score:.2f}%")
 
 comparison_lock = threading.Lock()
@@ -252,6 +267,6 @@ def get_status():
 app.register_blueprint(routes)
 app.register_blueprint(category_routes)
 app.register_blueprint(video_routes)
-
+app.register_blueprint(feedback_routes)
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)

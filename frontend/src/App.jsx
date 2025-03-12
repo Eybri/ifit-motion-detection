@@ -18,7 +18,7 @@ import AdminLayout from './layouts/AdminLayout';
 import UserLayout from './layouts/UserLayout';
 import CategoryList from './pages/admin/category/CategoryList';
 import UserList from './pages/admin/UserList';
-
+import Feedback from './pages/user/Feedback';
 import VideoList from './pages/admin/video/VideoList';
 import PoseComparison from './pages/user/PoseComparison';
 import AboutUs from './pages/user/AboutUs';
@@ -42,6 +42,7 @@ const App = () => {
           <Route path="/compare/:videoId" element={<PoseComparison />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/leader-boards" element={<LeaderBoards />} />
+          <Route path="/feedback" element={<Feedback />} />
 
         </Route>
 

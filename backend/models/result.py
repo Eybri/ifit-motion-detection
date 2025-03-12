@@ -34,3 +34,24 @@ class Result:
     def find_results_by_video(self, video_id):
         """Find results by video ID."""
         return list(self.collection.find({"video_id": ObjectId(video_id)}))
+
+    def get_leaderboard(self, user_id=None):
+        """Fetch leaderboard or ranking for a specific user."""
+        pipeline = [
+            {
+                "$group": {
+                    "_id": "$user_id",
+                    "average_accuracy": {"$avg": "$accuracy_score"},
+                    "total_dances": {"$sum": 1}
+                }
+            },
+            {
+                "$sort": {"average_accuracy": -1}
+            }
+        ]
+
+        if user_id:
+            pipeline.insert(0, {"$match": {"user_id": ObjectId(user_id)}})
+
+        leaderboard_data = list(self.collection.aggregate(pipeline))
+        return leaderboard_data
