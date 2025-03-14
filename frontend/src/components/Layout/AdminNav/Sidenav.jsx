@@ -3,11 +3,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getToken, clearAuth, isAuthenticated } from "../../../utils/auth";
 import { jwtDecode } from "jwt-decode";
-import { FaHome, FaChartBar, FaEnvelope, FaUser, FaSignOutAlt } from "react-icons/fa";
+import { FaHome, FaChartBar, FaUser, FaSignOutAlt, FaPlayCircle } from "react-icons/fa";
 import Loader from "../Loader";
-import { Menu, MenuItem, IconButton, Avatar } from "@mui/material"; // MUI components for dropdown
+import { Menu, MenuItem, IconButton, Avatar } from "@mui/material";
 import { useState as useMUIState } from "react";
-import styles from "./Sidenav.module.css"; // Import the CSS module
 
 const Sidenav = () => {
   const [user, setUser] = useState(() => {
@@ -21,19 +20,18 @@ const Sidenav = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [anchorEl, setAnchorEl] = useMUIState(null); // MUI state for dropdown menu
+  const [anchorEl, setAnchorEl] = useMUIState(null);
+  const [hoveredItem, setHoveredItem] = useState(null); // State to track hovered item
   const navigate = useNavigate();
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith("/admin");
 
-  // Auto logout when token expires
   useEffect(() => {
     const checkTokenExpiration = () => {
       const token = getToken();
       if (token) {
         try {
           const decoded = jwtDecode(token);
-          const currentTime = Date.now() / 1000; // Convert to seconds
+          const currentTime = Date.now() / 1000;
           if (decoded.exp < currentTime) {
             clearAuth();
             navigate("/login");
@@ -47,7 +45,7 @@ const Sidenav = () => {
     };
 
     checkTokenExpiration();
-    const interval = setInterval(checkTokenExpiration, 60000); // Check every 60 seconds
+    const interval = setInterval(checkTokenExpiration, 60000);
 
     return () => clearInterval(interval);
   }, [navigate]);
@@ -83,57 +81,102 @@ const Sidenav = () => {
 
   if (loading) return <Loader />;
 
+  const sidebarStyles = {
+    container: {
+      display: "flex",
+      height: "100vh",
+      backgroundColor: "#1e1e1e",
+      color: "#fff",
+      fontFamily: "'Poppins', sans-serif",
+    },
+    sidebar: {
+      width: "260px",
+      background: "linear-gradient(135deg, #121212 30%, #1e1e1e 100%)",
+      padding: "24px 16px",
+      boxShadow: "4px 0 12px rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      position: "fixed",
+      left: "0",
+      top: "0",
+      bottom: "0",
+      zIndex: 10,
+      transition: "width 0.3s ease",
+    },
+    logo: {
+      fontSize: "32px",
+      fontWeight: "700",
+      color: "#4CAF50",
+      textAlign: "center",
+      marginBottom: "40px",
+      textTransform: "uppercase",
+      letterSpacing: "1px",
+      animation: "fadeIn 0.6s ease",
+    },
+    navItem: {
+      padding: "14px 20px",
+      marginBottom: "12px",
+      display: "flex",
+      alignItems: "center",
+      borderRadius: "12px",
+      fontSize: "16px",
+      fontWeight: "500",
+      color: "#b0b0b0",
+      textDecoration: "none",
+      transition: "all 0.3s ease",
+      cursor: "pointer",
+      position: "relative",
+      boxShadow: "inset 0 0 0 transparent",
+      overflow: "hidden",
+    },
+    navItemHover: {
+      backgroundColor: "#292929",
+      color: "#4CAF50",
+      transform: "translateX(10px) scale(1.05)",
+      boxShadow: "inset 4px 0 0 #4CAF50",
+    },
+    activeLink: {
+      backgroundColor: "#4CAF50",
+      color: "#fff",
+      fontWeight: "600",
+      transform: "translateX(5px) scale(1.05)",
+      boxShadow: "inset 4px 0 0 #fff",
+    },
+    icon: {
+      marginRight: "12px",
+      fontSize: "20px",
+    },
+  };
+
   return (
-    <div className={styles.container}>
-      {/* Sidebar */}
-      <div className={styles.sidebar}>
-        <div className={styles.sidebarContent}>
-          <div className={styles.logo}>
-            <h1>I-FIT</h1>
-          </div>
-          <nav className={styles.navbar}>
-            <ul>
-                <>
-                  <li><Link to="/admin/dashboard"><FaHome /> Dashboard</Link></li>
-                  <li><Link to="/admin/user/list"><FaEnvelope /> User</Link></li>
-                  <li><Link to="/admin/category/list"><FaChartBar /> Categories</Link></li>
-                  <li><Link to="/admin/video/list"><FaEnvelope /> Video</Link></li>
-                </>
-          
-            </ul>
+    <div style={sidebarStyles.container}>
+      <div style={sidebarStyles.sidebar}>
+        <div>
+          <div style={sidebarStyles.logo}>I-FIT</div>
+          <nav>
+            {[
+              { to: "/admin/dashboard", label: "Dashboard", icon: <FaHome /> },
+              { to: "/admin/user/list", label: "Users", icon: <FaUser /> },
+              { to: "/admin/category/list", label: "Categories", icon: <FaChartBar /> },
+              { to: "/admin/video/list", label: "Videos", icon: <FaPlayCircle /> },
+            ].map(({ to, label, icon }) => (
+              <Link
+                key={to}
+                to={to}
+                style={{
+                  ...sidebarStyles.navItem,
+                  ...(location.pathname === to ? sidebarStyles.activeLink : {}),
+                  ...(hoveredItem === to ? sidebarStyles.navItemHover : {}),
+                }}
+                onMouseEnter={() => setHoveredItem(to)} // Set hovered item
+                onMouseLeave={() => setHoveredItem(null)} // Clear hovered item
+              >
+                <span style={sidebarStyles.icon}>{icon}</span> {label}
+              </Link>
+            ))}
           </nav>
         </div>
-      </div>
-
-      {/* Floating Header */}
-      <div className={styles.floatingHeader}>
-        <div className={styles.headerContent}>
-          <h2>Welcome to I-FIT</h2>
-          <p>Your fitness journey starts here</p>
-        </div>
-
-        {/* Profile Dropdown in Header */}
-        {isAuthenticated() && user && (
-          <div className={styles.profileDropdown}>
-            <IconButton onClick={handleMenuOpen}>
-              <Avatar src={user.profileImage} alt={user.name} />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-              <MenuItem onClick={() => navigate("/me")}>Profile</MenuItem>
-              {user.is_admin && <MenuItem onClick={() => navigate("/admin/dashboard")}>Dashboard</MenuItem>}
-              <MenuItem onClick={handleLogout}><FaSignOutAlt /> Logout</MenuItem>
-            </Menu>
-          </div>
-        )}
-      </div>
-
-      {/* Main Content */}
-      <div className={styles.mainContent}>
-        {/* Add your main page content here */}
       </div>
     </div>
   );

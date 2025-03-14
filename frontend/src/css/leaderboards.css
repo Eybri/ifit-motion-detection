@@ -1,68 +1,118 @@
 .leaderboard-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 100px;
-  }
-  
-  .leaderboard-table {
-    background-color: transparent !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin: 20px;
-    width: 80%;
-    max-width: 1000px;
-  }
-  
-  .leaderboard-table .MuiTable-root {
-    background-color: transparent;
-  }
-  
-  .leaderboard-table .MuiTableCell-root {
-    color: rgba(255, 255, 255, 0.8);
-    border-bottom: 1px solid rgba(224, 224, 224, 0.1);
-  }
-  
-  .leaderboard-table .MuiTableCell-head {
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.9);
-  }
-  
-  .leaderboard-table .MuiTableRow-root:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-  
-  .leaderboard-title {
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .user-info {
-    display: flex;
-    align-items: center;
-  }
-  
-  .user-image {
-    margin-right: 10px;
-  }
-  
-  .user-details {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .accuracy, .dances {
-    color: rgba(255, 255, 255, 0.8);
-  }
-  
-  .loading-container, .error-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    color: rgba(255, 255, 255, 0.8);
-  }
+  display: flex;
+  flex-direction: row; /* Change to row to place the table and card side by side */
+  align-items: flex-start; /* Align items to the top */
+  justify-content: center; /* Center the container horizontally */
+  margin-top: 100px;
+  gap: 20px; /* Add space between the table and the card */
+  padding: 0 20px; /* Add padding to prevent overflow */
+}
+
+.leaderboard-table {
+  background-color: transparent !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  width: 70%; /* Adjust width to leave space for the card */
+  max-width: 800px; /* Reduce max-width to fit the card */
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.current-user-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 20px;
+  width: 250px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(224, 224, 224, 0.1);
+  margin-top: 0; /* Remove top margin to align with the table */
+}
+
+/* Rest of your CSS remains unchanged */
+
+.leaderboard-table .MuiTable-root {
+  background-color: transparent;
+}
+
+.leaderboard-table .MuiTableCell-root {
+  color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(224, 224, 224, 0.1);
+}
+
+.leaderboard-table .MuiTableCell-head {
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.leaderboard-table .MuiTableRow-root:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.leaderboard-title {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-image {
+  margin-right: 10px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.accuracy, .dances {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+
+
+.current-user-card .user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.current-user-card .user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.current-user-card .user-details .name {
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.current-user-card .user-details .email {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.current-user-card .rank {
+  font-size: 24px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 10px;
+}
+
+.current-user-card .accuracy, .current-user-card .dances {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 5px;
+}

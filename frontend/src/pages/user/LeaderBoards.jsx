@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import "./../../css/leaderboards.css"; // Custom CSS for additional styling
 import { getUserId, getToken } from "../../utils/auth"; // Import auth utilities
-import CurrentUserStanding from "./UserStanding"; // Import the new component
 
 const LeaderBoards = () => {
   const [leaderboard, setLeaderboard] = useState([]);
@@ -81,9 +80,6 @@ const LeaderBoards = () => {
 
   return (
     <div className="leaderboard-container">
-      <Typography variant="h3" className="leaderboard-title">
-        ˏˋ°•*⁀➷ Dance Leaderboard ˏˋ°•*⁀➷
-      </Typography>
       <TableContainer component={Paper} className="leaderboard-table">
         <Table>
           <TableHead>
@@ -130,7 +126,24 @@ const LeaderBoards = () => {
       </TableContainer>
 
       {/* Display current user's standing if authenticated */}
-      <CurrentUserStanding currentUserStanding={currentUserStanding} />
+      {currentUserStanding && (
+        <div className="current-user-card">
+          <div className="user-info">
+            <Avatar
+              src={currentUserStanding.image || `https://via.placeholder.com/50?text=${currentUserStanding.name[0]}`}
+              alt={currentUserStanding.name}
+              className="user-image"
+            />
+            <div className="user-details">
+              <Typography variant="subtitle1" className="name">{currentUserStanding.name}</Typography>
+              <Typography variant="body2" className="email">{currentUserStanding.email}</Typography>
+            </div>
+          </div>
+          <Typography variant="h5" className="rank">#{currentUserStanding.rank}</Typography>
+          <Typography variant="body1" className="accuracy">Accuracy: {currentUserStanding.average_accuracy.toFixed(2)}%</Typography>
+          <Typography variant="body1" className="dances">Dances: {currentUserStanding.total_dances}</Typography>
+        </div>
+      )}
     </div>
   );
 };

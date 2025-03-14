@@ -11,7 +11,10 @@ from services.db import get_db
 from models.video import Video
 from models.result import Result
 from models.user import User
+
 from config import Config
+
+from api.resultRoutes import result_routes
 from api.routes import routes
 from api.categoryRoutes import category_routes
 from api.videoRoutes import video_routes
@@ -268,5 +271,7 @@ app.register_blueprint(routes)
 app.register_blueprint(category_routes)
 app.register_blueprint(video_routes)
 app.register_blueprint(feedback_routes)
+app.register_blueprint(result_routes)
+
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)

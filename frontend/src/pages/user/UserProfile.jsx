@@ -6,6 +6,7 @@ import Loader from '../../components/Layout/Loader';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+import HistoryResults from './HistoryResults'; // Import the HistoryResults component
 
 const UserProfile = () => {
     const [user, setUser] = useState(null);
@@ -130,8 +131,8 @@ const UserProfile = () => {
     if (loading) return <Loader />;
 
     return (
-        <div className="container custom-form">
-            <Paper elevation={6} sx={{ padding: 4, borderRadius: 3, boxShadow: 10 }}>
+        <Box sx={{ padding: { xs: 2, sm: 3, md: 4 } }} style={{marginTop:'50px'}}> {/* Adjusted padding for responsiveness */}
+            <Paper elevation={6} sx={{ padding: { xs: 2, sm: 3, md: 4 }, borderRadius: 3, boxShadow: 10 }}>
                 <Box display="flex" alignItems="center">
                     {/* Image Section */}
                     <Box sx={{ flex: 1, textAlign: 'center', position: 'relative' }}>
@@ -188,6 +189,11 @@ const UserProfile = () => {
                     </Box>
                 </Box>
             </Paper>
+
+            {/* Render HistoryResults Component */}
+            <Box sx={{ mt: 4 }}>
+                <HistoryResults />
+            </Box>
 
             {/* Modal for Profile Update */}
             <Modal open={openModal} onClose={() => setOpenModal(false)}>
@@ -270,7 +276,7 @@ const UserProfile = () => {
                     </Box>
                 </Box>
             </Modal>
-        </div>
+        </Box>
     );
 };
 

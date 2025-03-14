@@ -8,7 +8,7 @@ class Result:
 
     def create_result(self, video_id, user_id, accuracy_score, calories_burned, exercise_duration, 
                       steps_taken, movement_efficiency, performance_score, motion_matching_score, 
-                      user_feedback, energy_expenditure, steps_per_minute):
+                      user_feedback, energy_expenditure, steps_per_minute, archived=False):
         """Insert a new result with extended fields."""
         result_data = {
             "video_id": ObjectId(video_id),
@@ -23,6 +23,7 @@ class Result:
             "user_feedback": user_feedback,
             "energy_expenditure": energy_expenditure,
             "steps_per_minute": steps_per_minute,
+            "archived": archived,
             "created_at": datetime.utcnow()
         }
         return self.collection.insert_one(result_data)
@@ -59,3 +60,10 @@ class Result:
 
         leaderboard_data = list(self.collection.aggregate(pipeline))
         return leaderboard_data
+
+    def archive_result(self, result_id, archived=True):
+        """Archive or unarchive a result."""
+        return self.collection.update_one(
+            {"_id": ObjectId(result_id)},
+            {"$set": {"archived": archived}}
+        )

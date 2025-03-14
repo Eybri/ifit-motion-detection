@@ -140,11 +140,11 @@ const Header = () => {
                       <i className="bi bi-person-circle me-2"></i>Profile
                     </Link>
                   </DropdownItem>
-                  <DropdownItem>
+                  {/* <DropdownItem>
                     <Link className="dropdown-item" to="/history">
                       <i className="bi bi-clock-history me-2"></i>My History
                     </Link>
-                  </DropdownItem>
+                  </DropdownItem> */}
                   {user.is_admin && (
                     <DropdownItem>
                       <Link className="dropdown-item" to="/admin/dashboard">

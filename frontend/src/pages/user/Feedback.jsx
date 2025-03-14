@@ -14,6 +14,8 @@ const App = () => {
   const [reply, setReply] = useState("");
   const [selectedFeedbackId, setSelectedFeedbackId] = useState(null);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5); // Number of feedback items per page
 
   // Fetch the logged-in user's email from localStorage if authenticated
   useEffect(() => {
@@ -98,10 +100,15 @@ const App = () => {
     }
   };
 
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentFeedback = allFeedback.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Feedback System</h1>
-
       {/* Feedback Submission Form */}
       <form onSubmit={handleSubmitFeedback} style={styles.form}>
         <h2 style={styles.formTitle}>Submit Feedback</h2>
@@ -134,7 +141,7 @@ const App = () => {
       {/* Display All Feedback */}
       <div style={styles.feedbackList}>
         <h2 style={styles.feedbackTitle}>All Feedback</h2>
-        {allFeedback.map((fb) => (
+        {currentFeedback.map((fb) => (
           <div key={fb._id} style={styles.feedbackItem}>
             <p style={styles.feedbackText}>
               <strong>Feedback:</strong> {fb.feedback}
@@ -175,7 +182,7 @@ const App = () => {
                 </button>
                 <button
                   onClick={() => setSelectedFeedbackId(null)}
-                  style={styles.button}
+                  style={styles.cancelButton}
                 >
                   Cancel
                 </button>
@@ -183,13 +190,26 @@ const App = () => {
             ) : (
               <button
                 onClick={() => setSelectedFeedbackId(fb._id)}
-                style={styles.button}
+                style={styles.replyButton}
               >
                 <FontAwesomeIcon icon={faReply} style={styles.replyIcon} /> Reply
               </button>
             )}
           </div>
         ))}
+
+        {/* Pagination Controls */}
+        <div style={styles.pagination}>
+          {Array.from({ length: Math.ceil(allFeedback.length / itemsPerPage) }, (_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => paginate(i + 1)}
+              style={currentPage === i + 1 ? styles.activePage : styles.pageButton}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Toast Container for Notifications */}
@@ -208,21 +228,20 @@ const App = () => {
   );
 };
 
-// Styles (same as before)
+// Updated Styles
 const styles = {
   container: {
     padding: "20px",
     fontFamily: "Arial, sans-serif",
     maxWidth: "800px",
     margin: "0 auto",
-    backgroundColor: "#f9f9f9",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    minHeight: "100vh",
     borderRadius: "8px",
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-  },
-  title: {
-    textAlign: "center",
-    color: "#333",
-    marginBottom: "20px",
+    paddingTop: "100px",
   },
   form: {
     marginBottom: "20px",
@@ -232,11 +251,11 @@ const styles = {
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
   },
   formTitle: {
-    color: "#333",
+    color: "#5b7088",
     marginBottom: "20px",
   },
   label: {
-    color: "#333",
+    color: "#5b7088",
     fontSize: "16px",
     marginBottom: "5px",
   },
@@ -245,9 +264,9 @@ const styles = {
     padding: "10px",
     margin: "10px 0",
     borderRadius: "5px",
-    border: "1px solid #ccc",
+    border: "1px solid #b8dbeb",
     fontSize: "16px",
-    color: "#333",
+    color: "#5b7088",
     backgroundColor: "#f1f1f1",
   },
   textarea: {
@@ -255,14 +274,14 @@ const styles = {
     padding: "10px",
     margin: "10px 0",
     borderRadius: "5px",
-    border: "1px solid #ccc",
+    border: "1px solid #b8dbeb",
     minHeight: "100px",
     fontSize: "16px",
-    color: "#333",
+    color: "#5b7088",
   },
   button: {
     padding: "10px 20px",
-    backgroundColor: "#007bff",
+    backgroundColor: "#5b7088",
     color: "#fff",
     border: "none",
     borderRadius: "5px",
@@ -273,15 +292,40 @@ const styles = {
     alignItems: "center",
     gap: "8px",
   },
+  cancelButton: {
+    padding: "10px 20px",
+    backgroundColor: "#b8dbeb",
+    color: "#5b7088",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "background-color 0.3s ease",
+    marginLeft: "10px",
+  },
+  replyButton: {
+    padding: "10px 20px",
+    backgroundColor: "#b8dbeb",
+    color: "#5b7088",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "background-color 0.3s ease",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
   feedbackList: {
+    alignText: "center",
     marginTop: "20px",
   },
   feedbackTitle: {
-    color: "#333",
+    color: "#5b7088",
     marginBottom: "20px",
   },
   feedbackItem: {
-    border: "1px solid #ccc",
+    border: "1px solid #b8dbeb",
     borderRadius: "5px",
     padding: "15px",
     marginBottom: "10px",
@@ -289,31 +333,58 @@ const styles = {
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
   },
   feedbackText: {
-    color: "#333",
+    color: "#5b7088",
     marginBottom: "10px",
   },
   replyContainer: {
     marginLeft: "20px",
     padding: "10px",
-    borderLeft: "3px solid #007bff",
+    borderLeft: "3px solid #5b7088",
     backgroundColor: "#f1f1f1",
     borderRadius: "5px",
     marginBottom: "10px",
   },
   replyText: {
-    color: "#333",
+    color: "#5b7088",
     margin: "0",
     display: "flex",
     alignItems: "center",
     gap: "8px",
   },
   replyIcon: {
-    color: "#007bff",
+    color: "#5b7088",
   },
   error: {
     color: "red",
     fontSize: "14px",
     marginTop: "5px",
+  },
+  pagination: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: "20px",
+  },
+  pageButton: {
+    padding: "10px 15px",
+    margin: "0 5px",
+    backgroundColor: "#b8dbeb",
+    color: "#5b7088",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "background-color 0.3s ease",
+  },
+  activePage: {
+    padding: "10px 15px",
+    margin: "0 5px",
+    backgroundColor: "#5b7088",
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "background-color 0.3s ease",
   },
 };
 
