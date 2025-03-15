@@ -68,6 +68,27 @@ const AboutUs = () => {
             </div>
           ))}
         </div>
+
+        <h2 className="professor-heading">Meet Our Professor</h2>
+        <div className="professor">
+          {professor.map((professor, index) => (
+            <div className="flip-card" key={index}>
+              <div className="flip-card-inner">
+                {/* Front Side - Image */}
+                <div className="flip-card-front">
+                  <img src={professor.image} alt={professor.name} />
+                  <h3>{professor.name}</h3>
+                  <p>{professor.role}</p>
+                </div>
+                {/* Back Side - Description */}
+                <div className="flip-card-back">
+                  <h3>{professor.name}</h3>
+                  <p>{professor.description}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </motion.div>
     </AboutContainer>
   );
@@ -90,7 +111,14 @@ const aboutData = [
     text: "iFit enhances motivation and engagement through real-time performance tracking and customized fitness plans.",
   },
 ];
-
+const professor =[
+  {
+  name: "Pops V. Madriaga",
+  role: "BSIT Professor",
+  image: "/images/pops.jpg",
+  description: "Ma'am Pops is a Professor at the TUP Taguig Campus who handles the 1st to 4th year students.",
+  }
+]
 // Team Members Data
 const teamMembers = [
   {
@@ -112,7 +140,7 @@ const teamMembers = [
     description: "Tyrone focuses on frontend development, ensuring a great user experience.",
   },
   {
-    name: "Gelgin Delosantos",
+    name: "Gelgin De Los Santos",
     role: "Documentation",
     image: "/images/gelgin.jpg",
     description: "Gelgin handles documentation, ensuring all details are well-documented.",
@@ -180,6 +208,19 @@ const AboutContainer = styled.div`
     max-width: 400px;
   }
 
+  .professor {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  h2.professor-heading {
+    margin-top: 50px; /* Adjust this value as needed */
+  }
+
+
   /* Team Section */
   .team-section {
     margin-top: 50px;
@@ -189,7 +230,7 @@ const AboutContainer = styled.div`
     font-size: 2.5rem;
     font-weight: 700;
     color: #577D86;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
 
   .team {

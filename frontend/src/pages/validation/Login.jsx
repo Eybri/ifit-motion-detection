@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { 
-  TextField, Button, Container, Typography, Box, Paper, CircularProgress 
+  TextField, Button, Container, Typography, Box, Paper, CircularProgress, IconButton, InputAdornment 
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { setToken, setUserId } from '../../utils/auth'; // Import setUserId
-import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
+import { setToken, setUserId } from '../../utils/auth';
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // For password visibility
   const navigate = useNavigate();
   const location = useLocation();
   const redirect = location.search ? new URLSearchParams(location.search).get('redirect') : '/';
+
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -35,12 +41,12 @@ const Login = () => {
         const { data } = await axios.post('http://localhost:5000/api/login', values);
 
         if (data.token) {
-          setToken(data.token); // Store the token in localStorage
-          const decodedToken = jwtDecode(data.token); // Decode the token
-          const userId = decodedToken.user_id; // Extract user_id from the token
+          setToken(data.token);
+          const decodedToken = jwtDecode(data.token);
+          const userId = decodedToken.user_id;
 
-          setUserId(userId); // Store user_id in session storage
-          localStorage.setItem('user', JSON.stringify(data.user)); // Store user data in localStorage
+          setUserId(userId);
+          localStorage.setItem('user', JSON.stringify(data.user));
           toast.success('Logged in successfully!', { position: 'bottom-right' });
 
           setTimeout(() => {
@@ -65,7 +71,7 @@ const Login = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundImage: 'url(/images/bg1.jpg)', // Adjust based on your image path
+        backgroundImage: 'url(/images/bg1.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -109,13 +115,13 @@ const Login = () => {
               }}
             />
 
-            {/* Password Input */}
+            {/* Password Input with Eye Icon */}
             <TextField
               label="Password"
               variant="outlined"
               fullWidth
               name="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               {...formik.getFieldProps('password')}
               required
               margin="normal"
@@ -128,6 +134,15 @@ const Login = () => {
                   borderRadius: '40px',
                 },
                 '& .MuiInputBase-input': { padding: '12px 20px' }
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleTogglePassword} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
               }}
             />
 

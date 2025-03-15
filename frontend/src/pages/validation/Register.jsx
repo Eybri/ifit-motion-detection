@@ -14,9 +14,12 @@ import {
   FormControl,
   Grid,
   CircularProgress,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
-import "react-toastify/dist/ReactToastify.css";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -32,18 +35,25 @@ const Register = () => {
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
+  // Handle changes in form inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  // Handle file input for profile picture
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setFormData({ ...formData, image: file });
     setPreview(URL.createObjectURL(file));
   };
 
+  // Handle password visibility toggle
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
+
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -87,6 +97,7 @@ const Register = () => {
             opacity: 0.95,
           }}
         >
+          {/* Header */}
           <Typography
             variant="h4"
             align="center"
@@ -95,6 +106,8 @@ const Register = () => {
           >
             Create an Account
           </Typography>
+
+          {/* Form */}
           <form onSubmit={handleSubmit}>
             <Grid container spacing={4}>
               {/* Profile Section */}
@@ -130,6 +143,7 @@ const Register = () => {
                   </Box>
                 )}
 
+                {/* Full Name */}
                 <TextField
                   label="Full Name"
                   name="name"
@@ -139,6 +153,8 @@ const Register = () => {
                   onChange={handleChange}
                   InputProps={{ sx: { backgroundColor: "white" } }}
                 />
+
+                {/* Email */}
                 <TextField
                   label="Email"
                   type="email"
@@ -149,21 +165,37 @@ const Register = () => {
                   onChange={handleChange}
                   InputProps={{ sx: { backgroundColor: "white" } }}
                 />
+
+                {/* Password with Eye Icon */}
                 <TextField
                   label="Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   fullWidth
                   required
                   margin="normal"
                   onChange={handleChange}
-                  InputProps={{ sx: { backgroundColor: "white" } }}
+                  InputProps={{
+                    sx: { backgroundColor: "white" },
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={handleClickShowPassword} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
 
               {/* Other Fields Section */}
               <Grid item xs={12} md={7}>
-                <FormControl fullWidth margin="normal" sx={{ backgroundColor: "white" }}>
+                {/* Gender */}
+                <FormControl
+                  fullWidth
+                  margin="normal"
+                  sx={{ backgroundColor: "white" }}
+                >
                   <InputLabel>Gender</InputLabel>
                   <Select
                     name="gender"
@@ -176,6 +208,8 @@ const Register = () => {
                     <MenuItem value="other">Other</MenuItem>
                   </Select>
                 </FormControl>
+
+                {/* Date of Birth */}
                 <TextField
                   label="Date of Birth"
                   type="date"
@@ -187,6 +221,8 @@ const Register = () => {
                   InputLabelProps={{ shrink: true }}
                   InputProps={{ sx: { backgroundColor: "white" } }}
                 />
+
+                {/* Height */}
                 <TextField
                   label="Height (cm)"
                   type="number"
@@ -197,6 +233,8 @@ const Register = () => {
                   onChange={handleChange}
                   InputProps={{ sx: { backgroundColor: "white" } }}
                 />
+
+                {/* Weight */}
                 <TextField
                   label="Weight (kg)"
                   type="number"
@@ -207,9 +245,10 @@ const Register = () => {
                   onChange={handleChange}
                   InputProps={{ sx: { backgroundColor: "white" } }}
                 />
-                {/* Already have acc */}
+
+                {/* Already have an account? */}
                 <Typography align="right" sx={{ mt: 1 }}>
-                  <Link to="/login" style={{ textDecoration: 'underline', color: '#577D86' }}>
+                  <Link to="/login" style={{ textDecoration: "underline", color: "#577D86" }}>
                     Already have an account?
                   </Link>
                 </Typography>
@@ -230,7 +269,11 @@ const Register = () => {
               }}
               disabled={loading}
             >
-              {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Register"}
+              {loading ? (
+                <CircularProgress size={24} sx={{ color: "white" }} />
+              ) : (
+                "Register"
+              )}
             </Button>
           </form>
         </Paper>
