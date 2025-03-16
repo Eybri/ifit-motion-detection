@@ -11,7 +11,7 @@ from services.db import get_db
 from models.video import Video
 from models.result import Result
 from models.user import User
-
+from models.motion import MotionData
 from config import Config
 
 from api.resultRoutes import result_routes
@@ -38,25 +38,7 @@ pose = mp_pose.Pose()
 comparison_running = False
 video_model = Video(db)
 user_model = User(db)
-
-def extract_keypoints(video_url):
-    cap = cv2.VideoCapture(video_url)
-    keypoints_list = []
-
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = pose.process(frame_rgb)
-
-        if results.pose_landmarks:
-            keypoints = {f"keypoint_{i}": {"x": lm.x, "y": lm.y, "z": lm.z} for i, lm in enumerate(results.pose_landmarks.landmark)}
-            keypoints_list.append({"keypoints": keypoints})
-
-    cap.release()
-    return keypoints_list
+motion_data = MotionData(db)
 
 def draw_stickman(frame, landmarks, color):
     for connection in mp_pose.POSE_CONNECTIONS:
@@ -130,11 +112,15 @@ def compare_live_pose(video_id, user_id):
         comparison_running = False
         return
 
-    reference_poses = extract_keypoints(video["video_url"])
-    if not reference_poses:
-        socketio.emit('comparison_error', {'message': 'No keypoints extracted from video'})
+    # Load preprocessed motion data
+    motion_data = MotionData(db).get_motion_data(video_id)
+    if not motion_data or "frames" not in motion_data:
+        socketio.emit('comparison_error', {'message': 'No preprocessed motion data found'})
         comparison_running = False
         return
+
+    reference_poses = motion_data["frames"]  # Use preprocessed keypoints
+    fps = motion_data["fps"]  # Get FPS for synchronization
 
     weight_kg = float(user["weight"])
     cap_webcam = cv2.VideoCapture(0)
@@ -194,7 +180,9 @@ def compare_live_pose(video_id, user_id):
         frame_base64 = base64.b64encode(buffer).decode('utf-8')
         socketio.emit('video_frame', {'frame': frame_base64})
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        # Synchronize with the reference video's FPS
+        delay = int(1000 / fps)  # Delay in milliseconds
+        if cv2.waitKey(delay) & 0xFF == ord('q'):
             break
 
     cap_webcam.release()

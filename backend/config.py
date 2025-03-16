@@ -7,6 +7,6 @@ class Config:
     AUTH0_CLIENT_SECRET = os.getenv("AUTH0_CLIENT_SECRET")
     API_AUDIENCE = os.getenv("API_AUDIENCE")  
     ALGORITHMS = ["RS256"]
-    MONGO_URI = os.getenv("MONGO_URI")  \
+    MONGO_URI = os.getenv("MONGO_URI")  
 
 config = Config()

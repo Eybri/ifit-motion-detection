@@ -14,12 +14,10 @@ import {
   FormControl,
   Grid,
   CircularProgress,
-  InputAdornment,
-  IconButton,
 } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
+import { motion } from 'framer-motion';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -35,25 +33,18 @@ const Register = () => {
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
-  // Handle changes in form inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle file input for profile picture
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setFormData({ ...formData, image: file });
     setPreview(URL.createObjectURL(file));
   };
 
-  // Handle password visibility toggle
-  const handleClickShowPassword = () => setShowPassword(!showPassword);
-
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -75,211 +66,185 @@ const Register = () => {
   };
 
   return (
-    <Box
-      sx={{
-        height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundImage: "url(/images/bg1.jpg)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
     >
-      <Container maxWidth="md">
-        <Paper
-          elevation={5}
-          sx={{
-            padding: 4,
-            borderRadius: 5,
-            backgroundColor: "#F7F7F7",
-            opacity: 0.95,
-          }}
-        >
-          {/* Header */}
-          <Typography
-            variant="h4"
-            align="center"
-            gutterBottom
-            sx={{ fontWeight: "bold", color: "#577D86", mb: 3 }}
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#FDFAF6", // Replace background image with color
+        }}
+      >
+        <Container maxWidth="md" sx={{ height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}> {/* Adjust the height as needed */}
+          <Paper
+            elevation={5}
+            sx={{
+              padding: 4,
+              borderRadius: 5,
+              backgroundColor: "#fff",
+              opacity: 0.95,
+              height: '100%', // Ensure the Paper component takes the full height of the Container
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
           >
-            Create an Account
-          </Typography>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={4}>
-              {/* Profile Section */}
-              <Grid item xs={12} md={5}>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  sx={{ fontWeight: "bold", color: "#577D86" }}
-                >
-                  Profile Information
-                </Typography>
-                <Button
-                  variant="contained"
-                  component="label"
-                  fullWidth
-                  sx={{
-                    borderRadius: "40px",
-                    bgcolor: "#577D86",
-                    color: "white",
-                    "&:hover": { bgcolor: "#569DAA" },
-                  }}
-                >
-                  Upload Profile Picture
-                  <input type="file" hidden onChange={handleFileChange} />
-                </Button>
-                {preview && (
-                  <Box mt={2} display="flex" justifyContent="center">
-                    <img
-                      src={preview}
-                      alt="Preview"
-                      style={{ width: 150, height: 150, borderRadius: "50%" }}
-                    />
-                  </Box>
-                )}
-
-                {/* Full Name */}
-                <TextField
-                  label="Full Name"
-                  name="name"
-                  fullWidth
-                  required
-                  margin="normal"
-                  onChange={handleChange}
-                  InputProps={{ sx: { backgroundColor: "white" } }}
-                />
-
-                {/* Email */}
-                <TextField
-                  label="Email"
-                  type="email"
-                  name="email"
-                  fullWidth
-                  required
-                  margin="normal"
-                  onChange={handleChange}
-                  InputProps={{ sx: { backgroundColor: "white" } }}
-                />
-
-                {/* Password with Eye Icon */}
-                <TextField
-                  label="Password"
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  fullWidth
-                  required
-                  margin="normal"
-                  onChange={handleChange}
-                  InputProps={{
-                    sx: { backgroundColor: "white" },
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={handleClickShowPassword} edge="end">
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-
-              {/* Other Fields Section */}
-              <Grid item xs={12} md={7}>
-                {/* Gender */}
-                <FormControl
-                  fullWidth
-                  margin="normal"
-                  sx={{ backgroundColor: "white" }}
-                >
-                  <InputLabel>Gender</InputLabel>
-                  <Select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    required
-                  >
-                    <MenuItem value="male">Male</MenuItem>
-                    <MenuItem value="female">Female</MenuItem>
-                    <MenuItem value="other">Other</MenuItem>
-                  </Select>
-                </FormControl>
-
-                {/* Date of Birth */}
-                <TextField
-                  label="Date of Birth"
-                  type="date"
-                  name="date_of_birth"
-                  fullWidth
-                  required
-                  margin="normal"
-                  onChange={handleChange}
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{ sx: { backgroundColor: "white" } }}
-                />
-
-                {/* Height */}
-                <TextField
-                  label="Height (cm)"
-                  type="number"
-                  name="height"
-                  fullWidth
-                  required
-                  margin="normal"
-                  onChange={handleChange}
-                  InputProps={{ sx: { backgroundColor: "white" } }}
-                />
-
-                {/* Weight */}
-                <TextField
-                  label="Weight (kg)"
-                  type="number"
-                  name="weight"
-                  fullWidth
-                  required
-                  margin="normal"
-                  onChange={handleChange}
-                  InputProps={{ sx: { backgroundColor: "white" } }}
-                />
-
-                {/* Already have an account? */}
-                <Typography align="right" sx={{ mt: 1 }}>
-                  <Link to="/login" style={{ textDecoration: "underline", color: "#577D86" }}>
-                    Already have an account?
-                  </Link>
-                </Typography>
-              </Grid>
-            </Grid>
-
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              sx={{
-                mt: 3,
-                bgcolor: "#577D86",
-                color: "#fff",
-                "&:hover": { bgcolor: "#569DAA" },
-                borderRadius: "40px",
-              }}
-              disabled={loading}
+            <Typography
+              variant="h4"
+              align="center"
+              gutterBottom
+              sx={{ fontWeight: "bold", color: "#99BC85", mb: 3 }}
             >
-              {loading ? (
-                <CircularProgress size={24} sx={{ color: "white" }} />
-              ) : (
-                "Register"
-              )}
-            </Button>
-          </form>
-        </Paper>
-      </Container>
-      <ToastContainer />
-    </Box>
+              Create an Account
+            </Typography>
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={4}>
+                {/* Profile Section */}
+                <Grid item xs={12} md={5}>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{ fontWeight: "bold", color: "#99BC85" }}
+                  >
+                    Profile Information
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    component="label"
+                    fullWidth
+                    sx={{
+                      borderRadius: "40px",
+                      bgcolor: "#99BC85",
+                      color: "white",
+                      "&:hover": { bgcolor: "#000" },
+                    }}
+                  >
+                    Upload Profile Picture
+                    <input type="file" hidden onChange={handleFileChange} />
+                  </Button>
+                  {preview && (
+                    <Box mt={2} display="flex" justifyContent="center">
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        style={{ width: 150, height: 150, borderRadius: "50%" }}
+                      />
+                    </Box>
+                  )}
+
+                  <TextField
+                    label="Full Name"
+                    name="name"
+                    fullWidth
+                    required
+                    margin="normal"
+                    onChange={handleChange}
+                    InputProps={{ sx: { backgroundColor: "white" } }}
+                  />
+                  <TextField
+                    label="Email"
+                    type="email"
+                    name="email"
+                    fullWidth
+                    required
+                    margin="normal"
+                    onChange={handleChange}
+                    InputProps={{ sx: { backgroundColor: "white" } }}
+                  />
+                  <TextField
+                    label="Password"
+                    type="password"
+                    name="password"
+                    fullWidth
+                    required
+                    margin="normal"
+                    onChange={handleChange}
+                    InputProps={{ sx: { backgroundColor: "white" } }}
+                  />
+                </Grid>
+
+                {/* Other Fields Section */}
+                <Grid item xs={12} md={7}>
+                  <FormControl fullWidth margin="normal" sx={{ backgroundColor: "white" }}>
+                    <InputLabel>Gender</InputLabel>
+                    <Select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleChange}
+                      required
+                    >
+                      <MenuItem value="male">Male</MenuItem>
+                      <MenuItem value="female">Female</MenuItem>
+                      <MenuItem value="other">Other</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    label="Date of Birth"
+                    type="date"
+                    name="date_of_birth"
+                    fullWidth
+                    required
+                    margin="normal"
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{ sx: { backgroundColor: "white" } }}
+                  />
+                  <TextField
+                    label="Height (cm)"
+                    type="number"
+                    name="height"
+                    fullWidth
+                    required
+                    margin="normal"
+                    onChange={handleChange}
+                    InputProps={{ sx: { backgroundColor: "white" } }}
+                  />
+                  <TextField
+                    label="Weight (kg)"
+                    type="number"
+                    name="weight"
+                    fullWidth
+                    required
+                    margin="normal"
+                    onChange={handleChange}
+                    InputProps={{ sx: { backgroundColor: "white" } }}
+                  />
+                  {/* Already have acc */}
+                  <Typography align="right" sx={{ mt: 1 }}>
+                    <Link to="/login" style={{ textDecoration: 'underline', color: '#99BC85' }}>
+                      Already have an account?
+                    </Link>
+                  </Typography>
+                </Grid>
+              </Grid>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                sx={{
+                  mt: 3,
+                  bgcolor: "#99BC85",
+                  color: "#fff",
+                  "&:hover": { bgcolor: "#000" },
+                  borderRadius: "40px",
+                }}
+                disabled={loading}
+              >
+                {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Register"}
+              </Button>
+            </form>
+          </Paper>
+        </Container>
+        <ToastContainer />
+      </Box>
+    </motion.div>
   );
 };
 

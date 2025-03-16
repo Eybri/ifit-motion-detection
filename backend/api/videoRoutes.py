@@ -35,9 +35,12 @@ def upload_video():
             video_file.save(temp_video.name)
             temp_path = temp_video.name
 
-        # Upload and extract motion data
+        # Upload video and extract motion data
         video = video_model.upload_video(category_id, title, temp_path, description)
         video_id = str(video.inserted_id)
+
+        # Extract motion data and store it in the motion_data collection
+        motion_model = MotionData(db)  # Assuming db is your MongoDB client
         motion_model.extract_motion_data(temp_path, video_id)
 
         os.remove(temp_path)  # Cleanup after processing

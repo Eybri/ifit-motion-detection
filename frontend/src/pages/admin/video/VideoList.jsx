@@ -4,26 +4,30 @@ import { getToken } from "../../../utils/auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Modal, Form } from "react-bootstrap";
-import { Card, CardContent, CardMedia, Typography, IconButton } from "@mui/material";
+import { Card, CardContent, Typography, IconButton } from "@mui/material";
 import { FaEdit, FaTrash, FaPlay } from "react-icons/fa";
+
+// Google Font
+const fontFamily = "'Poppins', sans-serif";
 
 const styles = {
   container: {
     padding: "20px",
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#FDFAF6",
     minHeight: "100vh",
-    fontFamily: "'Poppins', sans-serif",
+    fontFamily: fontFamily, // Apply Google Font
   },
   header: {
     fontSize: "32px",
     fontWeight: "700",
     color: "#333",
     marginBottom: "24px",
-    borderBottom: "2px solid #4CAF50",
+    borderBottom: "2px solid #99BC85",
     paddingBottom: "8px",
+    fontFamily: fontFamily, // Apply Google Font
   },
   button: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#99BC85",
     color: "#fff",
     border: "none",
     padding: "10px 16px",
@@ -32,6 +36,7 @@ const styles = {
     transition: "background 0.3s ease",
     marginBottom: "20px",
     cursor: "pointer",
+    fontFamily: fontFamily, // Apply Google Font
   },
   card: {
     width: "300px",
@@ -41,22 +46,32 @@ const styles = {
     transition: "transform 0.3s ease, box-shadow 0.3s ease",
     overflow: "hidden",
     cursor: "pointer",
+    fontFamily: fontFamily, // Apply Google Font
   },
   cardHover: {
     transform: "translateY(-5px)",
     boxShadow: "0 6px 14px rgba(0,0,0,0.15)",
   },
-  cardMedia: {
-    height: "160px",
-    objectFit: "cover",
+  videoContainer: {
+    width: "100%",
+    height: "160px", // Fixed height for the video container
+    overflow: "hidden",
+    position: "relative",
+  },
+  video: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover", // Ensure the video fits perfectly within the container
   },
   cardContent: {
     padding: "16px",
+    fontFamily: fontFamily, // Apply Google Font
   },
   iconButton: {
     marginLeft: "8px",
     color: "#757575",
     transition: "color 0.3s ease",
+    fontFamily: fontFamily, // Apply Google Font
   },
 };
 
@@ -180,8 +195,27 @@ const VideoList = () => {
     }
   };
 
+  // Function to handle video autoplay on hover
+  const handleVideoHover = (e) => {
+    const video = e.target;
+    video.play();
+  };
+
+  // Function to handle video pause on mouse leave
+  const handleVideoLeave = (e) => {
+    const video = e.target;
+    video.pause();
+    video.currentTime = 0; // Reset video to the beginning
+  };
+
   return (
     <div style={styles.container}>
+      {/* Add Google Font Link */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+        rel="stylesheet"
+      />
+
       <ToastContainer />
       <h2 style={styles.header}>🎥 Video List</h2>
 
@@ -195,14 +229,20 @@ const VideoList = () => {
         <div className="d-flex flex-wrap gap-4">
           {videos.map((video) => (
             <Card key={video.id} style={styles.card}>
-              <CardMedia
-                component="img"
-                src={video.thumbnail_url || "/placeholder.png"}
-                style={styles.cardMedia}
-              />
+              {/* Video Container */}
+              <div style={styles.videoContainer}>
+                <video
+                  src={video.video_url}
+                  style={styles.video}
+                  controls={false} // Disable default controls
+                  muted // Mute the video for autoplay
+                  onMouseEnter={handleVideoHover} // Autoplay on hover
+                  onMouseLeave={handleVideoLeave} // Pause on mouse leave
+                />
+              </div>
               <CardContent style={styles.cardContent}>
-                <Typography variant="h6">{video.title}</Typography>
-                <Typography variant="body2">{video.description}</Typography>
+                <Typography variant="h6" style={{ fontFamily: fontFamily }}>{video.title}</Typography>
+                <Typography variant="body2" style={{ fontFamily: fontFamily }}>{video.description}</Typography>
                 <IconButton onClick={() => handleEditClick(video)} style={styles.iconButton}>
                   <FaEdit />
                 </IconButton>
@@ -221,15 +261,44 @@ const VideoList = () => {
       {/* ✅ MODAL */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Form onSubmit={handleSubmit}>
-          <Form.Control type="text" name="title" value={newVideo.title} onChange={handleChange} required />
-          <Form.Control type="text" name="description" value={newVideo.description} onChange={handleChange} required />
-          <Form.Control as="select" name="category_id" value={newVideo.category_id} onChange={handleChange} required>
+          <Form.Control
+            type="text"
+            name="title"
+            value={newVideo.title}
+            onChange={handleChange}
+            required
+            style={{ fontFamily: fontFamily }} // Apply Google Font
+          />
+          <Form.Control
+            type="text"
+            name="description"
+            value={newVideo.description}
+            onChange={handleChange}
+            required
+            style={{ fontFamily: fontFamily }} // Apply Google Font
+          />
+          <Form.Control
+            as="select"
+            name="category_id"
+            value={newVideo.category_id}
+            onChange={handleChange}
+            required
+            style={{ fontFamily: fontFamily }} // Apply Google Font
+          >
             {categories.map((category) => (
-              <option key={category.id} value={category.id}>{category.name}</option>
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
             ))}
           </Form.Control>
-          <Form.Control type="file" onChange={handleFileChange} />
-          <button type="submit" style={styles.button}>{editMode ? "Update" : "Add"}</button>
+          <Form.Control
+            type="file"
+            onChange={handleFileChange}
+            style={{ fontFamily: fontFamily }} // Apply Google Font
+          />
+          <button type="submit" style={styles.button}>
+            {editMode ? "Update" : "Add"}
+          </button>
         </Form>
       </Modal>
     </div>

@@ -94,75 +94,64 @@ const Header = () => {
       <GlobalStyle />
       <NavContainer className={`navbar navbar-expand-lg fixed-top ${isScrolled ? "scrolled" : ""}`}>
         <div className="container">
-          <Link to="/" className="navbar-brand">
-            <Logo>I-FIT</Logo>
-          </Link>
+          <NavWrapper>
+            {/* Right Section: Logo */}
+            <RightSection>
+              <Link to="/" className="navbar-brand">
+                <Logo>I-FIT</Logo>
+              </Link>
+            </RightSection>
 
-          {/* Navbar Toggler for Mobile */}
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span className="navbar-toggler-icon"></span>
-          </button>
+            {/* Left Section: Nav Items + Login Button */}
+            <LeftSection>
+              <ul className="navbar-nav">
+                {!isAdminRoute && (
+                  <>
+                    <NavItem>
+                      <Link className="nav-link" to="/">Home</Link>
+                    </NavItem>
+                    <NavItem>
+                      <Link className="nav-link" to="/leader-boards">Leaderboards</Link>
+                    </NavItem>
+                    <NavItem>
+                      <Link className="nav-link" to="/aboutus">About Us</Link>
+                    </NavItem>
+                    <NavItem>
+                      <Link className="nav-link" to="/feedback">Feedback</Link>
+                    </NavItem>
+                  </>
+                )}
+              </ul>
 
-          {/* Navbar Links */}
-          <div className="collapse navbar-collapse justify-content-center" id="navbarNav">
-            <ul className="navbar-nav">
-              {!isAdminRoute && (
-                <>
-                  <NavItem>
-                    <Link className="nav-link" to="/">Home</Link>
-                  </NavItem>
-                 
-                  <NavItem>
-                    <Link className="nav-link" to="/leader-boards">Leader Boards</Link>
-                  </NavItem>
-                  <NavItem>
-                    <Link className="nav-link" to="/aboutus">About Us</Link>
-                  </NavItem> 
-                  <NavItem>
-                    <Link className="nav-link" to="/feedback">Feedbacks</Link>
-                  </NavItem>
-                </>
-              )}
-            </ul>
-          </div>
-
-          {/* User Section */}
-          <div className="d-flex align-items-center">
-            {isAuthenticated() && user ? (
-              <div className="dropdown">
-                <button className="btn dropdown-toggle d-flex align-items-center border-0 bg-transparent" id="dropdownMenuButton" data-bs-toggle="dropdown">
-                  <UserAvatar src={user.image || "/images/default.jpg"} alt={user.name || "User"} />
-                  <UserName>{user.name || "User"}</UserName>
-                </button>
-                <ul className="dropdown-menu dropdown-menu-end shadow-sm">
-                  <DropdownItem>
-                    <Link className="dropdown-item" to="/me">
-                      <i className="bi bi-person-circle me-2"></i>Profile
-                    </Link>
-                  </DropdownItem>
-                  {/* <DropdownItem>
-                    <Link className="dropdown-item" to="/history">
-                      <i className="bi bi-clock-history me-2"></i>My History
-                    </Link>
-                  </DropdownItem> */}
-                  {user.is_admin && (
+              {/* Login Button */}
+              {isAuthenticated() && user ? (
+                <div className="dropdown">
+                  <button className="btn dropdown-toggle d-flex align-items-center border-0 bg-transparent" id="dropdownMenuButton" data-bs-toggle="dropdown">
+                    <UserAvatar src={user.image || "/images/default.jpg"} alt={user.name || "User"} />
+                    <UserName>{user.name || "User"}</UserName>
+                  </button>
+                  <ul className="dropdown-menu dropdown-menu-end shadow-sm">
                     <DropdownItem>
-                      <Link className="dropdown-item" to="/admin/dashboard">
-                        <i className="bi bi-speedometer2 me-2"></i>Dashboard
-                      </Link>
+                      <Link className="dropdown-item" to="/me">Profile</Link>
                     </DropdownItem>
-                  )}
-                  <DropdownItem>
-                    <button className="dropdown-item text-danger" onClick={handleLogout}>
-                      <i className="bi bi-box-arrow-right me-2"></i>Logout
-                    </button>
-                  </DropdownItem>
-                </ul>
-              </div>
-            ) : (
-              <LoginButton to="/login">Login</LoginButton>
-            )}
-          </div>
+                    {/* <DropdownItem>
+                      <Link className="dropdown-item" to="/history">My History</Link>
+                    </DropdownItem> */}
+                    {/* {user.is_admin && (
+                      <DropdownItem>
+                        <Link className="dropdown-item" to="/admin/dashboard">Dashboard</Link>
+                      </DropdownItem>
+                    )} */}
+                    <DropdownItem>
+                      <button className="dropdown-item text-danger" onClick={handleLogout}>Logout</button>
+                    </DropdownItem>
+                  </ul>
+                </div>
+              ) : (
+                <LoginButton to="/login">Login</LoginButton>
+              )}
+            </LeftSection>
+          </NavWrapper>
         </div>
       </NavContainer>
     </>
@@ -173,28 +162,53 @@ export default Header;
 
 // Styled Components
 const NavContainer = styled.nav`
-  background-color: #000;
+  background-color: #FAF1E6;
   opacity: 0.9;
   transition: all 0.3s ease-in-out;
-  border-bottom: solid 1px rgba(0, 0, 0, 0.1);
   font-family: "Montserrat", sans-serif;
+  padding: 10px 5%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); // Add this line for shadow
+  border-radius: 10px; // Optional: Add border-radius for a softer look
+  margin: 10px; // Optional: Add margin to ensure the shadow is visible
+`;
+
+const NavWrapper = styled.div`
+  display: flex;
+  justify-content: space-between; /* Space between left and right sections */
+  align-items: center;
+  width: 100%;
+`;
+
+const LeftSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`;
+
+const RightSection = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const Logo = styled.div`
   font-size: 32px;
   font-weight: 700;
-  color: #fff;
+  color: #99BC85;
+
+  &:hover {
+    color: black;
+  }
 `;
 
 const NavItem = styled.li`
   .nav-link {
     font-weight: 700;
-    color: #fff;
+    color: #99BC85;
     text-transform: uppercase;
     transition: color 0.3s ease;
 
     &:hover {
-      color: orange;
+      color: black;
     }
   }
 `;
@@ -203,28 +217,28 @@ const UserAvatar = styled.img`
   width: 35px;
   height: 35px;
   border-radius: 50%;
-  border: 2px solid #8686AC;
+  border: 2px solid #99BC85;
   margin-right: 8px;
 `;
 
 const UserName = styled.span`
   font-weight: 700;
-  color: #8686AC;
+  color: #99BC85;
 `;
 
 const DropdownItem = styled.li`
   .dropdown-item {
     font-weight: 700;
-    color: #8686AC;
+    color: #99BC85;
     &:hover {
-      background: #0F0E47;
+      background: #99BC85;
       color: white;
     }
   }
 `;
 
 const LoginButton = styled(Link)`
-  background: #577D86;
+  background: #99BC85;
   color: white;
   border: none;
   padding: 10px 25px;
@@ -236,7 +250,7 @@ const LoginButton = styled(Link)`
   text-decoration: none;
 
   &:hover {
-    background: #4a423e;
+    background: #000;
     color: white;
   }
 `;

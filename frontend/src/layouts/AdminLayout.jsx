@@ -7,46 +7,49 @@ const styles = {
   adminLayout: {
     display: "flex",
     height: "100vh",
-    backgroundColor: "#1e1e2f",
-    color: "#ffffff",
+    backgroundColor: "#FDFAF6", // Off-white background
+    color: "#333", // Darker text for contrast
     flexDirection: "column",
+    overflow: "hidden", // Prevent scrolling on the layout itself
   },
   header: {
     display: "flex",
     justifyContent: "flex-end",
     padding: "10px 20px",
-    backgroundColor: "#000",
-    borderBottom: "1px solid #333",
+    backgroundColor: "#FFFFFF", // White header
+    borderBottom: "1px solid #E4EFE7", // Light green border
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow
   },
   contentWrapper: {
     display: "flex",
     flex: 1,
+    overflow: "hidden", // Prevent scrolling on the wrapper
   },
   sidebar: {
     width: "250px",
-    background: "linear-gradient(135deg, #2a2a40 0%, #1e1e2f 100%)",
+    background: "#FDFAF6", // Off-white sidebar
     padding: "20px",
-    boxShadow: "4px 0 12px rgba(0, 0, 0, 0.3)",
-    overflowY: "auto",
+    boxShadow: "4px 0 12px rgba(0, 0, 0, 0.1)", // Light shadow
+    overflowY: "auto", // Allow scrolling only in the sidebar
+    transition: "width 0.3s ease",
   },
   mainContent: {
     flex: 1,
     padding: "20px",
-    backgroundColor: "#f4f4f9",
+    backgroundColor: "#FFFFFF", // White main content
     borderTopLeftRadius: "20px",
     borderBottomLeftRadius: "20px",
     margin: "10px",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-    overflowY: "auto",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Light shadow
+    overflowY: "auto", // Allow scrolling only in the main content
     transition: "all 0.3s ease",
   },
-  smallScreenSidebar: {
-    width: "70px",
+  minimizedSidebar: {
+    width: "80px",
     padding: "10px",
   },
-  smallScreenMainContent: {
-    width: "calc(100% - 70px)",
-    marginLeft: "70px",
+  minimizedMainContent: {
+    marginLeft: "80px",
   },
 };
 
@@ -54,6 +57,7 @@ const AdminLayout = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(
     window.innerWidth <= 768
   );
+  const [isMinimized, setIsMinimized] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -64,6 +68,10 @@ const AdminLayout = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const toggleMinimize = () => {
+    setIsMinimized(!isMinimized);
+  };
+
   return (
     <div style={styles.adminLayout}>
       {/* ✅ User Dropdown (Header Part) */}
@@ -73,16 +81,18 @@ const AdminLayout = () => {
 
       <div style={styles.contentWrapper}>
         <div
-          style={isSmallScreen ? styles.smallScreenSidebar : styles.sidebar}
+          style={{
+            ...styles.sidebar,
+            ...(isMinimized ? styles.minimizedSidebar : {}),
+          }}
         >
-          <Sidebar />
+          <Sidebar isMinimized={isMinimized} toggleMinimize={toggleMinimize} />
         </div>
         <main
-          style={
-            isSmallScreen
-              ? styles.smallScreenMainContent
-              : styles.mainContent
-          }
+          style={{
+            ...styles.mainContent,
+            ...(isMinimized ? styles.minimizedMainContent : {}),
+          }}
         >
           <Outlet />
         </main>

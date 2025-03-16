@@ -4,6 +4,9 @@ import Loader from "../../../components/Layout/Loader";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getToken } from "../../../utils/auth";
+import IconButton from "@mui/material/IconButton";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 // Import Google Font
 const fontFamily = "'Poppins', sans-serif";
@@ -20,13 +23,13 @@ const styles = {
     fontSize: "28px",
     fontWeight: "600",
     marginBottom: "24px",
-    color: "#2c3e50",
+    color: "#black",
     textAlign: "center",
     letterSpacing: "0.5px",
   },
   card: {
     padding: "24px",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#FDFAF6",
     borderRadius: "12px",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
     marginBottom: "24px",
@@ -46,7 +49,7 @@ const styles = {
     borderColor: "#4CAF50",
   },
   buttonPrimary: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#99BC85",
     color: "#fff",
     padding: "12px 20px",
     borderRadius: "8px",
@@ -83,8 +86,8 @@ const styles = {
     fontFamily: fontFamily, // Apply Google Font
   },
   th: {
-    backgroundColor: "#4CAF50",
-    color: "#fff",
+    backgroundColor: "#99BC85",
+    color: "black",
     padding: "16px",
     textAlign: "left",
     fontWeight: "600",
@@ -109,14 +112,14 @@ const styles = {
     fontFamily: fontFamily, // Apply Google Font
   },
   editButton: {
-    backgroundColor: "#ffc107",
+    backgroundColor: "#99BC85",
     color: "#fff",
   },
   editButtonHover: {
     backgroundColor: "#e0a800",
   },
   deleteButton: {
-    backgroundColor: "#f44336",
+    backgroundColor: "#A94A4A",
     color: "#fff",
   },
   deleteButtonHover: {
@@ -286,22 +289,26 @@ const CategoryList = () => {
                 <td style={styles.td}>{category.name}</td>
                 <td style={styles.td}>{category.description || "N/A"}</td>
                 <td style={styles.td}>
-                  <button
-                    style={{ ...styles.actionButton, ...styles.editButton }}
-                    onMouseEnter={(e) => (e.target.style.backgroundColor = "#e0a800")}
-                    onMouseLeave={(e) => (e.target.style.backgroundColor = "#ffc107")}
-                    onClick={() => handleEdit(category)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    style={{ ...styles.actionButton, ...styles.deleteButton }}
-                    onMouseEnter={(e) => (e.target.style.backgroundColor = "#d32f2f")}
-                    onMouseLeave={(e) => (e.target.style.backgroundColor = "#f44336")}
-                    onClick={() => deleteCategory(category.id)}
-                  >
-                    Delete
-                  </button>
+                  <div style={{ display: "flex", gap: "8px" }}> {/* Flex container for buttons */}
+                    <IconButton
+                      style={{ ...styles.actionButton, ...styles.editButton }}
+                      onMouseEnter={(e) => (e.target.style.backgroundColor = "#88A876")} // Slightly darker on hover
+                      onMouseLeave={(e) => (e.target.style.backgroundColor = "#99BC85")}
+                      onClick={() => handleEdit(category)}
+                      aria-label="edit" // Accessibility label
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      style={{ ...styles.actionButton, ...styles.deleteButton }}
+                      onMouseEnter={(e) => (e.target.style.backgroundColor = "#b71c1c")} // Slightly darker on hover
+                      onMouseLeave={(e) => (e.target.style.backgroundColor = "#d32f2f")}
+                      onClick={() => deleteCategory(category.id)}
+                      aria-label="delete" // Accessibility label
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </div>
                 </td>
               </tr>
             ))}

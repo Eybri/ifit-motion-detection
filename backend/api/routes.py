@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify, url_for, redirect
 from services.db import get_db
 from models.user import User
-# from models.result import Result
 from services.token_utils import generate_token, require_auth, decode_token
 from werkzeug.security import check_password_hash, generate_password_hash
 from cloudinary.uploader import upload, destroy
@@ -45,17 +44,21 @@ def login():
     data = request.json
     user = user_model.find_user_by_email(data["email"])
     if user and check_password_hash(user["password"], data["password"]):
-        token = generate_token(str(user["_id"]))
-        return jsonify({
-            "token": token,
-            "user": {
-                "id": str(user["_id"]),
-                "name": user["name"],
-                "email": user["email"],
-                "is_admin": user.get("is_admin", False),
-                "image": user.get("image", "")
-            }
-        }), 200
+        if user["status"] == "Active":
+            token = generate_token(str(user["_id"]))
+            return jsonify({
+                "token": token,
+                "user": {
+                    "id": str(user["_id"]),
+                    "name": user["name"],
+                    "email": user["email"],
+                    "status": user["status"],
+                    "is_admin": user.get("is_admin", False),
+                    "image": user.get("image", "")
+                }
+            }), 200
+        else:
+            return jsonify({"error": "Your account is deactivated. Please contact support."}), 403
     return jsonify({"error": "Invalid email or password"}), 401
 
 @routes.route("/logout", methods=["POST"])
@@ -171,19 +174,40 @@ def update_user_image(user_id):
     return jsonify({"message": "Image updated successfully", "image_url": image_url}), 200
 
 @routes.route("/admin/update-status/<user_id>", methods=["PUT"])
-@require_auth
 def update_user_status(user_id):
     """Admin can change user status to Active or Inactive."""
-    admin_user = user_model.find_user_by_id(user_id)
-
-    if not admin_user or not admin_user.get("is_admin"):
-        return jsonify({"error": "Unauthorized"}), 403  # Only admins can change status
+    # Fetch the user whose status is being updated
+    user_to_update = user_model.find_user_by_id(user_id)
+    if not user_to_update:
+        return jsonify({"error": "User not found"}), 404
 
     data = request.json
     new_status = data.get("status")
 
-    if new_status not in ["Active", "Inactive"]:
-        return jsonify({"error": "Invalid status. Must be 'Active' or 'Inactive'."}), 400
+    # Validate the new status
+    if new_status.lower() not in ["active", "inactive"]:
+        return jsonify({"error": "Invalid status. Must be 'active' or 'inactive'."}), 400
 
+    new_status = new_status.title()  # Convert to title case (e.g., "active" -> "Active")
+
+    # Update the user status in the database
     user_model.update_user_status(user_id, new_status)
+
+    # Retrieve the updated user's email and name
+    user_email = user_to_update.get("email")
+    user_name = user_to_update.get("name")
+
+    # Send email to the user
+    message = Message(
+        "Account Status Updated",
+        sender="your-email@example.com",  # Replace with your email
+        recipients=[user_email]
+    )
+    message.body = f"Hello {user_name},\n\nYour account status has been updated to {new_status}.\n\nBest regards,\nIfit Team"
+
+    try:
+        mail.send(message)
+    except Exception as e:
+        return jsonify({"error": "Error sending email", "message": str(e)}), 500
+
     return jsonify({"message": f"User status updated to {new_status}"}), 200

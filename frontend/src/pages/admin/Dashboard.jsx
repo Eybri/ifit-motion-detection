@@ -531,204 +531,343 @@ const Dashboard = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, paddingTop: "64px" }}>
-      <Grid container spacing={3}>
-        {/* Total Users Card */}
-        <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3, height: "100%" }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Total Users
-              </Typography>
-              <Typography variant="h4">
-                {loading ? <CircularProgress size={24} /> : <CountUp end={totalUsers} duration={2.5} separator="," />}
-              </Typography>
-            </CardContent>
-          </Card>
+    <Container maxWidth="xl" sx={{ mt: 4, paddingTop: "64px", fontFamily: "'Poppins', sans-serif" }}>
+  {/* Dashboard Header */}
+  <Typography 
+    variant="h4" 
+    gutterBottom 
+    sx={{ fontFamily: "'Poppins', sans-serif", fontWeight: 'bold', color: 'black', mb: 4 }} // Custom styling for the header
+  >
+    Dashboard
+  </Typography>
+
+  <Grid container spacing={3}>
+    {/* Total Users Card */}
+    <Grid item xs={12} sm={6} md={4}>
+      <Card sx={{ 
+        borderRadius: 3, 
+        boxShadow: 3, 
+        height: "100%", 
+        backgroundColor: '#FDFAF6', // Set card background color
+      }}>
+        <CardContent>
+          <Typography 
+            variant="h6" 
+            gutterBottom 
+            sx={{ fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+          >
+            Total Users
+          </Typography>
+          <Typography 
+            variant="h4" 
+            sx={{ fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+          >
+            {loading ? <CircularProgress size={24} /> : <CountUp end={totalUsers} duration={2.5} separator="," />}
+          </Typography>
+        </CardContent>
+      </Card>
         </Grid>
 
         {/* Active Users Card */}
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3, height: "100%" }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Active Users
-              </Typography>
-              <Typography variant="h4" sx={{ color: "#4CAF50" }}>
-                {loading ? <CircularProgress size={24} /> : <CountUp end={activeUsers.length} duration={2.5} separator="," />}
-              </Typography>
-            </CardContent>
-          </Card>
+  <Card sx={{ 
+    borderRadius: 3, 
+    boxShadow: 3, 
+    height: "100%", 
+    backgroundColor: '#FDFAF6', // Set card background color
+  }}>
+    <CardContent>
+      <Typography 
+        variant="h6" 
+        gutterBottom 
+        sx={{ fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+      >
+        Active Users
+      </Typography>
+      <Typography 
+        variant="h4" 
+        sx={{ color: "#4CAF50", fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+      >
+        {loading ? <CircularProgress size={24} /> : <CountUp end={activeUsers.length} duration={2.5} separator="," />}
+      </Typography>
+    </CardContent>
+  </Card>
         </Grid>
 
         {/* Inactive Users Card */}
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3, height: "100%" }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Inactive Users
-              </Typography>
-              <Typography variant="h4" sx={{ color: "#F44336" }}>
-                {loading ? <CircularProgress size={24} /> : <CountUp end={inactiveUsers.length} duration={2.5} separator="," />}
-              </Typography>
-            </CardContent>
-          </Card>
+  <Card sx={{ 
+    borderRadius: 3, 
+    boxShadow: 3, 
+    height: "100%", 
+    backgroundColor: '#FDFAF6', // Set card background color
+  }}>
+    <CardContent>
+      <Typography 
+        variant="h6" 
+        gutterBottom 
+        sx={{ fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+      >
+        Inactive Users
+      </Typography>
+      <Typography 
+        variant="h4" 
+        sx={{ color: "#F44336", fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+      >
+        {loading ? <CircularProgress size={24} /> : <CountUp end={inactiveUsers.length} duration={2.5} separator="," />}
+      </Typography>
+    </CardContent>
+  </Card>
         </Grid>
 
         {/* Pie Chart - Active vs. Inactive Users */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3, height: "100%" }}>
-            <CardContent>
-              <Typography variant="h6" align="center" gutterBottom>
-                Active vs. Inactive Users
-              </Typography>
-              <div ref={pieChartRef} style={{ width: "70%", height: "auto", margin: "auto" }}>
-                <Pie data={pieChartData} options={pieChartOptions} />
-              </div>
+  <Card sx={{ 
+    borderRadius: 3, 
+    boxShadow: 3, 
+    height: "100%", 
+    backgroundColor: '#FDFAF6', // Set card background color
+  }}>
+    <CardContent>
+      <Typography 
+        variant="h6" 
+        align="center" 
+        gutterBottom 
+        sx={{ fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+      >
+        Active vs. Inactive Users
+      </Typography>
+      <div 
+        ref={pieChartRef} 
+        style={{ width: "70%", height: "auto", margin: "auto" }}
+      >
+        <Pie data={pieChartData} options={pieChartOptions} />
+      </div>
               <Button
-                variant="contained"
-                color="primary"
-                onClick={() =>
-                  generatePDF(
-                    pieChartRef,
-                    "Active vs Inactive Users",
-                    {
-                      activeUsers: activeUsers.length,
-                      inactiveUsers: inactiveUsers.length,
-                    }
-                  )
-                }
-                sx={{ mt: 2 }}
-              >
-                Download PDF
-              </Button>
+  variant="contained"
+  onClick={() =>
+    generatePDF(
+      pieChartRef,
+      "Active vs Inactive Users",
+      {
+        activeUsers: activeUsers.length,
+        inactiveUsers: inactiveUsers.length,
+      }
+    )
+  }
+  sx={{ 
+    mt: 2, 
+    fontFamily: "'Poppins', sans-serif", // Apply Poppins font
+    backgroundColor: '#99BC85', // Set button background color
+    color: '#FDFAF6', // Set font color
+    '&:hover': {
+      backgroundColor: '#88A876', // Optional: Change hover color for better UX
+    },
+  }}
+>
+  Download PDF
+</Button>
             </CardContent>
           </Card>
         </Grid>
 
         {/* Bar Chart - Users by Gender */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3, height: "100%" }}>
-            <CardContent>
-              <Typography variant="h6" align="center" gutterBottom>
-                Users by Gender
-              </Typography>
-              <div ref={barChartGenderRef} style={{ width: "80%", height: "auto", margin: "auto" }}>
-                <Bar data={barChartDataGender} options={barChartOptions} />
-              </div>
+  <Card sx={{ 
+    borderRadius: 3, 
+    boxShadow: 3, 
+    height: "100%", 
+    backgroundColor: '#FDFAF6', // Set card background color
+  }}>
+    <CardContent>
+      <Typography 
+        variant="h6" 
+        align="center" 
+        gutterBottom 
+        sx={{ fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+      >
+        Users by Gender
+      </Typography>
+      <div 
+        ref={barChartGenderRef} 
+        style={{ width: "80%", height: "auto", margin: "auto" }}
+      >
+        <Bar data={barChartDataGender} options={barChartOptions} />
+      </div>
               <Button
-                variant="contained"
-                color="primary"
-                onClick={() =>
-                  generatePDF(
-                    barChartGenderRef,
-                    "Users by Gender",
-                    {
-                      maleUsers: maleUsers.length,
-                      femaleUsers: femaleUsers.length,
-                    }
-                  )
-                }
-                sx={{ mt: 2 }}
-              >
-                Download PDF
-              </Button>
+  variant="contained"
+  onClick={() =>
+    generatePDF(
+      barChartGenderRef,
+      "Users by Gender",
+      {
+        maleUsers: maleUsers.length,
+        femaleUsers: femaleUsers.length,
+      }
+    )
+  }
+  sx={{ 
+    mt: 2, 
+    fontFamily: "'Poppins', sans-serif", // Apply Poppins font
+    backgroundColor: '#99BC85', // Set button background color
+    color: '#FDFAF6', // Set font color
+    '&:hover': {
+      backgroundColor: '#88A876', // Optional: Change hover color for better UX
+    },
+  }}
+>
+  Download PDF
+</Button>
             </CardContent>
           </Card>
         </Grid>
 
         {/* Bar Chart - Users by BMI Category */}
         <Grid item xs={12}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-            <CardContent>
-              <Typography variant="h6" align="center" gutterBottom>
-                Users by BMI Category
-              </Typography>
-              <div ref={barChartBMIRef} style={{ width: "80%", height: "auto", margin: "auto" }}>
-                <Bar data={barChartDataBMI} options={barChartOptions} />
-              </div>
+  <Card sx={{ 
+    borderRadius: 3, 
+    boxShadow: 3, 
+    backgroundColor: '#FDFAF6', // Set card background color
+  }}>
+    <CardContent>
+      <Typography 
+        variant="h6" 
+        align="center" 
+        gutterBottom 
+        sx={{ fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+      >
+        Users by BMI Category
+      </Typography>
+      <div 
+        ref={barChartBMIRef} 
+        style={{ width: "80%", height: "auto", margin: "auto" }}
+      >
+        <Bar data={barChartDataBMI} options={barChartOptions} />
+      </div>
               <Button
-                variant="contained"
-                color="primary"
-                onClick={() =>
-                  generatePDF(
-                    barChartBMIRef,
-                    "Users by BMI Category",
-                    {
-                      underweight: underweightUsers.length,
-                      normal: normalUsers.length,
-                      overweight: overweightUsers.length,
-                      obese: obeseUsers.length,
-                    }
-                  )
-                }
-                sx={{ mt: 2 }}
-              >
-                Download PDF
-              </Button>
+  variant="contained"
+  onClick={() =>
+    generatePDF(
+      barChartBMIRef,
+      "Users by BMI Category",
+      {
+        underweight: underweightUsers.length,
+        normal: normalUsers.length,
+        overweight: overweightUsers.length,
+        obese: obeseUsers.length,
+      }
+    )
+  }
+  sx={{ 
+    mt: 2, 
+    fontFamily: "'Poppins', sans-serif", // Apply Poppins font
+    backgroundColor: '#99BC85', // Set button background color
+    color: '#FDFAF6', // Set font color
+    '&:hover': {
+      backgroundColor: '#88A876', // Optional: Change hover color for better UX
+    },
+  }}
+>
+  Download PDF
+</Button>
             </CardContent>
           </Card>
         </Grid>
 
         {/* Line Chart - BMI Distribution with User Names */}
         <Grid item xs={12}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-            <CardContent>
-              <Typography variant="h6" align="center" gutterBottom>
-                BMI Distribution
-              </Typography>
-              <div ref={lineChartRef}>
-                <Line data={lineChartData} options={lineChartOptions} />
-              </div>
+  <Card sx={{ 
+    borderRadius: 3, 
+    boxShadow: 3, 
+    backgroundColor: '#FDFAF6', // Set card background color
+  }}>
+    <CardContent>
+      <Typography 
+        variant="h6" 
+        align="center" 
+        gutterBottom 
+        sx={{ fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+      >
+        BMI Distribution
+      </Typography>
+      <div ref={lineChartRef}>
+        <Line data={lineChartData} options={lineChartOptions} />
+      </div>
               <Button
-                variant="contained"
-                color="primary"
-                onClick={() =>
-                  generatePDF(
-                    lineChartRef,
-                    "BMI Distribution",
-                    bmiData
-                  )
-                }
-                sx={{ mt: 2 }}
-              >
-                Download PDF
-              </Button>
+  variant="contained"
+  onClick={() =>
+    generatePDF(
+      lineChartRef,
+      "BMI Distribution",
+      bmiData
+    )
+  }
+  sx={{ 
+    mt: 2, 
+    fontFamily: "'Poppins', sans-serif", // Apply Poppins font
+    backgroundColor: '#99BC85', // Set button background color
+    color: '#FDFAF6', // Set font color
+    '&:hover': {
+      backgroundColor: '#88A876', // Optional: Change hover color for better UX
+    },
+  }}
+>
+  Download PDF
+</Button>
             </CardContent>
           </Card>
         </Grid>
 
         {/* Bar Chart - Leaderboard (Average Accuracy) */}
         <Grid item xs={12}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-            <CardContent>
-              <Typography variant="h6" align="center" gutterBottom>
-                Leaderboard - Average Accuracy
-              </Typography>
-              {loading ? (
-                <CircularProgress />
-              ) : leaderboardData.length > 0 ? (
-                <>
-                  <div ref={leaderboardChartRef} style={{ width: "80%", height: "auto", margin: "auto" }}>
-                    <Bar data={barChartDataLeaderboard} options={barChartOptions} />
-                  </div>
+  <Card sx={{ 
+    borderRadius: 3, 
+    boxShadow: 3, 
+    backgroundColor: '#FDFAF6', // Set card background color
+  }}>
+    <CardContent>
+      <Typography 
+        variant="h6" 
+        align="center" 
+        gutterBottom 
+        sx={{ fontFamily: "'Poppins', sans-serif" }} // Font color remains unchanged
+      >
+        Leaderboard - Average Accuracy
+      </Typography>
+      {loading ? (
+        <CircularProgress />
+      ) : leaderboardData.length > 0 ? (
+        <>
+          <div 
+            ref={leaderboardChartRef} 
+            style={{ width: "80%", height: "auto", margin: "auto" }}
+          >
+            <Bar data={barChartDataLeaderboard} options={barChartOptions} />
+          </div>
                   <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() =>
-                      generatePDF(
-                        leaderboardChartRef,
-                        "Leaderboard - Average Accuracy",
-                        leaderboardData
-                      )
-                    }
-                    sx={{ mt: 2 }}
-                  >
-                    Download PDF
-                  </Button>
+  variant="contained"
+  onClick={() =>
+    generatePDF(
+      lineChartRef,
+      "BMI Distribution",
+      bmiData
+    )
+  }
+  sx={{ 
+    mt: 2, 
+    fontFamily: "'Poppins', sans-serif", // Apply Poppins font
+    backgroundColor: '#99BC85', // Set button background color
+    color: '#FDFAF6', // Set font color
+    '&:hover': {
+      backgroundColor: '#88A876', // Optional: Change hover color for better UX
+    },
+  }}
+>
+  Download PDF
+</Button>
                 </>
               ) : (
-                <Typography variant="body1" align="center">
+                <Typography variant="body1" align="center" sx={{ fontFamily: "'Poppins', sans-serif" }}>
                   No leaderboard data available.
                 </Typography>
               )}
@@ -738,14 +877,22 @@ const Dashboard = () => {
 
         {/* Button to download overall PDF report */}
         <Grid item xs={12}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={generateOverallPDF}
-            sx={{ mt: 2, mb: 4 }}
-          >
-            Download Overall PDF Report
-          </Button>
+  <Button
+    variant="contained"
+    onClick={generateOverallPDF}
+    sx={{ 
+      mt: 2, 
+      mb: 4, 
+      fontFamily: "'Poppins', sans-serif", // Apply Poppins font
+      backgroundColor: '#99BC85', // Set button background color
+      color: '#FDFAF6', // Set font color
+      '&:hover': {
+        backgroundColor: '#88A876', // Optional: Change hover color for better UX
+      },
+    }}
+  >
+    Download Overall PDF Report
+  </Button>
         </Grid>
       </Grid>
     </Container>
@@ -753,4 +900,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

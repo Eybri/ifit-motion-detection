@@ -19,15 +19,21 @@ class MotionData:
             27: "left_ankle", 28: "right_ankle"
         }
 
-    def extract_motion_data(self, video_path, video_id, fps=30, frame_skip=6):
+    def extract_motion_data(self, video_path, video_id):
         """Extract keypoints from video and store in MongoDB."""
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             raise Exception("Error opening video file")
 
+        # Get video properties
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        duration = frame_count / fps
+
         motion_data = {
             "video_id": ObjectId(video_id),
             "fps": fps,
+            "duration": duration,
             "frames": [],
             "created_at": datetime.utcnow()
         }
@@ -38,9 +44,8 @@ class MotionData:
             if not ret:
                 break
 
-            if frame_number % frame_skip != 0:
-                frame_number += 1
-                continue
+            # Get the timestamp of the current frame
+            timestamp = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0  # Convert to seconds
 
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             results = self.pose.process(rgb_frame)
@@ -58,6 +63,7 @@ class MotionData:
 
                 motion_data["frames"].append({
                     "frame_no": frame_number,
+                    "timestamp": timestamp,  # Store the timestamp
                     "keypoints": keypoints
                 })
 

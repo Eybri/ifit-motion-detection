@@ -27,28 +27,65 @@ import History from './pages/user/HistoryResults';
 
 const App = () => {
   return (
-    
     <Router>
       <ToastContainer />
       <Routes>
-        {/* User Layout */}
+        {/* Public Routes */}
         <Route element={<UserLayout />}>
           <Route path="/login" element={<Login />} />
-          <Route path="/me" element={<UserProfile />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Home />} />
-          <Route path="/video/list" element={<UserVideoList />} />
           <Route path="/password/forgot" element={<Forgot />} />
           <Route path="/reset-password/:token" element={<Reset />} />
-          <Route path="/compare/:videoId" element={<PoseComparison />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/leader-boards" element={<LeaderBoards />} />
-          <Route path="/feedback" element={<Feedback />} />
-          <Route path="/history" element={<History />} />
-
         </Route>
 
-        {/* Admin Layout */}
+        {/* Protected Routes for Regular Users */}
+        <Route element={<UserLayout />}>
+          <Route
+            path="/me"
+            element={
+              <ProtectedRoute isUser={true}>
+                <UserProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/video/list"
+            element={
+              <ProtectedRoute isUser={true}>
+                <UserVideoList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/compare/:videoId"
+            element={
+              <ProtectedRoute isUser={true}>
+                <PoseComparison />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/feedback"
+            element={
+              <ProtectedRoute isUser={true}>
+                <Feedback />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute isUser={true}>
+                <History />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+
+        {/* Protected Routes for Admin Users */}
         <Route element={<AdminLayout />}>
           <Route
             path="/admin/dashboard"
@@ -83,7 +120,6 @@ const App = () => {
             }
           />
         </Route>
-        
       </Routes>
     </Router>
   );

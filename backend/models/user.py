@@ -20,7 +20,7 @@ class User:
             "weight": data["weight"],
             "is_admin": data.get("is_admin", False),
             "image": data.get("image", ""),
-            "status": data.get("status", "Active"),
+            "status": "active" if data.get("status", "active") == "active" else "inactive",
             "created_at": datetime.utcnow()
         }
         return self.collection.insert_one(user_data)

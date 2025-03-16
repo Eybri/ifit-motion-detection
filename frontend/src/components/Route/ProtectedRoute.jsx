@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import Loader from '../Layout/Loader';
 import { getUser } from '../../utils/helpers';
 
-const ProtectedRoute = ({ children, isAdmin = false }) => {
+const ProtectedRoute = ({ children, isAdmin = false, isUser = false }) => {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
 
@@ -27,6 +27,11 @@ const ProtectedRoute = ({ children, isAdmin = false }) => {
     // If user is not an admin and admin route is required, redirect to home
     if (isAdmin && !user.is_admin) {
         return <Navigate to='/' />;
+    }
+
+    // If user is an admin and user route is required, redirect to admin dashboard
+    if (isUser && user.is_admin) {
+        return <Navigate to='/admin/dashboard' />;
     }
 
     // If all checks pass, render the children (protected content)
