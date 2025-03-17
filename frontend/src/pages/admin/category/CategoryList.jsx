@@ -15,7 +15,7 @@ const styles = {
   container: {
     padding: "24px",
     paddingTop: "80px", // Added padding to prevent overlap with header
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#EEEEEE", // Light background for the layout
     minHeight: "100vh",
     fontFamily: fontFamily, // Apply Google Font
   },
@@ -23,13 +23,17 @@ const styles = {
     fontSize: "28px",
     fontWeight: "600",
     marginBottom: "24px",
-    color: "#black",
+    color: "#FFFFFF", // White text for contrast
     textAlign: "center",
     letterSpacing: "0.5px",
+    background: "linear-gradient(90deg, #3B1E54, #9B7EBD)", // Gradient background
+    padding: "16px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   },
   card: {
     padding: "24px",
-    backgroundColor: "#FDFAF6",
+    backgroundColor: "#FFFFFF", // White card background
     borderRadius: "12px",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
     marginBottom: "24px",
@@ -38,7 +42,7 @@ const styles = {
     width: "100%",
     padding: "12px",
     marginBottom: "16px",
-    border: "1px solid #e0e0e0",
+    border: "1px solid #D4BEE4", // Light purple border
     borderRadius: "8px",
     fontSize: "16px",
     outline: "none",
@@ -46,11 +50,11 @@ const styles = {
     fontFamily: fontFamily, // Apply Google Font
   },
   inputFocus: {
-    borderColor: "#4CAF50",
+    borderColor: "#9B7EBD", // Darker purple on focus
   },
   buttonPrimary: {
-    backgroundColor: "#99BC85",
-    color: "#fff",
+    backgroundColor: "#9B7EBD", // Purple button
+    color: "#FFFFFF", // White text
     padding: "12px 20px",
     borderRadius: "8px",
     border: "none",
@@ -61,11 +65,11 @@ const styles = {
     fontFamily: fontFamily, // Apply Google Font
   },
   buttonPrimaryHover: {
-    backgroundColor: "#45a049",
+    backgroundColor: "#3B1E54", // Darker purple on hover
   },
   buttonSecondary: {
-    backgroundColor: "#f0f0f0",
-    color: "#333",
+    backgroundColor: "#D4BEE4", // Light purple button
+    color: "#3B1E54", // Dark text
     padding: "12px 20px",
     borderRadius: "8px",
     border: "none",
@@ -75,7 +79,8 @@ const styles = {
     fontFamily: fontFamily, // Apply Google Font
   },
   buttonSecondaryHover: {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#9B7EBD", // Purple on hover
+    color: "#FFFFFF", // White text on hover
   },
   table: {
     width: "100%",
@@ -86,19 +91,19 @@ const styles = {
     fontFamily: fontFamily, // Apply Google Font
   },
   th: {
-    backgroundColor: "#99BC85",
-    color: "black",
+    backgroundColor: "#3B1E54", // Dark purple header
+    color: "#FFFFFF", // White text
     padding: "16px",
     textAlign: "left",
     fontWeight: "600",
   },
   td: {
     padding: "16px",
-    borderBottom: "1px solid #eee",
-    color: "#555",
+    borderBottom: "1px solid #D4BEE4", // Light purple border
+    color: "#333", // Dark text
   },
   rowHover: {
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#F5F5F5", // Light gray on hover
   },
   actionButton: {
     padding: "8px 16px",
@@ -112,18 +117,18 @@ const styles = {
     fontFamily: fontFamily, // Apply Google Font
   },
   editButton: {
-    backgroundColor: "#99BC85",
-    color: "#fff",
+    backgroundColor: "#9B7EBD", // Purple button
+    color: "#FFFFFF", // White text
   },
   editButtonHover: {
-    backgroundColor: "#e0a800",
+    backgroundColor: "#3B1E54", // Darker purple on hover
   },
   deleteButton: {
-    backgroundColor: "#A94A4A",
-    color: "#fff",
+    backgroundColor: "#A94A4A", // Red button
+    color: "#FFFFFF", // White text
   },
   deleteButtonHover: {
-    backgroundColor: "#d32f2f",
+    backgroundColor: "#D32F2F", // Darker red on hover
   },
 };
 
@@ -233,8 +238,8 @@ const CategoryList = () => {
               setCategoryForm({ ...categoryForm, name: e.target.value })
             }
             style={styles.input}
-            onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
-            onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
+            onFocus={(e) => (e.target.style.borderColor = "#9B7EBD")}
+            onBlur={(e) => (e.target.style.borderColor = "#D4BEE4")}
           />
           <textarea
             placeholder="Description"
@@ -244,14 +249,14 @@ const CategoryList = () => {
             }
             rows="3"
             style={styles.input}
-            onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
-            onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
+            onFocus={(e) => (e.target.style.borderColor = "#9B7EBD")}
+            onBlur={(e) => (e.target.style.borderColor = "#D4BEE4")}
           />
           <button
             type="submit"
             style={styles.buttonPrimary}
-            onMouseEnter={(e) => (e.target.style.backgroundColor = "#45a049")}
-            onMouseLeave={(e) => (e.target.style.backgroundColor = "#4CAF50")}
+            onMouseEnter={(e) => (e.target.style.backgroundColor = "#3B1E54")}
+            onMouseLeave={(e) => (e.target.style.backgroundColor = "#9B7EBD")}
           >
             {categoryForm.id ? "Update" : "Create"}
           </button>
@@ -260,8 +265,8 @@ const CategoryList = () => {
               type="button"
               style={styles.buttonSecondary}
               onClick={() => setCategoryForm({ name: "", description: "", id: null })}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#e0e0e0")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "#f0f0f0")}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#9B7EBD")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#D4BEE4")}
             >
               Cancel
             </button>
@@ -289,22 +294,22 @@ const CategoryList = () => {
                 <td style={styles.td}>{category.name}</td>
                 <td style={styles.td}>{category.description || "N/A"}</td>
                 <td style={styles.td}>
-                  <div style={{ display: "flex", gap: "8px" }}> {/* Flex container for buttons */}
+                  <div style={{ display: "flex", gap: "8px" }}>
                     <IconButton
                       style={{ ...styles.actionButton, ...styles.editButton }}
-                      onMouseEnter={(e) => (e.target.style.backgroundColor = "#88A876")} // Slightly darker on hover
-                      onMouseLeave={(e) => (e.target.style.backgroundColor = "#99BC85")}
+                      onMouseEnter={(e) => (e.target.style.backgroundColor = "#3B1E54")}
+                      onMouseLeave={(e) => (e.target.style.backgroundColor = "#9B7EBD")}
                       onClick={() => handleEdit(category)}
-                      aria-label="edit" // Accessibility label
+                      aria-label="edit"
                     >
                       <EditIcon />
                     </IconButton>
                     <IconButton
                       style={{ ...styles.actionButton, ...styles.deleteButton }}
-                      onMouseEnter={(e) => (e.target.style.backgroundColor = "#b71c1c")} // Slightly darker on hover
-                      onMouseLeave={(e) => (e.target.style.backgroundColor = "#d32f2f")}
+                      onMouseEnter={(e) => (e.target.style.backgroundColor = "#D32F2F")}
+                      onMouseLeave={(e) => (e.target.style.backgroundColor = "#A94A4A")}
                       onClick={() => deleteCategory(category.id)}
-                      aria-label="delete" // Accessibility label
+                      aria-label="delete"
                     >
                       <DeleteIcon />
                     </IconButton>

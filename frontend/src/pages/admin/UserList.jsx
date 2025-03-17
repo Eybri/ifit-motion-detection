@@ -26,8 +26,10 @@ import {
   DialogContentText,
   DialogActions,
   Switch,
+  Menu,
+  MenuItem,
 } from "@mui/material";
-import { CheckCircle as CheckCircleIcon, DoDisturb as DoDisturbIcon } from "@mui/icons-material";
+import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { ToastContainer, toast } from 'react-toastify';
@@ -47,6 +49,8 @@ const UserList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null); // For dropdown menu
+  const [menuUser, setMenuUser] = useState(null); // To track which user's menu is open
   const token = getToken();
 
   useEffect(() => {
@@ -56,7 +60,10 @@ const UserList = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const usersWithBmi = response.data.users.map(user => {
+        // Filter out admin users
+        const nonAdminUsers = response.data.users.filter(user => !user.is_admin);
+
+        const usersWithBmi = nonAdminUsers.map(user => {
           const heightInMeters = user.height / 100;
           const bmi = heightInMeters > 0 ? user.weight / (heightInMeters * heightInMeters) : 0;
           let bmiCategory = "Unknown";
@@ -113,6 +120,27 @@ const UserList = () => {
   const handleDialogConfirm = () => {
     if (selectedUser) handleToggleStatus(selectedUser._id, selectedUser.status);
     setOpenDialog(false);
+  };
+
+  // Dropdown menu handlers
+  const handleMenuClick = (event, user) => {
+    setAnchorEl(event.currentTarget);
+    setMenuUser(user);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setMenuUser(null);
+  };
+
+  const handleEdit = (user) => {
+    console.log("Edit user:", user);
+    handleMenuClose();
+  };
+
+  const handleDelete = (user) => {
+    console.log("Delete user:", user);
+    handleMenuClose();
   };
 
   const filteredUsers = users.filter(user =>
@@ -189,7 +217,9 @@ const UserList = () => {
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ width: '90%', margin: '0 auto', overflow: 'auto' }}>
-        <Typography variant="h4" gutterBottom>User Management</Typography>
+        <Typography variant="h4" gutterBottom sx={{ background: "linear-gradient(90deg, #3B1E54, #9B7EBD)", color: "#EEEEEE", padding: "16px", borderRadius: "12px", textAlign: "center" }}>
+          User Management
+        </Typography>
         <TextField
           label="Search Users"
           variant="outlined"
@@ -201,53 +231,45 @@ const UserList = () => {
         <Button
           variant="contained"
           onClick={generatePDF}
-          sx={{ marginBottom: 2, backgroundColor: '#99BC85', color: 'white', '&:hover': { backgroundColor: '#88A876' } }}
+          sx={{ marginBottom: 2, backgroundColor: '#9B7EBD', color: '#EEEEEE', '&:hover': { backgroundColor: '#3B1E54' } }}
         >
           Download PDF Report
         </Button>
-        <TableContainer component={Paper} sx={{ backgroundColor: '#99BC85' }}>
+        <TableContainer component={Paper} sx={{ backgroundColor: '#EEEEEE' }}>
           <Table sx={{ width: '100%' }} aria-label="simple table">
             <TableHead>
-              <TableRow>
-                <TableCell sx={{ color: '#FDFAF6' }}>Image</TableCell>
-                <TableCell sx={{ color: '#FDFAF6' }}>Name</TableCell>
-                <TableCell sx={{ color: '#FDFAF6' }}>Email</TableCell>
-                <TableCell sx={{ color: '#FDFAF6' }}>Gender</TableCell>
-                <TableCell sx={{ color: '#FDFAF6' }}>Date of Birth</TableCell>
-                <TableCell sx={{ color: '#FDFAF6' }}>BMI Category</TableCell>
-                <TableCell align="center" sx={{ color: '#FDFAF6' }}>Admin Status</TableCell>
-                <TableCell align="center" sx={{ color: '#FDFAF6' }}>Account Status</TableCell>
+              <TableRow sx={{ backgroundColor: '#3B1E54' }}>
+                <TableCell sx={{ color: '#EEEEEE' }}>Image</TableCell>
+                <TableCell sx={{ color: '#EEEEEE' }}>Name</TableCell>
+                <TableCell sx={{ color: '#EEEEEE' }}>Email</TableCell>
+                <TableCell sx={{ color: '#EEEEEE' }}>Gender</TableCell>
+                <TableCell sx={{ color: '#EEEEEE' }}>Date of Birth</TableCell>
+                <TableCell sx={{ color: '#EEEEEE' }}>BMI Category</TableCell>
+                <TableCell align="center" sx={{ color: '#EEEEEE' }}>Account Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {paginatedUsers.map((user) => (
-                <TableRow key={user._id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#99BC85' } }}>
-                  <TableCell sx={{ color: 'white' }}>
+                <TableRow key={user._id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#D4BEE4' } }}>
+                  <TableCell>
                     <Avatar src={user.image || "/path/to/default-image.jpg"} alt={user.name} />
                   </TableCell>
-                  <TableCell sx={{ color: '#FDFAF6' }}>{user.name}</TableCell>
-                  <TableCell sx={{ color: '#FDFAF6' }}>{user.email}</TableCell>
-                  <TableCell sx={{ color: '#FDFAF6' }}>{user.gender}</TableCell>
-                  <TableCell sx={{ color: '#FDFAF6' }}>{user.date_of_birth}</TableCell>
-                  <TableCell sx={{ color: '#FDFAF6' }}>{user.bmiCategory}</TableCell>
-                  <TableCell align="center" sx={{ color: 'white' }}>
-                    <Tooltip title={user.is_admin ? "Admin" : "User"}>
-                      <IconButton size="small">
-                        {user.is_admin ? <DoDisturbIcon sx={{ color: 'red' }} /> : <CheckCircleIcon sx={{ color: 'green' }} />}
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell align="center" sx={{ color: 'white' }}>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.gender}</TableCell>
+                  <TableCell>{user.date_of_birth}</TableCell>
+                  <TableCell>{user.bmiCategory}</TableCell>
+                  <TableCell align="center">
                     <Tooltip title={user.status === "Active" ? "Active" : "Deactivated"}>
                       <Switch
                         checked={user.status === "Active"}
                         onChange={() => handleToggleClick(user)}
                         color="success"
                         sx={{
-                          "& .MuiSwitch-switchBase": { color: "red" },
-                          "& .MuiSwitch-switchBase.Mui-checked": { color: "green" },
-                          "& .MuiSwitch-track": { backgroundColor: "red" },
-                          "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": { backgroundColor: "green" },
+                          "& .MuiSwitch-switchBase": { color: "#A94A4A" },
+                          "& .MuiSwitch-switchBase.Mui-checked": { color: "#9B7EBD" },
+                          "& .MuiSwitch-track": { backgroundColor: "#A94A4A" },
+                          "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": { backgroundColor: "#9B7EBD" },
                         }}
                       />
                     </Tooltip>

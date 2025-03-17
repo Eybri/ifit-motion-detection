@@ -18,6 +18,8 @@ import AdminLayout from './layouts/AdminLayout';
 import UserLayout from './layouts/UserLayout';
 import CategoryList from './pages/admin/category/CategoryList';
 import UserList from './pages/admin/UserList';
+import AdminProfile from './pages/admin/AdminProfile';
+
 import Feedback from './pages/user/Feedback';
 import VideoList from './pages/admin/video/VideoList';
 import PoseComparison from './pages/user/PoseComparison';
@@ -119,6 +121,15 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/profile"
+            element={
+              <ProtectedRoute isAdmin={true}>
+                <AdminProfile />
+              </ProtectedRoute>
+            }
+          />
+
         </Route>
       </Routes>
     </Router>

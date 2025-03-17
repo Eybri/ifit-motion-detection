@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Modal, Form } from "react-bootstrap";
 import { Card, CardContent, Typography, IconButton } from "@mui/material";
 import { FaEdit, FaTrash, FaPlay } from "react-icons/fa";
+import Loader from "../../../components/Layout/Loader"; // Import the Loader component
 
 // Google Font
 const fontFamily = "'Poppins', sans-serif";
@@ -13,22 +14,24 @@ const fontFamily = "'Poppins', sans-serif";
 const styles = {
   container: {
     padding: "20px",
-    backgroundColor: "#FDFAF6",
+    backgroundColor: "#EEEEEE", // Light background for the layout
     minHeight: "100vh",
     fontFamily: fontFamily, // Apply Google Font
   },
   header: {
     fontSize: "32px",
     fontWeight: "700",
-    color: "#333",
+    color: "#EEEEEE", // White text for contrast
     marginBottom: "24px",
-    borderBottom: "2px solid #99BC85",
-    paddingBottom: "8px",
+    padding: "16px",
+    borderRadius: "12px",
+    background: "linear-gradient(90deg, #3B1E54, #9B7EBD)", // Gradient background
+    textAlign: "center",
     fontFamily: fontFamily, // Apply Google Font
   },
   button: {
-    backgroundColor: "#99BC85",
-    color: "#fff",
+    backgroundColor: "#9B7EBD", // Purple button
+    color: "#EEEEEE", // White text
     border: "none",
     padding: "10px 16px",
     borderRadius: "8px",
@@ -37,10 +40,13 @@ const styles = {
     marginBottom: "20px",
     cursor: "pointer",
     fontFamily: fontFamily, // Apply Google Font
+    "&:hover": {
+      backgroundColor: "#3B1E54", // Darker purple on hover
+    },
   },
   card: {
     width: "300px",
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF", // White card background
     borderRadius: "12px",
     boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
     transition: "transform 0.3s ease, box-shadow 0.3s ease",
@@ -69,16 +75,20 @@ const styles = {
   },
   iconButton: {
     marginLeft: "8px",
-    color: "#757575",
+    color: "#9B7EBD", // Purple icon color
     transition: "color 0.3s ease",
     fontFamily: fontFamily, // Apply Google Font
+    "&:hover": {
+      color: "#3B1E54", // Darker purple on hover
+    },
   },
 };
 
 const VideoList = () => {
   const [videos, setVideos] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Initial loading state
+  const [actionLoading, setActionLoading] = useState(false); // Loading state for actions
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -117,6 +127,7 @@ const VideoList = () => {
 
   const handleDelete = async (videoId) => {
     if (!window.confirm("Are you sure you want to delete this video?")) return;
+    setActionLoading(true); // Start loading
     try {
       await axios.delete(`http://localhost:5000/api/videos/${videoId}`, {
         headers: { Authorization: `Bearer ${getToken()}` },
@@ -125,6 +136,8 @@ const VideoList = () => {
       toast.success("Video deleted");
     } catch {
       toast.error("Failed to delete video");
+    } finally {
+      setActionLoading(false); // Stop loading
     }
   };
 
@@ -162,6 +175,7 @@ const VideoList = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setActionLoading(true); // Start loading
 
     const formData = new FormData();
     formData.append("title", newVideo.title);
@@ -192,6 +206,8 @@ const VideoList = () => {
       setEditMode(false);
     } catch {
       toast.error("Failed to submit video");
+    } finally {
+      setActionLoading(false); // Stop loading
     }
   };
 
@@ -219,12 +235,15 @@ const VideoList = () => {
       <ToastContainer />
       <h2 style={styles.header}>🎥 Video List</h2>
 
+      {/* Show Loader during actions */}
+      {actionLoading && <Loader />}
+
       <button style={styles.button} onClick={() => setShowModal(true)}>
         ➕ Add Video
       </button>
 
       {loading ? (
-        <p>Loading...</p>
+        <Loader /> // Show Loader during initial loading
       ) : (
         <div className="d-flex flex-wrap gap-4">
           {videos.map((video) => (
@@ -260,46 +279,54 @@ const VideoList = () => {
 
       {/* ✅ MODAL */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Form onSubmit={handleSubmit}>
-          <Form.Control
-            type="text"
-            name="title"
-            value={newVideo.title}
-            onChange={handleChange}
-            required
-            style={{ fontFamily: fontFamily }} // Apply Google Font
-          />
-          <Form.Control
-            type="text"
-            name="description"
-            value={newVideo.description}
-            onChange={handleChange}
-            required
-            style={{ fontFamily: fontFamily }} // Apply Google Font
-          />
-          <Form.Control
-            as="select"
-            name="category_id"
-            value={newVideo.category_id}
-            onChange={handleChange}
-            required
-            style={{ fontFamily: fontFamily }} // Apply Google Font
-          >
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </Form.Control>
-          <Form.Control
-            type="file"
-            onChange={handleFileChange}
-            style={{ fontFamily: fontFamily }} // Apply Google Font
-          />
-          <button type="submit" style={styles.button}>
-            {editMode ? "Update" : "Add"}
-          </button>
-        </Form>
+        <Modal.Header closeButton style={{ backgroundColor: "#EEEEEE" }}>
+          <Modal.Title style={{ fontFamily: fontFamily }}>{editMode ? "Edit Video" : "Add Video"}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ backgroundColor: "#EEEEEE" }}>
+          <Form onSubmit={handleSubmit}>
+            <Form.Control
+              type="text"
+              name="title"
+              value={newVideo.title}
+              onChange={handleChange}
+              required
+              placeholder="Title"
+              style={{ marginBottom: "16px", fontFamily: fontFamily }}
+            />
+            <Form.Control
+              type="text"
+              name="description"
+              value={newVideo.description}
+              onChange={handleChange}
+              required
+              placeholder="Description"
+              style={{ marginBottom: "16px", fontFamily: fontFamily }}
+            />
+            <Form.Control
+              as="select"
+              name="category_id"
+              value={newVideo.category_id}
+              onChange={handleChange}
+              required
+              style={{ marginBottom: "16px", fontFamily: fontFamily }}
+            >
+              <option value="">Select Category</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </Form.Control>
+            <Form.Control
+              type="file"
+              onChange={handleFileChange}
+              style={{ marginBottom: "16px", fontFamily: fontFamily }}
+            />
+            <button type="submit" style={styles.button}>
+              {editMode ? "Update" : "Add"}
+            </button>
+          </Form>
+        </Modal.Body>
       </Modal>
     </div>
   );

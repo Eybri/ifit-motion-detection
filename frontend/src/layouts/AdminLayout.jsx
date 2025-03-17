@@ -7,7 +7,7 @@ const styles = {
   adminLayout: {
     display: "flex",
     height: "100vh",
-    backgroundColor: "#FDFAF6", // Off-white background
+    backgroundColor: "#EEEEEE", // Light background for the layout
     color: "#333", // Darker text for contrast
     flexDirection: "column",
     overflow: "hidden", // Prevent scrolling on the layout itself
@@ -17,7 +17,7 @@ const styles = {
     justifyContent: "flex-end",
     padding: "10px 20px",
     backgroundColor: "#FFFFFF", // White header
-    borderBottom: "1px solid #E4EFE7", // Light green border
+    borderBottom: "1px solid #D4BEE4", // Light purple border
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow
   },
   contentWrapper: {
@@ -27,7 +27,7 @@ const styles = {
   },
   sidebar: {
     width: "250px",
-    background: "#FDFAF6", // Off-white sidebar
+    background: "linear-gradient(180deg, #3B1E54, #9B7EBD)", // Gradient background
     padding: "20px",
     boxShadow: "4px 0 12px rgba(0, 0, 0, 0.1)", // Light shadow
     overflowY: "auto", // Allow scrolling only in the sidebar

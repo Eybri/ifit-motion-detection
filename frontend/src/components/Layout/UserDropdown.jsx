@@ -43,7 +43,7 @@ const UserDropdown = () => {
   return (
     <div className="d-flex align-items-center">
       {/* Notification Dropdown */}
-      <div className="dropdown me-3">
+      {/* <div className="dropdown me-3">
         <button
           className="btn border-0 bg-transparent p-0"
           id="notificationDropdown"
@@ -68,7 +68,7 @@ const UserDropdown = () => {
             </DropdownItem>
           )}
         </ul>
-      </div>
+      </div> */}
 
       {/* User Dropdown */}
       <div className="dropdown">
@@ -81,21 +81,6 @@ const UserDropdown = () => {
           <UserName>{user.name || "User"}</UserName>
         </button>
         <ul className="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown">
-          <DropdownItem>
-            <Link className="dropdown-item" to="/me">
-              <i className="bi bi-person-circle me-2"></i>Profile
-            </Link>
-          </DropdownItem>
-          <DropdownItem>
-            {/* Add notification dropdown items here if needed */}
-          </DropdownItem>
-          {user.is_admin && (
-            <DropdownItem>
-              <Link className="dropdown-item" to="/admin/dashboard">
-                <i className="bi bi-speedometer2 me-2"></i>Dashboard
-              </Link>
-            </DropdownItem>
-          )}
           <DropdownItem>
             <button className="dropdown-item text-danger" onClick={handleLogout}>
               <i className="bi bi-box-arrow-right me-2"></i>Logout

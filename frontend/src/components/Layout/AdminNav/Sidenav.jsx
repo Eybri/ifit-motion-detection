@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getToken, clearAuth, isAuthenticated } from "../../../utils/auth";
 import { jwtDecode } from "jwt-decode";
-import { FaHome, FaChartBar, FaUser, FaSignOutAlt, FaPlayCircle, FaBars } from "react-icons/fa";
+import { FaHome, FaChartBar, FaUser, FaSignOutAlt, FaPlayCircle, FaBars, FaUsers, FaChartLine } from "react-icons/fa";
 import Loader from "../Loader";
 import { Menu, MenuItem, IconButton, Avatar } from "@mui/material";
 import { useState as useMUIState } from "react";
@@ -91,7 +91,7 @@ const Sidenav = ({ isMinimized, toggleMinimize }) => {
     },
     sidebar: {
       width: isMinimized ? "80px" : "260px",
-      background: "#FDFAF6", // Off-white sidebar
+      background: "linear-gradient(180deg, #3B1E54, #9B7EBD)", // Gradient background
       padding: "24px 16px",
       boxShadow: "4px 0 12px rgba(0, 0, 0, 0.1)", // Light shadow
       display: "flex",
@@ -107,7 +107,7 @@ const Sidenav = ({ isMinimized, toggleMinimize }) => {
     logo: {
       fontSize: "32px",
       fontWeight: "700",
-      color: "#99BC85", // Green color for logo
+      color: "#EEEEEE", // Light text for contrast
       textAlign: "center",
       marginBottom: "40px",
       textTransform: "uppercase",
@@ -123,7 +123,7 @@ const Sidenav = ({ isMinimized, toggleMinimize }) => {
       borderRadius: "12px",
       fontSize: "16px",
       fontWeight: "500",
-      color: "#555", // Darker text for visibility
+      color: "#EEEEEE", // Light text for contrast
       textDecoration: "none",
       transition: "all 0.3s ease",
       cursor: "pointer",
@@ -132,17 +132,17 @@ const Sidenav = ({ isMinimized, toggleMinimize }) => {
       overflow: "hidden",
     },
     navItemHover: {
-      backgroundColor: "#E4EFE7", // Light green on hover
-      color: "#99BC85", // Green text on hover
+      backgroundColor: "#D4BEE4", // Light purple on hover
+      color: "#3B1E54", // Dark text on hover
       transform: "translateX(10px) scale(1.05)",
-      boxShadow: "inset 4px 0 0 #99BC85", // Green accent on hover
+      boxShadow: "inset 4px 0 0 #9B7EBD", // Purple accent on hover
     },
     activeLink: {
-      backgroundColor: "#99BC85", // Green background for active link
-      color: "#FDFAF6", // Off-white text for active link
+      backgroundColor: "#EEEEEE", // Light background for active link
+      color: "#3B1E54", // Dark text for active link
       fontWeight: "600",
       transform: "translateX(5px) scale(1.05)",
-      boxShadow: "inset 4px 0 0 #FDFAF6",
+      boxShadow: "inset 4px 0 0 #9B7EBD",
     },
     icon: {
       marginRight: isMinimized ? "0" : "12px",
@@ -152,9 +152,10 @@ const Sidenav = ({ isMinimized, toggleMinimize }) => {
       display: "flex",
       alignItems: "center",
       padding: "16px",
-      backgroundColor: "#FAF1E6", // Light beige background
+      backgroundColor: "#D4BEE4",
       borderRadius: "12px",
       marginTop: "auto",
+      color: "#3B1E54",
     },
     avatar: {
       marginRight: "12px",
@@ -166,18 +167,18 @@ const Sidenav = ({ isMinimized, toggleMinimize }) => {
     userName: {
       fontSize: "16px",
       fontWeight: "500",
-      color: "#333", // Darker text for visibility
+      color: "#black", // Light text for contrast
     },
     userRole: {
       fontSize: "14px",
-      color: "#777", // Lighter text for role
+      color: "#black", // Light purple text for role
     },
     toggleButton: {
       position: "absolute",
       top: "20px",
       right: "-20px",
-      backgroundColor: "#99BC85", // Green button
-      color: "#FDFAF6", // Off-white icon
+      backgroundColor: "#9B7EBD", // Purple button
+      color: "#EEEEEE", // Light icon
       borderRadius: "50%",
       width: "40px",
       height: "40px",
@@ -201,7 +202,9 @@ const Sidenav = ({ isMinimized, toggleMinimize }) => {
           <nav>
             {[
               { to: "/admin/dashboard", label: "Dashboard", icon: <FaHome /> },
-              { to: "/admin/user/list", label: "Accounts", icon: <FaUser /> },
+              { to: "/admin/profile", label: "My Profile", icon: <FaUser /> },
+              { to: "/admin/user/list", label: "Accounts", icon: <FaUsers /> },
+              { to: "/admin/user/metrics", label: "User Metrics", icon: <FaChartLine /> },
               { to: "/admin/category/list", label: "Categories", icon: <FaChartBar /> },
               { to: "/admin/video/list", label: "Videos", icon: <FaPlayCircle /> },
             ].map(({ to, label, icon }) => (
@@ -223,10 +226,10 @@ const Sidenav = ({ isMinimized, toggleMinimize }) => {
           </nav>
         </div>
         <div style={sidebarStyles.userSection}>
-          <Avatar style={sidebarStyles.avatar} src={user?.avatar} />
+          <Avatar style={sidebarStyles.avatar} src={user?.image} />
           <div style={sidebarStyles.userInfo}>
             <div style={sidebarStyles.userName}>{user?.name}</div>
-            <div style={sidebarStyles.userRole}>{user?.role}</div>
+            <div style={sidebarStyles.userRole}>admin </div>
           </div>
         </div>
       </div>
