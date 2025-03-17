@@ -36,6 +36,7 @@ const App = () => {
         {/* Public Routes */}
         <Route element={<UserLayout />}>
           <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/password/forgot" element={<Forgot />} />
           <Route path="/reset-password/:token" element={<Reset />} />
@@ -43,14 +44,6 @@ const App = () => {
 
         {/* Protected Routes for Regular Users */}
         <Route element={<UserLayout />}>
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute isUser={true}>
-                  <Home />
-                </ProtectedRoute>
-              }
-            />
             <Route
               path="/me"
               element={

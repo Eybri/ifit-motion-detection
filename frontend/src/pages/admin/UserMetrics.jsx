@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { getToken } from "../../utils/auth";
 import Loader from "../../components/Layout/Loader";
-// import "./UserMetrics.css"; // Optional: For styling
 
 const UserMetrics = ({ userId }) => {
   const [userMetrics, setUserMetrics] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUserMetrics = async () => {
       try {
         const token = getToken();
-        const response = await fetch(`http://localhost:5000/user/${userId}/metrics`, {
+        const response = await fetch(`http://localhost:5000/api/leaderboard?user_id=${userId}&fetch_all=true`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -23,9 +21,9 @@ const UserMetrics = ({ userId }) => {
         }
 
         const data = await response.json();
-        setUserMetrics(data.metrics);
-      } catch (err) {
-        setError(err.message);
+        setUserMetrics(data);
+      } catch (error) {
+        console.error("Error fetching user metrics:", error);
       } finally {
         setLoading(false);
       }
@@ -38,55 +36,31 @@ const UserMetrics = ({ userId }) => {
     return <Loader />;
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  const calculateBMI = (weight, height) => {
-    // BMI formula: weight (kg) / (height (m) * height (m))
-    return (weight / ((height / 100) * (height / 100))).toFixed(2);
-  };
-
   return (
-    <div className="user-metrics">
+    <div>
       <h2>User Metrics</h2>
       <table>
         <thead>
           <tr>
-            <th>Date</th>
+            <th>Name</th>
+            <th>Email</th>
             <th>Weight (kg)</th>
             <th>Height (cm)</th>
             <th>BMI</th>
-            <th>Improvement</th>
+            <th>Date</th>
           </tr>
         </thead>
         <tbody>
           {userMetrics.map((metric, index) => {
-            const bmi = calculateBMI(metric.weight, metric.height);
-            const previousBMI =
-              index > 0
-                ? calculateBMI(userMetrics[index - 1].weight, userMetrics[index - 1].height)
-                : null;
-            const improvement = previousBMI ? (previousBMI - bmi).toFixed(2) : "N/A";
-
+            const bmi = (metric.weight / ((metric.height / 100) ** 2)).toFixed(2);
             return (
-              <tr key={metric._id}>
-                <td>{new Date(metric.created_at).toLocaleDateString()}</td>
+              <tr key={index}>
+                <td>{metric.name}</td>
+                <td>{metric.email}</td>
                 <td>{metric.weight}</td>
                 <td>{metric.height}</td>
                 <td>{bmi}</td>
-                <td
-                  style={{
-                    color:
-                      improvement === "N/A"
-                        ? "black"
-                        : improvement > 0
-                        ? "green"
-                        : "red",
-                  }}
-                >
-                  {improvement}
-                </td>
+                <td>{new Date(metric.created_at).toLocaleDateString()}</td>
               </tr>
             );
           })}
