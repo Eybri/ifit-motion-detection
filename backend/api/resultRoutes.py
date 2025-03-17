@@ -41,6 +41,8 @@ def leaderboard():
                         "user_feedback": result["user_feedback"],
                         "energy_expenditure": result["energy_expenditure"],
                         "steps_per_minute": result["steps_per_minute"],
+                        "weight": user["weight"],  # Include weight
+                        "height": user["height"],  # Include height
                         "created_at": result["created_at"]
                     })
             

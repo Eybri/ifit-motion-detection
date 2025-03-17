@@ -19,6 +19,7 @@ import UserLayout from './layouts/UserLayout';
 import CategoryList from './pages/admin/category/CategoryList';
 import UserList from './pages/admin/UserList';
 import AdminProfile from './pages/admin/AdminProfile';
+import UserMetrics from './pages/admin/UserMetrics';
 
 import Feedback from './pages/user/Feedback';
 import VideoList from './pages/admin/video/VideoList';
@@ -36,23 +37,46 @@ const App = () => {
         <Route element={<UserLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={<Home />} />
           <Route path="/password/forgot" element={<Forgot />} />
           <Route path="/reset-password/:token" element={<Reset />} />
-          <Route path="/aboutus" element={<AboutUs />} />
-          <Route path="/leader-boards" element={<LeaderBoards />} />
         </Route>
 
         {/* Protected Routes for Regular Users */}
         <Route element={<UserLayout />}>
-          <Route
-            path="/me"
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute isUser={true}>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/me"
+              element={
+                <ProtectedRoute isUser={true}>
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/aboutus"
+              element={
+                <ProtectedRoute isUser={true}>
+                  <AboutUs />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+            path="/leader-boards"
             element={
               <ProtectedRoute isUser={true}>
-                <UserProfile />
+                <LeaderBoards />
               </ProtectedRoute>
             }
           />
+
+          
           <Route
             path="/video/list"
             element={
@@ -98,6 +122,14 @@ const App = () => {
             }
           />
           <Route
+            path="/admin/user/metrics"
+            element={
+              <ProtectedRoute isAdmin={true}>
+                <UserMetrics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/user/list"
             element={
               <ProtectedRoute isAdmin={true}>
@@ -129,6 +161,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
 
         </Route>
       </Routes>
