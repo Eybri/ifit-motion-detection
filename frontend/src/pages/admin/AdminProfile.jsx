@@ -7,7 +7,6 @@ import Loader from "../../components/Layout/Loader";
 import { Avatar, Typography, Button, Box, Divider } from "@mui/material";
 import { Modal, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
 // Google Font
 const fontFamily = "'Poppins', sans-serif";
