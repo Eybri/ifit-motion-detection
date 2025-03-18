@@ -40,6 +40,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/password/forgot" element={<Forgot />} />
           <Route path="/reset-password/:token" element={<Reset />} />
         </Route>
@@ -59,14 +60,6 @@ const App = () => {
               element={
                 <ProtectedRoute isUser={true}>
                   <Progress />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/aboutus"
-              element={
-                <ProtectedRoute isUser={true}>
-                  <AboutUs />
                 </ProtectedRoute>
               }
             />

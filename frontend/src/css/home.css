@@ -1,43 +1,46 @@
+home.css
+/* Global Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
 /* Hero Section */
 .hero-section {
-  background: url("https://cdn.usegalileo.ai/sdxl10/24db16d8-9f94-4554-81cd-c23eb95b405f.png") no-repeat center center/cover;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://cdn.usegalileo.ai/sdxl10/24db16d8-9f94-4554-81cd-c23eb95b405f.png") no-repeat center center/cover;
   color: white;
-  padding: 80px 40px;
+  padding: 100px 20px;
   text-align: center;
-  position: relative;
-  z-index: 1;
-  background-attachment: fixed;
-  height: 100vh; /* Full viewport height */
-  width: 100%; /* Full width */
+  height: 100vh;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  opacity: 0; /* Start with opacity 0 */
-  animation: fadeIn 1s forwards; /* Apply fade-in animation */
+  opacity: 0;
+  animation: fadeIn 1s forwards;
 }
 
 .hero-section h1 {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 900;
   margin-bottom: 20px;
-  text-transform: uppercase; /* Make the text all caps */
+  text-transform: uppercase;
 }
 
 .hero-section h2 {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 400;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .hero-buttons .btn {
-  margin-right: 10px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   font-size: 1rem;
-  border-radius: 5px;
+  border-radius: 30px;
   text-decoration: none;
-  transition: background-color 0.3s, transform 0.3s; /* Add transition for smooth hover effect */
-  border: none; /* Remove the border */
+  transition: background-color 0.3s, transform 0.3s;
+  border: none;
 }
 
 .hero-buttons .btn-primary {
@@ -46,148 +49,225 @@
 }
 
 .hero-buttons .btn-primary:hover {
-  background-color: #FF004D; /* Lighter green on hover */
-  transform: scale(1.05); /* Slightly enlarge the button on hover */
-}
-
-.hero-buttons .btn-secondary {
-  background-color: #6c757d;
-  color: #fff;
-}
-
-.hero-buttons .btn-secondary:hover {
-  background-color: #5a6268; /* Darker gray on hover */
-  transform: scale(1.05); /* Slightly enlarge the button on hover */
+  background-color: #FF004D;
+  transform: scale(1.05);
 }
 
 /* What is IFIT Section */
 .what-is-ifit {
-  padding: 50px;
-  background-color: #fff;
+  padding: 80px 20px;
+  background-color: #f9f9f9;
   text-align: center;
-  opacity: 0; /* Start with opacity 0 */
-  animation: fadeIn 1s forwards 0.5s; /* Apply fade-in animation with delay */
+  opacity: 0;
+  animation: fadeIn 1s forwards 0.5s;
 }
 
 .what-is-ifit h2 {
-  font-size: 2rem;
-  font-weight: bold; /* Make the text bold */
-  text-transform: uppercase; /* Make the text all caps */
+  font-size: 2.5rem;
+  font-weight: 900;
   color: #1D2B53;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .what-is-ifit .content {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .what-is-ifit p {
   flex: 1;
-  font-size: 1rem;
-  color: #666;
-  margin-right: 20px;
-  border-right: 2px solid #ccc; /* Add a line between the text and the image */
-  padding-right: 20px;
-  font-style: italic;
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.8;
 }
 
 .what-is-ifit .ifit-image {
   flex: 1;
-  max-width: 35%; /* Enlarge the image to half of the screen */
-  border-radius: 10px;
+  max-width: 30%;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Mission and Vision Section */
+.mission-vision {
+  padding: 80px 20px;
+  background-color: #fff;
+  text-align: center;
+  opacity: 0;
+  animation: fadeIn 1s forwards 1s;
+}
+
+.mission-vision h2 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #1D2B53;
+  margin-bottom: 20px;
+}
+
+.mission-vision .subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.mission-vision .content {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.mission-vision .card {
+  flex: 1;
+  background-color: #f9f9f9;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.mission-vision .card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.mission-vision .card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1D2B53;
+  margin-bottom: 15px;
+}
+
+.mission-vision .card p {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.8;
 }
 
 /* How It Works Section */
 .how-it-works {
-  padding: 50px;
-  background-color: #fff;
+  padding: 80px 20px;
+  background-color: #f9f9f9;
   text-align: center;
-  opacity: 0; /* Start with opacity 0 */
-  animation: fadeIn 1s forwards 1s; /* Apply fade-in animation with delay */
+  opacity: 0;
+  animation: fadeIn 1s forwards 1.5s;
 }
 
 .how-it-works h2 {
-  font-size: 2rem;
-  font-weight: bold; /* Make the text bold */
-  text-transform: uppercase;
+  font-size: 2.5rem;
+  font-weight: 900;
   color: #1D2B53;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .steps {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .step {
-  background-color: #FAF1E6;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s, box-shadow 0.3s;
-  width: 100%; /* Ensure the step takes full width */
-  height: 100%; /* Ensure the step takes full height */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .step:hover {
   transform: translateY(-10px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .step h3 {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: #1D2B53;
-  margin-bottom: 10px;
-  text-transform: uppercase; /* Make the text all caps */
+  margin-bottom: 15px;
 }
 
 .step p {
   font-size: 1rem;
-  color: #666;
+  color: #555;
+  line-height: 1.8;
 }
 
-/* CTA Section */
-.cta {
-  padding: 50px;
+/* Privacy Policy Section */
+.privacy-policy {
+  padding: 80px 20px;
   background-color: #fff;
   text-align: center;
-  opacity: 0; /* Start with opacity 0 */
-  animation: fadeIn 1s forwards 1.5s; /* Apply fade-in animation with delay */
+  opacity: 0;
+  animation: fadeIn 1s forwards 2s;
 }
 
-.cta h2 {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 30px;
+.privacy-policy h2 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #1D2B53;
+  margin-bottom: 40px;
 }
 
-.cta .btn {
-  padding: 10px 20px;
+.privacy-policy .content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.privacy-policy .policy-details {
+  text-align: left;
+  margin-top: 20px;
+}
+
+.privacy-policy h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1D2B53;
+  margin-bottom: 15px;
+}
+
+.privacy-policy p {
   font-size: 1rem;
-  border-radius: 5px;
-  text-decoration: none;
-  background-color: #007bff;
-  color: #fff;
-  transition: background-color 0.3s, transform 0.3s; /* Add transition for smooth hover effect */
-  border: none; /* Remove the border */
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 20px;
 }
 
-.cta .btn:hover {
-  background-color: #0056b3; /* Darker blue on hover */
-  transform: scale(1.05); /* Slightly enlarge the button on hover */
-}
-
-/* Fade-in animation */
+/* Fade-in Animation */
 @keyframes fadeIn {
   to {
     opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .what-is-ifit .content,
+  .mission-vision .content,
+  .steps {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .what-is-ifit .ifit-image {
+    max-width: 80%;
+  }
+
+  .mission-vision .card {
+    width: 100%;
   }
 }

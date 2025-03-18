@@ -45,6 +45,8 @@ const Dashboard = () => {
   const [bmiData, setBmiData] = useState([]);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const barChartAgeRef = useRef(null);
+  const barChartTotalDancesRef = useRef(null);
   const token = getToken();
 
   // Refs for charts
@@ -54,6 +56,9 @@ const Dashboard = () => {
   const lineChartRef = useRef(null);
   const leaderboardChartRef = useRef(null);
   const doughnutChartRef = useRef(null); // Ref for Doughnut Chart
+  const [ageDistributionData, setAgeDistributionData] = useState({});
+  const [totalDancesData, setTotalDancesData] = useState([]);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,50 +67,143 @@ const Dashboard = () => {
         const usersResponse = await axios.get("http://localhost:5000/api/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
+  
         const users = usersResponse.data.users;
         setTotalUsers(users.length);
-
+  
         // Filter and store user names
         setActiveUsers(users.filter((user) => user.status === "Active"));
         setInactiveUsers(users.filter((user) => user.status === "Inactive"));
         setMaleUsers(users.filter((user) => user.gender === "male"));
         setFemaleUsers(users.filter((user) => user.gender === "female"));
-
+  
         // Calculate BMI for each user and store with names
         const bmiValues = users.map((user) => ({
           name: user.name,
           bmi: user.weight / ((user.height / 100) ** 2),
         }));
-
+  
         setBmiData(bmiValues);
-
+  
         // Categorize BMI and store user names
         setUnderweightUsers(bmiValues.filter((user) => user.bmi < 18.5));
         setNormalUsers(bmiValues.filter((user) => user.bmi >= 18.5 && user.bmi < 25));
         setOverweightUsers(bmiValues.filter((user) => user.bmi >= 25 && user.bmi < 30));
         setObeseUsers(bmiValues.filter((user) => user.bmi >= 30));
 
+        
+  
         // Fetch leaderboard data
         const leaderboardResponse = await axios.get("http://localhost:5000/api/leaderboard", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
+  
         if (Array.isArray(leaderboardResponse.data)) {
           setLeaderboardData(leaderboardResponse.data);
         } else {
           console.error("Unexpected leaderboard response structure:", leaderboardResponse.data);
           setLeaderboardData([]);
         }
+  
+        // Process age distribution data
+        const ageGroups = users.reduce((acc, user) => {
+          const ageGroup = Math.floor(user.age / 10) * 10; // Group by decade (e.g., 0-9, 10-19, etc.)
+          acc[ageGroup] = (acc[ageGroup] || 0) + 1;
+          return acc;
+        }, {});
+  
+        // Convert ageGroups object into an array of labels and data
+        const ageLabels = Object.keys(ageGroups).map(age => `${age}-${parseInt(age) + 9}`);
+        const ageData = Object.values(ageGroups);
+  
+        setAgeDistributionData({ labels: ageLabels, data: ageData });
+  
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [token]);
+  
+
+
+    useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch users data
+        const usersResponse = await axios.get("http://localhost:5000/api/users", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        const users = usersResponse.data.users;
+        setTotalUsers(users.length);
+  
+        // Filter and store user names
+        setActiveUsers(users.filter((user) => user.status === "Active"));
+        setInactiveUsers(users.filter((user) => user.status === "Inactive"));
+        setMaleUsers(users.filter((user) => user.gender === "male"));
+        setFemaleUsers(users.filter((user) => user.gender === "female"));
+  
+        // Calculate BMI for each user and store with names
+        const bmiValues = users.map((user) => ({
+          name: user.name,
+          bmi: user.weight / ((user.height / 100) ** 2),
+        }));
+  
+        setBmiData(bmiValues);
+  
+        // Categorize BMI and store user names
+        setUnderweightUsers(bmiValues.filter((user) => user.bmi < 18.5));
+        setNormalUsers(bmiValues.filter((user) => user.bmi >= 18.5 && user.bmi < 25));
+        setOverweightUsers(bmiValues.filter((user) => user.bmi >= 25 && user.bmi < 30));
+        setObeseUsers(bmiValues.filter((user) => user.bmi >= 30));
+
+        
+  
+       
+        // Fetch leaderboard data
+        const leaderboardResponse = await axios.get("http://localhost:5000/api/leaderboard", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        if (Array.isArray(leaderboardResponse.data)) {
+          setLeaderboardData(leaderboardResponse.data);
+        } else {
+          console.error("Unexpected leaderboard response structure:", leaderboardResponse.data);
+          setLeaderboardData([]);
+        }
+  
+        // Fetch age distribution data
+        const ageDistribution = users.reduce((acc, user) => {
+          const ageGroup = Math.floor(user.age / 10) * 10;
+          acc[ageGroup] = (acc[ageGroup] || 0) + 1;
+          return acc;
+        }, {});
+  
+        setAgeDistributionData(ageDistribution);
+  
+        // Fetch total dances data
+        const totalDances = leaderboardResponse.data.map((user) => ({
+          name: user.name,
+          totalDances: user.total_dances,
+        }));
+  
+        setTotalDancesData(totalDances);
+  
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, [token]);
+
+  
   const generatePDF = async (chartRef, title, data) => {
     if (!chartRef.current) return;
   
@@ -269,7 +367,80 @@ const Dashboard = () => {
         "Implement progress tracking features with achievable milestones",
         "Consider partnering with nutrition experts for personalized guidance"
       ];
-    } else if (title === "BMI Distribution") {
+
+
+
+    } // Inside your generatePDF function, add these new cases to the if-else chain:
+
+    else if (title === "Age Distribution") {
+      // Calculate statistics for age distribution
+      const totalUsers = data.reduce((sum, age) => sum + age.count, 0);
+      const averageAge = data.reduce((sum, age) => sum + (age.label * age.count), 0) / totalUsers;
+      
+      // Find the modal age group (most common)
+      const modalAgeGroup = data.reduce((max, age) => 
+        age.count > max.count ? age : max, data[0]);
+      
+      analysis = {
+        title: "AGE DEMOGRAPHIC ANALYSIS",
+        keyMetrics: [
+          `Total Users Analyzed: ${totalUsers}`,
+          `Average Age: ${averageAge.toFixed(1)} years`,
+          `Most Common Age Group: ${modalAgeGroup.label} (${((modalAgeGroup.count / totalUsers) * 100).toFixed(1)}%)`,
+          `Age Range: ${data[0].label} to ${data[data.length-1].label}`
+        ]
+      };
+      
+      const youngerPercentage = data
+        .filter(age => age.label < 30)
+        .reduce((sum, age) => sum + age.count, 0) / totalUsers * 100;
+      
+      const olderPercentage = data
+        .filter(age => age.label >= 30)
+        .reduce((sum, age) => sum + age.count, 0) / totalUsers * 100;
+      
+      trends = `Age distribution shows ${youngerPercentage.toFixed(1)}% of users are under 30 years old, while ${olderPercentage.toFixed(1)}% are 30 or older. The peak user demographic is in the ${modalAgeGroup.label} age group, representing ${((modalAgeGroup.count / totalUsers) * 100).toFixed(1)}% of all users.`;
+      
+      recommendations = [
+        `Target content creation primarily for the ${modalAgeGroup.label} age demographic`,
+        `${youngerPercentage > olderPercentage ? "Maintain youth-focused interface" : "Consider simplifying UI for broader accessibility"}`,
+        "Develop age-appropriate difficulty settings for dance exercises",
+        "Create age-specific achievement milestones to boost engagement"
+      ];
+    }
+    else if (title === "Total Dances") {
+      // Calculate statistics for total dances
+      const totalDancesPerformed = data.reduce((sum, dance) => sum + dance.count, 0);
+      const averageDancesPerType = (totalDancesPerformed / data.length).toFixed(1);
+      
+      // Find the most and least popular dance types
+      const sortedDances = [...data].sort((a, b) => b.count - a.count);
+      const mostPopular = sortedDances[0];
+      const leastPopular = sortedDances[sortedDances.length - 1];
+      
+      analysis = {
+        title: "DANCE ACTIVITY ANALYSIS",
+        keyMetrics: [
+          `Total Dances Performed: ${totalDancesPerformed}`,
+          `Dance Types Available: ${data.length}`,
+          `Average Dances per Type: ${averageDancesPerType}`,
+          `Most Popular: ${mostPopular.label} (${mostPopular.count} dances)`,
+          `Least Popular: ${leastPopular.label} (${leastPopular.count} dances)`
+        ]
+      };
+      
+      const popularityRatio = (mostPopular.count / leastPopular.count).toFixed(1);
+      
+      trends = `Dance popularity analysis shows a ${popularityRatio}:1 ratio between the most and least popular dance types. ${mostPopular.label} is significantly favored by users, representing ${((mostPopular.count / totalDancesPerformed) * 100).toFixed(1)}% of all dance activities.`;
+      
+      recommendations = [
+        `Feature ${mostPopular.label} prominently in marketing materials`,
+        `Create more variations of ${mostPopular.label} to leverage its popularity`,
+        `Develop tutorials to increase engagement with ${leastPopular.label}`,
+        "Consider seasonally rotating featured dances to increase variety in usage",
+        `Add gamification elements to less popular dances to boost participation`
+      ];
+    }else if (title === "BMI Distribution") {
       const averageBMI = (data.reduce((sum, user) => sum + user.bmi, 0) / data.length).toFixed(2);
       const minBMI = Math.min(...data.map((user) => user.bmi)).toFixed(2);
       const maxBMI = Math.max(...data.map((user) => user.bmi)).toFixed(2);
@@ -402,638 +573,681 @@ const Dashboard = () => {
     pdf.rect(15, chartStartY - 5, imgWidth + 10, imgHeight + 10);
     pdf.addImage(imgData, "PNG", 20, chartStartY, imgWidth, imgHeight);
     
- // Add chart title
- pdf.setFillColor(primaryColor);
- pdf.rect(15, chartStartY - 15, imgWidth + 10, 10, 'F');
- pdf.setTextColor('#FFFFFF');
- pdf.setFontSize(12);
- pdf.setFont("helvetica", "bold");
- pdf.text("VISUAL REPRESENTATION", 20, chartStartY - 7);
+// Add chart title
+pdf.setFillColor(primaryColor);
+pdf.rect(15, chartStartY - 15, imgWidth + 10, 10, 'F');
+pdf.setTextColor('#FFFFFF');
+pdf.setFontSize(12);
+pdf.setFont("helvetica", "bold");
+pdf.text("VISUAL REPRESENTATION", 20, chartStartY - 7);
 
- // Add footer with page numbers
- const totalPages = 1; // Assuming one page for now
- pdf.setDrawColor(primaryColor);
- pdf.setLineWidth(0.5);
- pdf.line(15, pageHeight - 20, pageWidth - 15, pageHeight - 20);
+// Add footer with page numbers
+const totalPages = 1; // Assuming one page for now
+pdf.setDrawColor(primaryColor);
+pdf.setLineWidth(0.5);
+pdf.line(15, pageHeight - 20, pageWidth - 15, pageHeight - 20);
 
- pdf.setTextColor(textColor);
- pdf.setFontSize(8);
- pdf.setFont("helvetica", "italic");
- pdf.text("This report is automatically generated by the IFIT-MOTION-DETECTION system", pageWidth / 2, pageHeight - 15, { align: "center" });
- pdf.setFont("helvetica", "normal");
- pdf.text(`Page 1 of ${totalPages}`, pageWidth - 15, pageHeight - 10, { align: "right" });
+pdf.setTextColor(textColor);
+pdf.setFontSize(8);
+pdf.setFont("helvetica", "italic");
+pdf.text("This report is automatically generated by the IFIT-MOTION-DETECTION system", pageWidth / 2, pageHeight - 15, { align: "center" });
+pdf.setFont("helvetica", "normal");
+pdf.text(`Page 1 of ${totalPages}`, pageWidth - 15, pageHeight - 10, { align: "right" });
 
- // Add watermark/copyright - Using the correct rotation approach for jsPDF
- pdf.setTextColor(220, 220, 220); // Light gray
- pdf.setFontSize(30);
- pdf.setFont("helvetica", "bold");
+// Add watermark/copyright - Using the correct rotation approach for jsPDF
+pdf.setTextColor(220, 220, 220); // Light gray
+pdf.setFontSize(30);
+pdf.setFont("helvetica", "bold");
 
- // Correct way to rotate text in jsPDF
- const centerX = pageWidth / 2;
- const centerY = pageHeight / 2;
+// Correct way to rotate text in jsPDF
+const centerX = pageWidth / 2;
+const centerY = pageHeight / 2;
 
- // Save the current state
- pdf.saveGraphicsState();
- // Translate to the center point, rotate, and translate back
- pdf.text("IFIT-MOTION-DETECTION", centerX, centerY, {
-   align: "center",
-   angle: 45
- });
- // Restore the previous state
- pdf.restoreGraphicsState();
+// Save the current state
+pdf.saveGraphicsState();
+// Translate to the center point, rotate, and translate back
+pdf.text("IFIT-MOTION-DETECTION", centerX, centerY, {
+  align: "center",
+  angle: 45
+});
+// Restore the previous state
+pdf.restoreGraphicsState();
 
- // Add notes section if needed
- if (data.notes) {
-   pdf.addPage();
-   
-   // Add header to new page
-   pdf.setFillColor(primaryColor);
-   pdf.rect(15, 15, pageWidth - 30, 10, 'F');
-   pdf.setTextColor('#FFFFFF');
-   pdf.setFontSize(12);
-   pdf.setFont("helvetica", "bold");
-   pdf.text(`${title} - Additional Notes`, pageWidth / 2, 22, { align: "center" });
-   
-   pdf.setTextColor(textColor);
-   pdf.setFontSize(10);
-   pdf.setFont("helvetica", "normal");
-   pdf.text(pdf.splitTextToSize(data.notes, pageWidth - 40), 20, 40);
-   
-   // Add footer to new page
-   pdf.setDrawColor(primaryColor);
-   pdf.setLineWidth(0.5);
-   pdf.line(15, pageHeight - 20, pageWidth - 15, pageHeight - 20);
-   pdf.setTextColor(textColor);
-   pdf.setFontSize(8);
-   pdf.text(`Page 2 of ${totalPages + 1}`, pageWidth - 15, pageHeight - 10, { align: "right" });
- }
+// Add notes section if needed
+if (data.notes) {
+  pdf.addPage();
+  
+  // Add header to new page
+  pdf.setFillColor(primaryColor);
+  pdf.rect(15, 15, pageWidth - 30, 10, 'F');
+  pdf.setTextColor('#FFFFFF');
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "bold");
+  pdf.text(`${title} - Additional Notes`, pageWidth / 2, 22, { align: "center" });
+  
+  pdf.setTextColor(textColor);
+  pdf.setFontSize(10);
+  pdf.setFont("helvetica", "normal");
+  pdf.text(pdf.splitTextToSize(data.notes, pageWidth - 40), 20, 40);
+  
+  // Add footer to new page
+  pdf.setDrawColor(primaryColor);
+  pdf.setLineWidth(0.5);
+  pdf.line(15, pageHeight - 20, pageWidth - 15, pageHeight - 20);
+  pdf.setTextColor(textColor);
+  pdf.setFontSize(8);
+  pdf.text(`Page 2 of ${totalPages + 1}`, pageWidth - 15, pageHeight - 10, { align: "right" });
+}
 
- // Add appendix with data table if data is array-based
- if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object') {
-   // Add a new page for data tables
-   pdf.addPage();
-   
-   // Add header to data table page
-   pdf.setFillColor(primaryColor);
-   pdf.rect(15, 15, pageWidth - 30, 10, 'F');
-   pdf.setTextColor('#FFFFFF');
-   pdf.setFontSize(12);
-   pdf.setFont("helvetica", "bold");
-   pdf.text(`${title} - Data Table`, pageWidth / 2, 22, { align: "center" });
-   
-   // Extract columns from first data object
-   const columns = Object.keys(data[0]);
-   const columnWidths = columns.map(col => Math.min(40, col.length * 5 + 10));
-   const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-   const startX = (pageWidth - totalWidth) / 2;
-   
-   // Draw table header
-   pdf.setFillColor(secondaryColor);
-   pdf.rect(startX, 30, totalWidth, 10, 'F');
-   pdf.setTextColor('#FFFFFF');
-   pdf.setFont("helvetica", "bold");
-   pdf.setFontSize(9);
-   
-   let currentX = startX;
-   columns.forEach((col, i) => {
-     pdf.text(col, currentX + 5, 37);
-     currentX += columnWidths[i];
-   });
-   
-   // Draw table rows
-   pdf.setTextColor(textColor);
-   pdf.setFont("helvetica", "normal");
-   
-   const maxRowsPerPage = Math.floor((pageHeight - 60) / 10);
-   let rowY = 40;
-   let pageCount = 1;
-   
-   data.forEach((row, rowIndex) => {
-     // Check if we need a new page
-     if (rowIndex > 0 && rowIndex % maxRowsPerPage === 0) {
-       // Add footer to current page
-       pdf.setDrawColor(primaryColor);
-       pdf.setLineWidth(0.5);
-       pdf.line(15, pageHeight - 20, pageWidth - 15, pageHeight - 20);
-       pdf.setTextColor(textColor);
-       pdf.setFontSize(8);
-       pdf.text(`Page ${2 + pageCount} of ${totalPages + 1 + Math.ceil(data.length / maxRowsPerPage)}`, pageWidth - 15, pageHeight - 10, { align: "right" });
-       
-       // Add new page
-       pdf.addPage();
-       pageCount++;
-       
-       // Add header to new page
-       pdf.setFillColor(primaryColor);
-       pdf.rect(15, 15, pageWidth - 30, 10, 'F');
-       pdf.setTextColor('#FFFFFF');
-       pdf.setFontSize(12);
-       pdf.setFont("helvetica", "bold");
-       pdf.text(`${title} - Data Table (continued)`, pageWidth / 2, 22, { align: "center" });
-       
-       // Reset row position
-       rowY = 40;
-       
-       // Draw table header again
-       pdf.setFillColor(secondaryColor);
-       pdf.rect(startX, 30, totalWidth, 10, 'F');
-       currentX = startX;
-       columns.forEach((col, i) => {
-         pdf.text(col, currentX + 5, 37);
-         currentX += columnWidths[i];
-       });
-       
-       pdf.setTextColor(textColor);
-       pdf.setFont("helvetica", "normal");
-       pdf.setFontSize(9);
-     }
-     
-     // Draw row background (alternating colors)
-     pdf.setFillColor(rowIndex % 2 === 0 ? '#f8f9fa' : '#ffffff');
-     pdf.rect(startX, rowY, totalWidth, 10, 'F');
-     
-     // Draw row data
-     currentX = startX;
-     columns.forEach((col, i) => {
-       // Format cell value based on type
-       let cellValue = row[col];
-       if (typeof cellValue === 'number') {
-         cellValue = cellValue % 1 === 0 ? cellValue.toString() : cellValue.toFixed(2);
-       } else if (cellValue === null || cellValue === undefined) {
-         cellValue = '-';
-       }
-       
-       pdf.text(String(cellValue).substring(0, 20), currentX + 5, rowY + 7);
-       currentX += columnWidths[i];
-     });
-     
-     rowY += 10;
-   });
-   
-   // Add footer to last page
-   pdf.setDrawColor(primaryColor);
-   pdf.setLineWidth(0.5);
-   pdf.line(15, pageHeight - 20, pageWidth - 15, pageHeight - 20);
-   pdf.setTextColor(textColor);
-   pdf.setFontSize(8);
-   const finalPageNumber = 2 + pageCount;
-   pdf.text(`Page ${finalPageNumber} of ${finalPageNumber}`, pageWidth - 15, pageHeight - 10, { align: "right" });
- }
+// Add appendix with data table if data is array-based
+if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object') {
+  // Add a new page for data tables
+  pdf.addPage();
+  
+  // Add header to data table page
+  pdf.setFillColor(primaryColor);
+  pdf.rect(15, 15, pageWidth - 30, 10, 'F');
+  pdf.setTextColor('#FFFFFF');
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "bold");
+  pdf.text(`${title} - Data Table`, pageWidth / 2, 22, { align: "center" });
+  
+  // Extract columns from first data object
+  const columns = Object.keys(data[0]);
+  const columnWidths = columns.map(col => Math.min(40, col.length * 5 + 10));
+  const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+  const startX = (pageWidth - totalWidth) / 2;
+  
+  // Draw table header
+  pdf.setFillColor(secondaryColor);
+  pdf.rect(startX, 30, totalWidth, 10, 'F');
+  pdf.setTextColor('#FFFFFF');
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(9);
+  
+  let currentX = startX;
+  columns.forEach((col, i) => {
+    pdf.text(col, currentX + 5, 37);
+    currentX += columnWidths[i];
+  });
+  
+  // Draw table rows
+  pdf.setTextColor(textColor);
+  pdf.setFont("helvetica", "normal");
+  
+  const maxRowsPerPage = Math.floor((pageHeight - 60) / 10);
+  let rowY = 40;
+  let pageCount = 1;
+  
+  data.forEach((row, rowIndex) => {
+    // Check if we need a new page
+    if (rowIndex > 0 && rowIndex % maxRowsPerPage === 0) {
+      // Add footer to current page
+      pdf.setDrawColor(primaryColor);
+      pdf.setLineWidth(0.5);
+      pdf.line(15, pageHeight - 20, pageWidth - 15, pageHeight - 20);
+      pdf.setTextColor(textColor);
+      pdf.setFontSize(8);
+      pdf.text(`Page ${2 + pageCount} of ${totalPages + 1 + Math.ceil(data.length / maxRowsPerPage)}`, pageWidth - 15, pageHeight - 10, { align: "right" });
+      
+      // Add new page
+      pdf.addPage();
+      pageCount++;
+      
+      // Add header to new page
+      pdf.setFillColor(primaryColor);
+      pdf.rect(15, 15, pageWidth - 30, 10, 'F');
+      pdf.setTextColor('#FFFFFF');
+      pdf.setFontSize(12);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(`${title} - Data Table (continued)`, pageWidth / 2, 22, { align: "center" });
+      
+      // Reset row position
+      rowY = 40;
+      
+      // Draw table header again
+      pdf.setFillColor(secondaryColor);
+      pdf.rect(startX, 30, totalWidth, 10, 'F');
+      currentX = startX;
+      columns.forEach((col, i) => {
+        pdf.text(col, currentX + 5, 37);
+        currentX += columnWidths[i];
+      });
+      
+      pdf.setTextColor(textColor);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+    }
+    
+    // Draw row background (alternating colors)
+    pdf.setFillColor(rowIndex % 2 === 0 ? '#f8f9fa' : '#ffffff');
+    pdf.rect(startX, rowY, totalWidth, 10, 'F');
+    
+    // Draw row data
+    currentX = startX;
+    columns.forEach((col, i) => {
+      // Format cell value based on type
+      let cellValue = row[col];
+      if (typeof cellValue === 'number') {
+        cellValue = cellValue % 1 === 0 ? cellValue.toString() : cellValue.toFixed(2);
+      } else if (cellValue === null || cellValue === undefined) {
+        cellValue = '-';
+      }
+      
+      pdf.text(String(cellValue).substring(0, 20), currentX + 5, rowY + 7);
+      currentX += columnWidths[i];
+    });
+    
+    rowY += 10;
+  });
+  
+  // Add footer to last page
+  pdf.setDrawColor(primaryColor);
+  pdf.setLineWidth(0.5);
+  pdf.line(15, pageHeight - 20, pageWidth - 15, pageHeight - 20);
+  pdf.setTextColor(textColor);
+  pdf.setFontSize(8);
+  const finalPageNumber = 2 + pageCount;
+  pdf.text(`Page ${finalPageNumber} of ${finalPageNumber}`, pageWidth - 15, pageHeight - 10, { align: "right" });
+}
 
- // Add QR code with linked report
- try {
-   const qrCodeSize = 25;
-   const qrCodeImg = await generateQRCode(`IFIT-MOTION-DETECTION:${title}`);
-   pdf.addImage(qrCodeImg, "PNG", 15, pageHeight - 15 - qrCodeSize, qrCodeSize, qrCodeSize);
- } catch (error) {
-   console.log("Could not generate QR code", error);
- }
+// Add QR code with linked report
+try {
+  const qrCodeSize = 25;
+  const qrCodeImg = await generateQRCode(`IFIT-MOTION-DETECTION:${title}`);
+  pdf.addImage(qrCodeImg, "PNG", 15, pageHeight - 15 - qrCodeSize, qrCodeSize, qrCodeSize);
+} catch (error) {
+  console.log("Could not generate QR code", error);
+}
 
- // Save PDF with formatted filename
- const cleanTitle = title.replace(/[^a-z0-9]/gi, '-').toLowerCase();
- const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
- pdf.save(`ifit-${cleanTitle}-report-${timestamp}.pdf`);
+// Save PDF with formatted filename
+const cleanTitle = title.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
+pdf.save(`ifit-${cleanTitle}-report-${timestamp}.pdf`);
 
- // Return the document for further processing if needed
- return pdf;
+// Return the document for further processing if needed
+return pdf;
 };
 
 // Helper function to generate QR code
 const generateQRCode = async (text) => {
- // This is a placeholder for QR code generation
- // In a real implementation, you would use a library like qrcode-generator
- // For now, we'll return a placeholder image
- return "/images/placeholder-qrcode.png";
+// This is a placeholder for QR code generation
+// In a real implementation, you would use a library like qrcode-generator
+// For now, we'll return a placeholder image
+return "/images/placeholder-qrcode.png";
 };
   
-  const generateOverallPDF = async () => {
-    // Initialize PDF document with better quality settings
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-      compress: true
-    });
+const generateOverallPDF = async () => {
+  // Initialize PDF document with better quality settings
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+    compress: true
+  });
+  
+  // Get page dimensions
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  
+  // Define consistent margins
+  const margin = 15;
+  const contentWidth = pageWidth - (margin * 2);
+  
+  // Set default font
+  pdf.setFont("helvetica", "normal");
+  
+  // ===== HEADER SECTION =====
+  // Add logos
+  const systemLogo = "/images/1.png";
+  const schoolLogo = "/images/tup.jpg";
+  
+  // Add school logo (left aligned)
+  pdf.addImage(schoolLogo, "PNG", margin, margin, 25, 25);
+  
+  // Add system name (center aligned)
+  pdf.setFontSize(20);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(0, 51, 102); // Dark blue for heading
+  const systemName = "IFIT-MOTION-DETECTION";
+  const systemNameWidth = pdf.getStringUnitWidth(systemName) * 20 / pdf.internal.scaleFactor;
+  const systemNameX = (pageWidth - systemNameWidth) / 2;
+  pdf.text(systemName, systemNameX, margin + 15);
+  
+  // Add system logo (right aligned)
+  pdf.addImage(systemLogo, "PNG", pageWidth - margin - 25, margin, 25, 25);
+  
+  // Add horizontal line
+  pdf.setDrawColor(0, 51, 102);
+  pdf.setLineWidth(0.5);
+  pdf.line(margin, margin + 32, pageWidth - margin, margin + 32);
+  
+  // ===== PREPARED BY SECTION =====
+  pdf.setFontSize(13);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(0, 0, 0);
+  pdf.text("Prepared by:", margin, margin + 45);
+  
+  // Contributors
+  pdf.setFontSize(11);
+  pdf.setFont("helvetica", "normal");
+  const contributors = [
+    "Avery Macasa",
+    "Bryan James Batan",
+    "Gelgin Delos Santos",
+    "Tyron Justine Medina"
+  ];
+  
+  contributors.forEach((name, index) => {
+    pdf.text(name, margin + 5, margin + 52 + (index * 6));
+  });
+  
+  // Date prepared
+  pdf.setFontSize(11);
+  pdf.text(`Date Generated: ${new Date().toLocaleDateString()}`, pageWidth - margin - 60, margin + 45);
+  
+  // ===== TITLE SECTION =====
+  pdf.setFontSize(18);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(0, 51, 102);
+  const title = "Overall Dashboard Report";
+  const titleWidth = pdf.getStringUnitWidth(title) * 18 / pdf.internal.scaleFactor;
+  const titleX = (pageWidth - titleWidth) / 2;
+  pdf.text(title, titleX, margin + 80);
+  
+  // ===== ANALYSIS SECTION =====
+  // Section title
+  pdf.setFontSize(14);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(0, 0, 0);
+  pdf.text("Data Analysis & Insights", margin, margin + 90);
+  
+  // Underline section title
+  pdf.setDrawColor(150, 150, 150);
+  pdf.setLineWidth(0.2);
+  pdf.line(margin, margin + 92, margin + 70, margin + 92);
+  
+  // Generate intelligent analysis for each chart
+  pdf.setFontSize(11);
+  pdf.setFont("helvetica", "normal");
+  let analysisY = margin + 100;
+  
+  // Analysis for Active vs Inactive Users
+  const activeUsersCount = activeUsers.length;
+  const inactiveUsersCount = inactiveUsers.length;
+  const totalUsersCount = activeUsersCount + inactiveUsersCount;
+  const activePercentage = ((activeUsersCount / totalUsersCount) * 100).toFixed(2);
+  const inactivePercentage = ((inactiveUsersCount / totalUsersCount) * 100).toFixed(2);
+  
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Active vs Inactive Users Analysis:", margin, analysisY);
+  pdf.setFont("helvetica", "normal");
+  
+  const activeAnalysis = [
+    `• Active Users: ${activeUsersCount} (${activePercentage}%)`,
+    `• Inactive Users: ${inactiveUsersCount} (${inactivePercentage}%)`,
+    `• Recommendation: Focus on re-engaging inactive users through targeted campaigns.`
+  ];
+  
+  activeAnalysis.forEach((line, index) => {
+    pdf.text(line, margin + 5, analysisY + 6 + (index * 6));
+  });
+  
+  analysisY += 25;
+  
+  // Analysis for Users by Gender
+  const maleUsersCount = maleUsers.length;
+  const femaleUsersCount = femaleUsers.length;
+  const totalGenderUsers = maleUsersCount + femaleUsersCount;
+  const malePercentage = ((maleUsersCount / totalGenderUsers) * 100).toFixed(2);
+  const femalePercentage = ((femaleUsersCount / totalGenderUsers) * 100).toFixed(2);
+  
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Users by Gender Analysis:", margin, analysisY);
+  pdf.setFont("helvetica", "normal");
+  
+  const genderAnalysis = [
+    `• Male Users: ${maleUsersCount} (${malePercentage}%)`,
+    `• Female Users: ${femaleUsersCount} (${femalePercentage}%)`,
+    `• Recommendation: Ensure gender-balanced marketing strategies to engage all users.`
+  ];
+  
+  genderAnalysis.forEach((line, index) => {
+    pdf.text(line, margin + 5, analysisY + 6 + (index * 6));
+  });
+  
+  analysisY += 25;
+  
+  // Analysis for Users by BMI Category
+  const underweightCount = underweightUsers.length;
+  const normalCount = normalUsers.length;
+  const overweightCount = overweightUsers.length;
+  const obeseCount = obeseUsers.length;
+  const totalBMIUsers = underweightCount + normalCount + overweightCount + obeseCount;
+  
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Users by BMI Category Analysis:", margin, analysisY);
+  pdf.setFont("helvetica", "normal");
+  
+  const bmiAnalysis = [
+    `• Underweight Users: ${underweightCount} (${((underweightCount / totalBMIUsers) * 100).toFixed(2)}%)`,
+    `• Normal Users: ${normalCount} (${((normalCount / totalBMIUsers) * 100).toFixed(2)}%)`,
+    `• Overweight Users: ${overweightCount} (${((overweightCount / totalBMIUsers) * 100).toFixed(2)}%)`,
+    `• Obese Users: ${obeseCount} (${((obeseCount / totalBMIUsers) * 100).toFixed(2)}%)`,
+    `• Recommendation: Provide personalized health plans for overweight and obese users.`
+  ];
+  
+  bmiAnalysis.forEach((line, index) => {
+    pdf.text(line, margin + 5, analysisY + 6 + (index * 6));
+  });
+  
+  analysisY += 35;
+  
+  // Analysis for BMI Distribution
+  const averageBMI = (bmiData.reduce((sum, user) => sum + user.bmi, 0) / bmiData.length).toFixed(2);
+  const minBMI = Math.min(...bmiData.map((user) => user.bmi)).toFixed(2);
+  const maxBMI = Math.max(...bmiData.map((user) => user.bmi)).toFixed(2);
+  
+  pdf.setFont("helvetica", "bold");
+  pdf.text("BMI Distribution Analysis:", margin, analysisY);
+  pdf.setFont("helvetica", "normal");
+  
+  const bmiDistributionAnalysis = [
+    `• Average BMI: ${averageBMI}`,
+    `• Minimum BMI: ${minBMI}`,
+    `• Maximum BMI: ${maxBMI}`,
+    `• Recommendation: Monitor users with extreme BMI values and provide tailored health advice.`
+  ];
+  
+  bmiDistributionAnalysis.forEach((line, index) => {
+    pdf.text(line, margin + 5, analysisY + 6 + (index * 6));
+  });
+  
+  analysisY += 30;
+  
+  // Analysis for Leaderboard - Average Accuracy
+  if (leaderboardData.length > 0) {
+    const topUser = leaderboardData[0]; // Assuming data is sorted by average accuracy
+    const averageAccuracy = (leaderboardData.reduce((sum, user) => sum + user.average_accuracy, 0) / leaderboardData.length).toFixed(2);
     
-    // Get page dimensions
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    
-    // Define consistent margins
-    const margin = 15;
-    const contentWidth = pageWidth - (margin * 2);
-    
-    // Set default font
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Leaderboard - Average Accuracy Analysis:", margin, analysisY);
     pdf.setFont("helvetica", "normal");
     
-    // ===== HEADER SECTION =====
-    // Add logos
-    const systemLogo = "/images/1.png";
-    const schoolLogo = "/images/tup.jpg";
-    
-    // Add school logo (left aligned)
-    pdf.addImage(schoolLogo, "PNG", margin, margin, 25, 25);
-    
-    // Add system name (center aligned)
-    pdf.setFontSize(20);
-    pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(0, 51, 102); // Dark blue for heading
-    const systemName = "IFIT-MOTION-DETECTION";
-    const systemNameWidth = pdf.getStringUnitWidth(systemName) * 20 / pdf.internal.scaleFactor;
-    const systemNameX = (pageWidth - systemNameWidth) / 2;
-    pdf.text(systemName, systemNameX, margin + 15);
-    
-    // Add system logo (right aligned)
-    pdf.addImage(systemLogo, "PNG", pageWidth - margin - 25, margin, 25, 25);
-    
-    // Add horizontal line
-    pdf.setDrawColor(0, 51, 102);
-    pdf.setLineWidth(0.5);
-    pdf.line(margin, margin + 32, pageWidth - margin, margin + 32);
-    
-    // ===== PREPARED BY SECTION =====
-    pdf.setFontSize(13);
-    pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(0, 0, 0);
-    pdf.text("Prepared by:", margin, margin + 45);
-    
-    // Contributors
-    pdf.setFontSize(11);
-    pdf.setFont("helvetica", "normal");
-    const contributors = [
-      "Avery Macasa",
-      "Bryan James Batan",
-      "Gelgin Delos Santos",
-      "Tyron Justine Medina"
+    const leaderboardAnalysis = [
+      `• Top User: ${topUser.name} with ${topUser.average_accuracy}% accuracy.`,
+      `• Average Accuracy: ${averageAccuracy}%`,
+      `• Recommendation: Recognize top performers and provide training for users with lower accuracy.`
     ];
     
-    contributors.forEach((name, index) => {
-      pdf.text(name, margin + 5, margin + 52 + (index * 6));
-    });
-    
-    // Date prepared
-    pdf.setFontSize(11);
-    pdf.text(`Date Generated: ${new Date().toLocaleDateString()}`, pageWidth - margin - 60, margin + 45);
-    
-    // ===== TITLE SECTION =====
-    pdf.setFontSize(18);
-    pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(0, 51, 102);
-    const title = "Overall Dashboard Report";
-    const titleWidth = pdf.getStringUnitWidth(title) * 18 / pdf.internal.scaleFactor;
-    const titleX = (pageWidth - titleWidth) / 2;
-    pdf.text(title, titleX, margin + 80);
-    
-    // ===== ANALYSIS SECTION =====
-    // Section title
-    pdf.setFontSize(14);
-    pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(0, 0, 0);
-    pdf.text("Data Analysis & Insights", margin, margin + 90);
-    
-    // Underline section title
-    pdf.setDrawColor(150, 150, 150);
-    pdf.setLineWidth(0.2);
-    pdf.line(margin, margin + 92, margin + 70, margin + 92);
-    
-    // Generate intelligent analysis for each chart
-    pdf.setFontSize(11);
-    pdf.setFont("helvetica", "normal");
-    let analysisY = margin + 100;
-    
-    // Analysis for Active vs Inactive Users
-    const activeUsersCount = activeUsers.length;
-    const inactiveUsersCount = inactiveUsers.length;
-    const totalUsersCount = activeUsersCount + inactiveUsersCount;
-    const activePercentage = ((activeUsersCount / totalUsersCount) * 100).toFixed(2);
-    const inactivePercentage = ((inactiveUsersCount / totalUsersCount) * 100).toFixed(2);
-    
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Active vs Inactive Users Analysis:", margin, analysisY);
-    pdf.setFont("helvetica", "normal");
-    
-    const activeAnalysis = [
-      `• Active Users: ${activeUsersCount} (${activePercentage}%)`,
-      `• Inactive Users: ${inactiveUsersCount} (${inactivePercentage}%)`,
-      `• Recommendation: Focus on re-engaging inactive users through targeted campaigns.`
-    ];
-    
-    activeAnalysis.forEach((line, index) => {
+    leaderboardAnalysis.forEach((line, index) => {
       pdf.text(line, margin + 5, analysisY + 6 + (index * 6));
     });
     
     analysisY += 25;
-    
-    // Analysis for Users by Gender
-    const maleUsersCount = maleUsers.length;
-    const femaleUsersCount = femaleUsers.length;
-    const totalGenderUsers = maleUsersCount + femaleUsersCount;
-    const malePercentage = ((maleUsersCount / totalGenderUsers) * 100).toFixed(2);
-    const femalePercentage = ((femaleUsersCount / totalGenderUsers) * 100).toFixed(2);
+  }
+  
+  // Analysis for Total Dances
+  if (totalDancesData && totalDancesData.length > 0) {
+    const topDance = totalDancesData.reduce((max, dance) => max.count > dance.count ? max : dance);
+    const totalDancesCount = totalDancesData.reduce((sum, dance) => sum + dance.count, 0);
     
     pdf.setFont("helvetica", "bold");
-    pdf.text("Users by Gender Analysis:", margin, analysisY);
+    pdf.text("Total Dances Analysis:", margin, analysisY);
     pdf.setFont("helvetica", "normal");
     
-    const genderAnalysis = [
-      `• Male Users: ${maleUsersCount} (${malePercentage}%)`,
-      `• Female Users: ${femaleUsersCount} (${femalePercentage}%)`,
-      `• Recommendation: Ensure gender-balanced marketing strategies to engage all users.`
+    const dancesAnalysis = [
+      `• Total Dance Count: ${totalDancesCount}`,
+      `• Most Popular Dance: ${topDance.name} (${topDance.count} performances)`,
+      `• Recommendation: Promote less-used dance routines to increase variety.`
     ];
     
-    genderAnalysis.forEach((line, index) => {
+    dancesAnalysis.forEach((line, index) => {
       pdf.text(line, margin + 5, analysisY + 6 + (index * 6));
     });
     
     analysisY += 25;
-    
-    // Analysis for Users by BMI Category
-    const underweightCount = underweightUsers.length;
-    const normalCount = normalUsers.length;
-    const overweightCount = overweightUsers.length;
-    const obeseCount = obeseUsers.length;
-    const totalBMIUsers = underweightCount + normalCount + overweightCount + obeseCount;
-    
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Users by BMI Category Analysis:", margin, analysisY);
-    pdf.setFont("helvetica", "normal");
-    
-    const bmiAnalysis = [
-      `• Underweight Users: ${underweightCount} (${((underweightCount / totalBMIUsers) * 100).toFixed(2)}%)`,
-      `• Normal Users: ${normalCount} (${((normalCount / totalBMIUsers) * 100).toFixed(2)}%)`,
-      `• Overweight Users: ${overweightCount} (${((overweightCount / totalBMIUsers) * 100).toFixed(2)}%)`,
-      `• Obese Users: ${obeseCount} (${((obeseCount / totalBMIUsers) * 100).toFixed(2)}%)`,
-      `• Recommendation: Provide personalized health plans for overweight and obese users.`
-    ];
-    
-    bmiAnalysis.forEach((line, index) => {
-      pdf.text(line, margin + 5, analysisY + 6 + (index * 6));
-    });
-    
-    analysisY += 35;
-    
-    // Analysis for BMI Distribution
-    const averageBMI = (bmiData.reduce((sum, user) => sum + user.bmi, 0) / bmiData.length).toFixed(2);
-    const minBMI = Math.min(...bmiData.map((user) => user.bmi)).toFixed(2);
-    const maxBMI = Math.max(...bmiData.map((user) => user.bmi)).toFixed(2);
-    
-    pdf.setFont("helvetica", "bold");
-    pdf.text("BMI Distribution Analysis:", margin, analysisY);
-    pdf.setFont("helvetica", "normal");
-    
-    const bmiDistributionAnalysis = [
-      `• Average BMI: ${averageBMI}`,
-      `• Minimum BMI: ${minBMI}`,
-      `• Maximum BMI: ${maxBMI}`,
-      `• Recommendation: Monitor users with extreme BMI values and provide tailored health advice.`
-    ];
-    
-    bmiDistributionAnalysis.forEach((line, index) => {
-      pdf.text(line, margin + 5, analysisY + 6 + (index * 6));
-    });
-    
-    analysisY += 30;
-    
-    // Analysis for Leaderboard - Average Accuracy
-    if (leaderboardData.length > 0) {
-      const topUser = leaderboardData[0]; // Assuming data is sorted by average accuracy
-      const averageAccuracy = (leaderboardData.reduce((sum, user) => sum + user.average_accuracy, 0) / leaderboardData.length).toFixed(2);
-      
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Leaderboard - Average Accuracy Analysis:", margin, analysisY);
-      pdf.setFont("helvetica", "normal");
-      
-      const leaderboardAnalysis = [
-        `• Top User: ${topUser.name} with ${topUser.average_accuracy}% accuracy.`,
-        `• Average Accuracy: ${averageAccuracy}%`,
-        `• Recommendation: Recognize top performers and provide training for users with lower accuracy.`
-      ];
-      
-      leaderboardAnalysis.forEach((line, index) => {
-        pdf.text(line, margin + 5, analysisY + 6 + (index * 6));
-      });
-      
-      analysisY += 25;
+  }
+  
+  // ===== CHARTS SECTION =====
+  // Add new page for charts
+  pdf.addPage();
+  
+  // Charts section title
+  pdf.setFontSize(16);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(0, 51, 102);
+  const chartsTitle = "Data Visualization Charts";
+  const chartsTitleWidth = pdf.getStringUnitWidth(chartsTitle) * 16 / pdf.internal.scaleFactor;
+  const chartsTitleX = (pageWidth - chartsTitleWidth) / 2;
+  pdf.text(chartsTitle, chartsTitleX, margin + 10);
+  
+  // Add horizontal line
+  pdf.setDrawColor(0, 51, 102);
+  pdf.setLineWidth(0.5);
+  pdf.line(margin, margin + 15, pageWidth - margin, margin + 15);
+  
+  let chartStartY = margin + 25;
+  
+  // Add Pie Chart - Active vs. Inactive Users
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(0, 0, 0);
+  pdf.text("Active vs. Inactive Users Distribution", margin, chartStartY - 5);
+  
+  const pieChartCanvas = await html2canvas(pieChartRef.current);
+  const pieChartImgData = pieChartCanvas.toDataURL("image/png");
+  const pieChartImgWidth = contentWidth;
+  const pieChartImgHeight = (pieChartCanvas.height * pieChartImgWidth) / pieChartCanvas.width;
+  
+  pdf.addImage(pieChartImgData, "PNG", margin, chartStartY, pieChartImgWidth, pieChartImgHeight);
+  chartStartY += pieChartImgHeight + 15;
+  
+  // Add Bar Chart - Users by Gender
+  if (chartStartY + 70 > pageHeight) {
+    pdf.addPage();
+    chartStartY = margin + 10;
+  }
+  
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Users by Gender Distribution", margin, chartStartY - 5);
+  
+  const barChartGenderCanvas = await html2canvas(barChartGenderRef.current);
+  const barChartGenderImgData = barChartGenderCanvas.toDataURL("image/png");
+  const barChartGenderImgWidth = contentWidth;
+  const barChartGenderImgHeight = (barChartGenderCanvas.height * barChartGenderImgWidth) / barChartGenderCanvas.width;
+  
+  pdf.addImage(barChartGenderImgData, "PNG", margin, chartStartY, barChartGenderImgWidth, barChartGenderImgHeight);
+  chartStartY += barChartGenderImgHeight + 15;
+  
+  // Add Bar Chart - Users by BMI Category
+  if (chartStartY + 70 > pageHeight) {
+    pdf.addPage();
+    chartStartY = margin + 10;
+  }
+  
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Users by BMI Category Distribution", margin, chartStartY - 5);
+  
+  const barChartBMICanvas = await html2canvas(barChartBMIRef.current);
+  const barChartBMIImgData = barChartBMICanvas.toDataURL("image/png");
+  const barChartBMIImgWidth = contentWidth;
+  const barChartBMIImgHeight = (barChartBMICanvas.height * barChartBMIImgWidth) / barChartBMICanvas.width;
+  
+  pdf.addImage(barChartBMIImgData, "PNG", margin, chartStartY, barChartBMIImgWidth, barChartBMIImgHeight);
+  chartStartY += barChartBMIImgHeight + 15;
+  
+  // Add Line Chart - BMI Distribution with User Names
+  if (chartStartY + 70 > pageHeight) {
+    pdf.addPage();
+    chartStartY = margin + 10;
+  }
+  
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("BMI Distribution Chart", margin, chartStartY - 5);
+  
+  const lineChartCanvas = await html2canvas(lineChartRef.current);
+  const lineChartImgData = lineChartCanvas.toDataURL("image/png");
+  const lineChartImgWidth = contentWidth;
+  const lineChartImgHeight = (lineChartCanvas.height * lineChartImgWidth) / lineChartCanvas.width;
+  
+  pdf.addImage(lineChartImgData, "PNG", margin, chartStartY, lineChartImgWidth, lineChartImgHeight);
+  chartStartY += lineChartImgHeight + 15;
+  
+  // Add Bar Chart - Leaderboard (Average Accuracy)
+  if (leaderboardData.length > 0) {
+    if (chartStartY + 70 > pageHeight) {
+      pdf.addPage();
+      chartStartY = margin + 10;
     }
     
-    // ===== CHARTS SECTION =====
-    // Add new page for charts
-    pdf.addPage();
-    
-    // Charts section title
-    pdf.setFontSize(16);
+    pdf.setFontSize(12);
     pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(0, 51, 102);
-    const chartsTitle = "Data Visualization Charts";
-    const chartsTitleWidth = pdf.getStringUnitWidth(chartsTitle) * 16 / pdf.internal.scaleFactor;
-    const chartsTitleX = (pageWidth - chartsTitleWidth) / 2;
-    pdf.text(chartsTitle, chartsTitleX, margin + 10);
+    pdf.text("Leaderboard - Average Accuracy", margin, chartStartY - 5);
     
-    // Add horizontal line
+    const leaderboardChartCanvas = await html2canvas(leaderboardChartRef.current);
+    const leaderboardChartImgData = leaderboardChartCanvas.toDataURL("image/png");
+    const leaderboardChartImgWidth = contentWidth;
+    const leaderboardChartImgHeight = (leaderboardChartCanvas.height * leaderboardChartImgWidth) / leaderboardChartCanvas.width;
+    
+    pdf.addImage(leaderboardChartImgData, "PNG", margin, chartStartY, leaderboardChartImgWidth, leaderboardChartImgHeight);
+    chartStartY += leaderboardChartImgHeight + 15;
+  }
+  
+  // Add Bar Chart - Total Dances
+  if (chartStartY + 70 > pageHeight) {
+    pdf.addPage();
+    chartStartY = margin + 10;
+  }
+  
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Total Dances Distribution", margin, chartStartY - 5);
+  
+  const barChartTotalDancesCanvas = await html2canvas(barChartTotalDancesRef.current);
+  const barChartTotalDancesImgData = barChartTotalDancesCanvas.toDataURL("image/png");
+  const barChartTotalDancesImgWidth = contentWidth;
+  const barChartTotalDancesImgHeight = (barChartTotalDancesCanvas.height * barChartTotalDancesImgWidth) / barChartTotalDancesCanvas.width;
+  
+  pdf.addImage(barChartTotalDancesImgData, "PNG", margin, chartStartY, barChartTotalDancesImgWidth, barChartTotalDancesImgHeight);
+  chartStartY += barChartTotalDancesImgHeight + 15;
+  
+  // Add footer to all pages
+  const totalPages = pdf.internal.getNumberOfPages();
+  
+  for (let i = 1; i <= totalPages; i++) {
+    pdf.setPage(i);
+    
+    // Add page border
     pdf.setDrawColor(0, 51, 102);
     pdf.setLineWidth(0.5);
-    pdf.line(margin, margin + 15, pageWidth - margin, margin + 15);
+    pdf.rect(margin - 5, margin - 5, pageWidth - 2 * (margin - 5), pageHeight - 2 * (margin - 5));
     
-    let chartStartY = margin + 25;
+    // Add footer with page number
+    pdf.setFontSize(9);
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(100, 100, 100);
     
-    // Add Pie Chart - Active vs. Inactive Users
-    pdf.setFontSize(12);
-    pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(0, 0, 0);
-    pdf.text("Active vs. Inactive Users Distribution", margin, chartStartY - 5);
+    // Add footer text
+    const footerText = "IFIT-MOTION-DETECTION System | Dashboard Report";
+    pdf.text(footerText, margin, pageHeight - margin + 5);
     
-    const pieChartCanvas = await html2canvas(pieChartRef.current);
-    const pieChartImgData = pieChartCanvas.toDataURL("image/png");
-    const pieChartImgWidth = contentWidth;
-    const pieChartImgHeight = (pieChartCanvas.height * pieChartImgWidth) / pieChartCanvas.width;
+    // Add page numbers
+    const pageText = `Page ${i} of ${totalPages}`;
+    const pageTextWidth = pdf.getStringUnitWidth(pageText) * 9 / pdf.internal.scaleFactor;
+    pdf.text(pageText, pageWidth - margin - pageTextWidth, pageHeight - margin + 5);
     
-    pdf.addImage(pieChartImgData, "PNG", margin, chartStartY, pieChartImgWidth, pieChartImgHeight);
-    chartStartY += pieChartImgHeight + 15;
-    
-    // Add Bar Chart - Users by Gender
-    if (chartStartY + 70 > pageHeight) {
-      pdf.addPage();
-      chartStartY = margin + 10;
-    }
-    
-    pdf.setFontSize(12);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Users by Gender Distribution", margin, chartStartY - 5);
-    
-    const barChartGenderCanvas = await html2canvas(barChartGenderRef.current);
-    const barChartGenderImgData = barChartGenderCanvas.toDataURL("image/png");
-    const barChartGenderImgWidth = contentWidth;
-    const barChartGenderImgHeight = (barChartGenderCanvas.height * barChartGenderImgWidth) / barChartGenderCanvas.width;
-    
-    pdf.addImage(barChartGenderImgData, "PNG", margin, chartStartY, barChartGenderImgWidth, barChartGenderImgHeight);
-    chartStartY += barChartGenderImgHeight + 15;
-    
-    // Add Bar Chart - Users by BMI Category
-    if (chartStartY + 70 > pageHeight) {
-      pdf.addPage();
-      chartStartY = margin + 10;
-    }
-    
-    pdf.setFontSize(12);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Users by BMI Category Distribution", margin, chartStartY - 5);
-    
-    const barChartBMICanvas = await html2canvas(barChartBMIRef.current);
-    const barChartBMIImgData = barChartBMICanvas.toDataURL("image/png");
-    const barChartBMIImgWidth = contentWidth;
-    const barChartBMIImgHeight = (barChartBMICanvas.height * barChartBMIImgWidth) / barChartBMICanvas.width;
-    
-    pdf.addImage(barChartBMIImgData, "PNG", margin, chartStartY, barChartBMIImgWidth, barChartBMIImgHeight);
-    chartStartY += barChartBMIImgHeight + 15;
-    
-    // Add Line Chart - BMI Distribution with User Names
-    if (chartStartY + 70 > pageHeight) {
-      pdf.addPage();
-      chartStartY = margin + 10;
-    }
-    
-    pdf.setFontSize(12);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("BMI Distribution Chart", margin, chartStartY - 5);
-    
-    const lineChartCanvas = await html2canvas(lineChartRef.current);
-    const lineChartImgData = lineChartCanvas.toDataURL("image/png");
-    const lineChartImgWidth = contentWidth;
-    const lineChartImgHeight = (lineChartCanvas.height * lineChartImgWidth) / lineChartCanvas.width;
-    
-    pdf.addImage(lineChartImgData, "PNG", margin, chartStartY, lineChartImgWidth, lineChartImgHeight);
-    chartStartY += lineChartImgHeight + 15;
-    
-    // Add Bar Chart - Leaderboard (Average Accuracy)
-    if (leaderboardData.length > 0) {
-      if (chartStartY + 70 > pageHeight) {
-        pdf.addPage();
-        chartStartY = margin + 10;
-      }
-      
-      pdf.setFontSize(12);
+    // Add timestamp
+    const timestamp = new Date().toLocaleString();
+    const timestampWidth = pdf.getStringUnitWidth(timestamp) * 9 / pdf.internal.scaleFactor;
+    pdf.text(timestamp, pageWidth - margin - timestampWidth, pageHeight - margin + 10);
+  }
+  
+  // Add report summary on the last page
+  pdf.addPage();
+  
+  pdf.setFontSize(16);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(0, 51, 102);
+  pdf.text("Summary and Recommendations", margin, margin + 10);
+  
+  pdf.setDrawColor(0, 51, 102);
+  pdf.setLineWidth(0.5);
+  pdf.line(margin, margin + 15, pageWidth - margin, margin + 15);
+  
+  pdf.setFontSize(11);
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(0, 0, 0);
+  
+  // Summary text
+  const summaryText = [
+    "This report provides an overview of the IFIT-MOTION-DETECTION system's user base and performance metrics.",
+    "Key findings include:",
+    "• " + activePercentage + "% of users are currently active",
+    "• Gender distribution shows " + malePercentage + "% male and " + femalePercentage + "% female users",
+    "• BMI distribution indicates that " + ((normalCount / totalBMIUsers) * 100).toFixed(2) + "% of users fall within the normal BMI range",
+    "• Average BMI across all users is " + averageBMI,
+    "• Most popular dance routine is " + (totalDancesData && totalDancesData.length > 0 ? totalDancesData.reduce((max, dance) => max.count > dance.count ? max : dance).name : "N/A")
+  ];
+  
+  let summaryY = margin + 25;
+  summaryText.forEach((line, index) => {
+    if (index === 0 || index === 1) {
       pdf.setFont("helvetica", "bold");
-      pdf.text("Leaderboard - Average Accuracy", margin, chartStartY - 5);
-      
-      const leaderboardChartCanvas = await html2canvas(leaderboardChartRef.current);
-      const leaderboardChartImgData = leaderboardChartCanvas.toDataURL("image/png");
-      const leaderboardChartImgWidth = contentWidth;
-      const leaderboardChartImgHeight = (leaderboardChartCanvas.height * leaderboardChartImgWidth) / leaderboardChartCanvas.width;
-      
-      pdf.addImage(leaderboardChartImgData, "PNG", margin, chartStartY, leaderboardChartImgWidth, leaderboardChartImgHeight);
-    }
-    
-    // Add footer to all pages
-    const totalPages = pdf.internal.getNumberOfPages();
-    
-    for (let i = 1; i <= totalPages; i++) {
-      pdf.setPage(i);
-      
-      // Add page border
-      pdf.setDrawColor(0, 51, 102);
-      pdf.setLineWidth(0.5);
-      pdf.rect(margin - 5, margin - 5, pageWidth - 2 * (margin - 5), pageHeight - 2 * (margin - 5));
-      
-      // Add footer with page number
-      pdf.setFontSize(9);
+    } else {
       pdf.setFont("helvetica", "normal");
-      pdf.setTextColor(100, 100, 100);
-      
-      // Add footer text
-      const footerText = "IFIT-MOTION-DETECTION System | Dashboard Report";
-      pdf.text(footerText, margin, pageHeight - margin + 5);
-      
-      // Add page numbers
-      const pageText = `Page ${i} of ${totalPages}`;
-      const pageTextWidth = pdf.getStringUnitWidth(pageText) * 9 / pdf.internal.scaleFactor;
-      pdf.text(pageText, pageWidth - margin - pageTextWidth, pageHeight - margin + 5);
-      
-      // Add timestamp
-      const timestamp = new Date().toLocaleString();
-      const timestampWidth = pdf.getStringUnitWidth(timestamp) * 9 / pdf.internal.scaleFactor;
-      pdf.text(timestamp, pageWidth - margin - timestampWidth, pageHeight - margin + 10);
     }
-    
-    // Add report summary on the last page
-    pdf.addPage();
-    
-    pdf.setFontSize(16);
-    pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(0, 51, 102);
-    pdf.text("Summary and Recommendations", margin, margin + 10);
-    
-    pdf.setDrawColor(0, 51, 102);
-    pdf.setLineWidth(0.5);
-    pdf.line(margin, margin + 15, pageWidth - margin, margin + 15);
-    
-    pdf.setFontSize(11);
-    pdf.setFont("helvetica", "normal");
-    pdf.setTextColor(0, 0, 0);
-    
-    // Summary text
-    const summaryText = [
-      "This report provides an overview of the IFIT-MOTION-DETECTION system's user base and performance metrics.",
-      "Key findings include:",
-      "• " + activePercentage + "% of users are currently active",
-      "• Gender distribution shows " + malePercentage + "% male and " + femalePercentage + "% female users",
-      "• BMI distribution indicates that " + ((normalCount / totalBMIUsers) * 100).toFixed(2) + "% of users fall within the normal BMI range",
-      "• Average BMI across all users is " + averageBMI
-    ];
-    
-    let summaryY = margin + 25;
-    summaryText.forEach((line, index) => {
-      if (index === 0 || index === 1) {
-        pdf.setFont("helvetica", "bold");
-      } else {
-        pdf.setFont("helvetica", "normal");
-      }
-      pdf.text(line, margin, summaryY);
-      summaryY += (index === 0 || index === 1) ? 10 : 6;
-    });
-    
-    // Recommendations
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Recommendations:", margin, summaryY + 5);
-    pdf.setFont("helvetica", "normal");
-    
-    const recommendationsText = [
-      "1. Implement targeted engagement strategies for inactive users to improve retention.",
-      "2. Develop gender-specific programs to ensure balanced participation.",
-      "3. Create personalized fitness plans based on BMI categories to improve health outcomes.",
-      "4. Regularly monitor extreme BMI values and provide additional support.",
-      "5. Recognize and reward high-performing users to maintain motivation.",
-      "6. Provide additional training for users with lower accuracy scores."
-    ];
-    
-    let recommendationsY = summaryY + 15;
-    recommendationsText.forEach((line) => {
-      pdf.text(line, margin, recommendationsY);
-      recommendationsY += 6;
-    });
-    
-    // Contact information
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Contact Information:", margin, recommendationsY + 15);
-    pdf.setFont("helvetica", "normal");
-    
-    const contactText = [
-      "For questions or additional information, please contact:",
-      "Email: support@ifit-motion.com",
-      "Phone: +1-800-IFIT-SUP",
-      "Website: www.ifit-motion-detection.com"
-    ];
-    
-    let contactY = recommendationsY + 25;
-    contactText.forEach((line) => {
-      pdf.text(line, margin, contactY);
-      contactY += 6;
-    });
-    
-    // Save PDF with a descriptive filename including date
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
-    pdf.save(`IFIT_Dashboard_Report_${dateStr}.pdf`);
-  };
+    pdf.text(line, margin, summaryY);
+    summaryY += (index === 0 || index === 1) ? 10 : 6;
+  });
+  
+  // Recommendations
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Recommendations:", margin, summaryY + 5);
+  pdf.setFont("helvetica", "normal");
+  
+  const recommendationsText = [
+    "1. Implement targeted engagement strategies for inactive users to improve retention.",
+    "2. Develop gender-specific programs to ensure balanced participation.",
+    "3. Create personalized fitness plans based on BMI categories to improve health outcomes.",
+    "4. Regularly monitor extreme BMI values and provide additional support.",
+    "5. Recognize and reward high-performing users to maintain motivation.",
+    "6. Provide additional training for users with lower accuracy scores.",
+    "7. Promote less popular dance routines to increase variety and user engagement."
+  ];
+  
+  let recommendationsY = summaryY + 15;
+  recommendationsText.forEach((line) => {
+    pdf.text(line, margin, recommendationsY);
+    recommendationsY += 6;
+  });
+  
+  // Contact information
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Contact Information:", margin, recommendationsY + 15);
+  pdf.setFont("helvetica", "normal");
+  
+  const contactText = [
+    "For questions or additional information, please contact:",
+    "Email: support@ifit-motion.com",
+    "Phone: +1-800-IFIT-SUP",
+    "Website: www.ifit-motion-detection.com"
+  ];
+  
+  let contactY = recommendationsY + 25;
+  contactText.forEach((line) => {
+    pdf.text(line, margin, contactY);
+    contactY += 6;
+  });
+  
+  // Save PDF with a descriptive filename including date
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+  pdf.save(`IFIT_Dashboard_Report_${dateStr}.pdf`);
+};
 
         
   // Pie Chart Data (Active vs. Inactive Users)
@@ -1076,6 +1290,8 @@ const generateQRCode = async (text) => {
       },
     ],
   };
+
+
 
   // Bar Chart Data (Users by BMI Category)
   const barChartDataBMI = {
@@ -1166,6 +1382,30 @@ const generateQRCode = async (text) => {
       },
     },
   };
+// Bar Chart Data (Age Distribution)
+const barChartDataAge = {
+labels: Object.keys(ageDistributionData).map(age => `${age}-${parseInt(age) + 9}`),
+datasets: [
+  {
+    label: "Users",
+    data: Object.values(ageDistributionData),
+    backgroundColor: "#FF9800",
+    hoverBackgroundColor: "#F57C00",
+  },
+],
+};
+// Bar Chart Data (Total Dances)
+const barChartDataTotalDances = {
+labels: totalDancesData.map((user) => user.name),
+datasets: [
+  {
+    label: "Total Dances",
+    data: totalDancesData.map((user) => user.totalDances),
+    backgroundColor: "#9C27B0",
+    hoverBackgroundColor: "#7B1FA2",
+  },
+],
+};
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, paddingTop: "64px", fontFamily: "'Poppins', sans-serif" }}>
@@ -1230,6 +1470,9 @@ const generateQRCode = async (text) => {
     </CardContent>
   </Card>
         </Grid>
+
+
+     
 
         {/* Inactive Users Card */}
         <Grid item xs={12} sm={6} md={4}>
@@ -1512,6 +1755,100 @@ const generateQRCode = async (text) => {
           </Card>
         </Grid>
 
+           {/* Bar Chart - Age Distribution */}
+<Grid item xs={12} md={6}>
+<Card sx={{ 
+  borderRadius: 3, 
+  boxShadow: 3, 
+  height: "100%", 
+  backgroundColor: '#FDFAF6',
+}}>
+  <CardContent>
+    <Typography 
+      variant="h6" 
+      align="center" 
+      gutterBottom 
+      sx={{ fontFamily: "'Poppins', sans-serif" }}
+    >
+      Age Distribution
+    </Typography>
+    <div 
+      ref={barChartAgeRef} 
+      style={{ width: "80%", height: "auto", margin: "auto" }}
+    >
+      <Bar data={barChartDataAge} options={barChartOptions} />
+    </div>
+    <Button
+      variant="contained"
+      onClick={() =>
+        generatePDF(
+          barChartAgeRef,
+          "Age Distribution",
+          ageDistributionData
+        )
+      }
+      sx={{ 
+        mt: 2, 
+        fontFamily: "'Poppins', sans-serif",
+        backgroundColor: '#99BC85',
+        color: '#FDFAF6',
+        '&:hover': {
+          backgroundColor: '#88A876',
+        },
+      }}
+    >
+      Download PDF
+    </Button>
+  </CardContent>
+</Card>
+</Grid>
+{/* Bar Chart - Total Dances */}
+<Grid item xs={12} md={6}>
+<Card sx={{
+  borderRadius: 3,
+  boxShadow: 3,
+  height: "100%",
+  backgroundColor: '#FDFAF6',
+}}>
+  <CardContent>
+    <Typography
+      variant="h6"
+      align="center"
+      gutterBottom
+      sx={{ fontFamily: "'Poppins', sans-serif" }}
+    >
+      Total Dances
+    </Typography>
+    <div
+      ref={barChartTotalDancesRef}
+      style={{ width: "80%", height: "auto", margin: "auto" }}
+    >
+      <Bar data={barChartDataTotalDances} options={barChartOptions} />
+    </div>
+    <Button
+      variant="contained"
+      onClick={() =>
+        generatePDF(
+          barChartTotalDancesRef,
+          "Total Dances",
+          totalDancesData
+        )
+      }
+      sx={{
+        mt: 2,
+        fontFamily: "'Poppins', sans-serif",
+        backgroundColor: '#99BC85',
+        color: '#FDFAF6',
+        '&:hover': {
+          backgroundColor: '#88A876',
+        },
+      }}
+    >
+      Download PDF
+    </Button>
+  </CardContent>
+</Card>
+</Grid>
         {/* Button to download overall PDF report */}
         <Grid item xs={12}>
   <Button
@@ -1537,4 +1874,3 @@ const generateQRCode = async (text) => {
 };
 
 export default Dashboard;
-

@@ -13,6 +13,7 @@ from models.result import Result
 from models.user import User
 from models.motion import MotionData
 from config import Config
+
 from api.resultRoutes import result_routes
 from api.routes import routes
 from api.categoryRoutes import category_routes
@@ -20,9 +21,6 @@ from api.videoRoutes import video_routes
 from services.mail_config import configure_mail
 from dotenv import load_dotenv
 from api.feedbackRoutes import feedback_routes
-import scipy.integrate as integrate
-import pandas as pd
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -92,20 +90,16 @@ def calculate_metrics(weight_kg, duration_minutes, steps_taken, accuracy_score, 
     # MET = 1.0 for no activity (resting), 5.0 for full activity
     met_value = 1.0 + (4.0 * activity_level)  # Scales from 1.0 to 5.0 based on activity
 
-    # Calculate calories burned only if the user is actively moving
-    if activity_level > 0:  # Only calculate if the user is moving
-        calories_burned = (met_value * weight_kg * duration_minutes) / 60
-    else:
-        calories_burned = 0  # No movement, no calories burned
+    # Calculate calories burned based on adjusted MET value
+    calories_burned = (met_value * weight_kg * duration_minutes) / 60
 
     # Calculate other metrics
     steps_per_minute = steps_taken / duration_minutes if duration_minutes > 0 else 0
     energy_expenditure = calories_burned * 4184  # Convert calories to joules
-    movement_efficiency = (accuracy_score / 100) * steps_taken if steps_taken > 0 else 0
-    performance_score = (accuracy_score + movement_efficiency) / 2 if steps_taken > 0 else 0
+    movement_efficiency = (accuracy_score / 100) * steps_taken
+    performance_score = (accuracy_score + movement_efficiency) / 2
 
     return calories_burned, steps_per_minute, energy_expenditure, movement_efficiency, performance_score
-
 
 def compare_live_pose(video_id, user_id):
     global comparison_running
@@ -163,6 +157,8 @@ def compare_live_pose(video_id, user_id):
                 frame_score = calculate_similarity(reference_pose, live_keypoints)
                 total_score += frame_score
                 feedback, color = get_feedback(frame_score)
+                draw_stickman(frame_webcam, live_keypoints, color)
+                draw_stickman(frame_video_resized, reference_pose, (255, 255, 255))
 
                 # Calculate text position for feedback at the top
                 text_size = cv2.getTextSize(feedback, cv2.FONT_HERSHEY_SIMPLEX, 2, 5)[0]
@@ -202,11 +198,9 @@ def compare_live_pose(video_id, user_id):
         weight_kg, duration_minutes, steps_taken, final_average_score, active_frames, total_frames
     )
 
-    # Only update weight if calories were burned
-    if calories_burned > 0:
-        weight_loss_kg = calories_burned / 7700
-        new_weight = weight_kg - weight_loss_kg
-        user_model.update_user(user_id, {"weight": new_weight})
+    weight_loss_kg = calories_burned / 7700
+    new_weight = weight_kg - weight_loss_kg
+    user_model.update_user(user_id, {"weight": new_weight})
 
     result = Result(db)
     result.create_result(

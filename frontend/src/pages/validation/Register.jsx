@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   TextField, Button, Container, Typography, Box, Paper, Select, MenuItem, InputLabel,
-  FormControl, Stepper, Step, StepLabel, CircularProgress,
+  FormControl, Stepper, Step, StepLabel, CircularProgress, IconButton, InputAdornment
 } from "@mui/material";
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
@@ -19,8 +20,11 @@ const Register = () => {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [otp, setOtp] = useState(""); // State for OTP input
+  const [otpSent, setOtpSent] = useState(false); // State to track if OTP has been sent
 
-  const steps = ["Profile Information", "Personal Details"];
+  const steps = ["Profile Information", "Personal Details", "Verify OTP"]; // Add OTP verification step
 
   const validateStep = (step) => {
     const newErrors = {};
@@ -35,6 +39,9 @@ const Register = () => {
         if (!formData.date_of_birth) newErrors.date_of_birth = "Date of Birth is required";
         if (!formData.height) newErrors.height = "Height is required";
         if (!formData.weight) newErrors.weight = "Weight is required";
+        break;
+      case 2:
+        if (!otp) newErrors.otp = "OTP is required";
         break;
       default:
         break;
@@ -69,13 +76,36 @@ const Register = () => {
       const form = new FormData();
       Object.keys(formData).forEach((key) => form.append(key, formData[key]));
       await axios.post("http://localhost:5000/api/register", form);
-      toast.success("Registered Successfully!", { position: "bottom-right" });
-      setTimeout(() => navigate("/login"), 1500);
+      setOtpSent(true); // Mark OTP as sent
+      toast.success("OTP sent to your email!", { position: "bottom-right" });
+      handleNext(); // Move to OTP verification step
     } catch (error) {
       toast.error("Registration failed!", { position: "bottom-right" });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleVerifyOtp = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post("http://localhost:5000/api/verify-otp", {
+        email: formData.email,
+        otp: otp,
+      });
+      if (response.status === 200) {
+        toast.success("OTP verified successfully!", { position: "bottom-right" });
+        setTimeout(() => navigate("/login"), 1500);
+      }
+    } catch (error) {
+      toast.error("Invalid OTP!", { position: "bottom-right" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   const renderStepContent = (step) => {
@@ -93,7 +123,31 @@ const Register = () => {
             {preview && <Box mt={2} display="flex" justifyContent="center"><img src={preview} alt="Preview" style={{ width: 150, height: 150, borderRadius: "50%" }} /></Box>}
             <TextField label="Full Name" name="name" fullWidth required margin="normal" value={formData.name} onChange={handleChange} error={!!errors.name} helperText={errors.name} />
             <TextField label="Email" type="email" name="email" fullWidth required margin="normal" value={formData.email} onChange={handleChange} error={!!errors.email} helperText={errors.email} />
-            <TextField label="Password" type="password" name="password" fullWidth required margin="normal" value={formData.password} onChange={handleChange} error={!!errors.password} helperText={errors.password} />
+            <TextField
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              fullWidth
+              required
+              margin="normal"
+              value={formData.password}
+              onChange={handleChange}
+              error={!!errors.password}
+              helperText={errors.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
           </Box>
         );
       case 1:
@@ -115,6 +169,25 @@ const Register = () => {
             <TextField label="Weight (kg)" type="number" name="weight" fullWidth required margin="normal" value={formData.weight} onChange={handleChange} error={!!errors.weight} helperText={errors.weight} />
           </Box>
         );
+      case 2:
+        return (
+          <Box>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "#1D2B53" }}>
+              Verify OTP
+            </Typography>
+            <TextField
+              label="Enter OTP"
+              name="otp"
+              fullWidth
+              required
+              margin="normal"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              error={!!errors.otp}
+              helperText={errors.otp}
+            />
+          </Box>
+        );
       default:
         return null;
     }
@@ -132,6 +205,10 @@ const Register = () => {
             <Box mt={4} display="flex" justifyContent="space-between">
               <Button variant="contained" onClick={handleBack} disabled={activeStep === 0} sx={{ bgcolor: "#7E2553", color: "white" }}>Back</Button>
               {activeStep === steps.length - 1 ? (
+                <Button variant="contained" onClick={handleVerifyOtp} disabled={loading} sx={{ bgcolor: "#7E2553", color: "white" }}>
+                  {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Verify OTP"}
+                </Button>
+              ) : activeStep === steps.length - 2 ? (
                 <Button variant="contained" onClick={handleSubmit} disabled={loading} sx={{ bgcolor: "#7E2553", color: "white" }}>
                   {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Submit"}
                 </Button>

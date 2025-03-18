@@ -4,8 +4,6 @@ import Loader from "../../components/Layout/Loader";
 import {
   Box,
   Typography,
-  Paper,
-  Avatar,
   LinearProgress,
   CircularProgress,
   Grid,
@@ -14,10 +12,14 @@ import {
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter"; // Example icon for weight metrics
+import ScaleIcon from "@mui/icons-material/Scale"; // Example icon for weight metrics
 
 const Progress = () => {
   const [userMetrics, setUserMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [initialWeight, setInitialWeight] = useState(70); // Example initial weight
+  const [currentWeight, setCurrentWeight] = useState(initialWeight);
 
   useEffect(() => {
     const fetchUserMetrics = async () => {
@@ -35,6 +37,12 @@ const Progress = () => {
         // Find the authenticated user's metrics
         const authenticatedUser = data.find((user) => user.email === JSON.parse(localStorage.getItem("user")).email);
         setUserMetrics(authenticatedUser);
+
+        // Calculate current weight based on basal metabolic rate and calories burned
+        if (authenticatedUser?.calories_burned) {
+          const weightLoss = authenticatedUser.calories_burned / 7700; // 7700 kcal ≈ 1 kg
+          setCurrentWeight(initialWeight - weightLoss);
+        }
       } catch (error) {
         console.error("Error fetching user metrics:", error);
         toast.error("Failed to fetch user metrics");
@@ -44,7 +52,7 @@ const Progress = () => {
     };
 
     fetchUserMetrics();
-  }, []);
+  }, [initialWeight]);
 
   // Function to compute BMI
   const computeBMI = (weight, height) => {
@@ -72,31 +80,37 @@ const Progress = () => {
     );
   }
 
-  const bmi = computeBMI(userMetrics.weight, userMetrics.height);
+  const bmi = computeBMI(currentWeight, userMetrics.height);
   const bmiClassification = classifyBMI(bmi);
 
   return (
-    <Box sx={{ padding: 3, maxWidth: 1200, margin: "0 auto" }}>
+    <Box sx={{ padding: 3, maxWidth: 1600, margin: "0 auto" }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold", color: "#3B1E54", textAlign: "center", mb: 4 }}>
         Your Progress
       </Typography>
 
       <Grid container spacing={4}>
-        {/* User Profile Card */}
+        {/* Weight Metrics Card */}
         <Grid item xs={12} md={4}>
           <Card sx={{ backgroundColor: "#F5F5F5", borderRadius: "12px", height: "100%" }}>
             <CardContent sx={{ textAlign: "center", padding: 3 }}>
-              <Avatar
-                src={userMetrics.image || "/path/to/default-image.jpg"}
-                alt={userMetrics.name}
-                sx={{ width: 100, height: 100, margin: "0 auto 16px" }}
-              />
+              <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+                <ScaleIcon sx={{ fontSize: 120, color: "#3B1E54" }} />
+              </Box>
               <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-                {userMetrics.name}
+                Weight Metrics
               </Typography>
               <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                {userMetrics.email}
+                Initial Weight: {initialWeight} kg
               </Typography>
+              <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                Current Weight: {currentWeight.toFixed(2)} kg
+              </Typography>
+              <LinearProgress
+                variant="determinate"
+                value={((initialWeight - currentWeight) / initialWeight) * 100}
+                sx={{ height: 10, borderRadius: 5, mb: 2 }}
+              />
               <Typography variant="body2" color="textSecondary">
                 BMI: {bmi} ({bmiClassification})
               </Typography>

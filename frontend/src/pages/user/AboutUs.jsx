@@ -21,7 +21,7 @@ const AboutUs = () => {
       >
         <div className="about-content">
           <div className="text-section">
-            <h1>Welcome to iFit</h1>
+            <h1>iFit</h1>
             {aboutData.map((item, index) => (
               <p key={index}>
                 <motion.div
@@ -150,11 +150,11 @@ const teamMembers = [
 // Styled Components
 const AboutContainer = styled.div`
   max-width: 1200px;
-  margin: 80px auto;
+  margin: 120px auto; /* Increase the margin-top to move it downward */
   padding: 40px;
-  background: linear-gradient(to bottom, #ffffff, #eef5f5);
+  background: transparent;
   border-radius: 15px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  // box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
   font-family: "Montserrat", sans-serif;
 
@@ -178,7 +178,7 @@ const AboutContainer = styled.div`
   h1 {
     font-size: 3rem;
     font-weight: 900;
-    color: #333;
+    color: #1D2B53;
     margin-bottom: 20px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -196,7 +196,7 @@ const AboutContainer = styled.div`
 
   .icon {
     font-size: 3rem;
-    color: #577D86;
+    color: #1D2B53;
   }
 
   .image-section {
@@ -220,7 +220,6 @@ const AboutContainer = styled.div`
     margin-top: 50px; /* Adjust this value as needed */
   }
 
-
   /* Team Section */
   .team-section {
     margin-top: 50px;
@@ -229,7 +228,7 @@ const AboutContainer = styled.div`
   h2 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #577D86;
+    color: #1D2B53;
     margin-bottom: 30px;
   }
 
@@ -276,7 +275,7 @@ const AboutContainer = styled.div`
   }
 
   .flip-card-front {
-    background: #f7f7f7;
+    background: #fff;
   }
 
   .flip-card-front img {
@@ -290,7 +289,7 @@ const AboutContainer = styled.div`
   .flip-card-front h3 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #333;
+    color: #1D2B53;
   }
 
   .flip-card-front p {
@@ -299,7 +298,7 @@ const AboutContainer = styled.div`
   }
 
   .flip-card-back {
-    background: #577D86;
+    background: #7E2553;
     color: white;
     transform: rotateY(180deg);
   }
@@ -307,11 +306,10 @@ const AboutContainer = styled.div`
   .flip-card-back h3 {
     font-size: 1.5rem;
     font-weight: 700;
-   
   }
 
   .flip-card-back p {
     font-size: 1rem;
-     color: white;
+    color: white;
   }
 `;

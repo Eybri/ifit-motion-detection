@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './../../../css/home.css';
 import { Link } from 'react-router-dom';
-import { isAuthenticated } from '../../../utils/auth'; // Import the authentication utility
+import { isAuthenticated } from '../../../utils/auth';
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    setIsLoggedIn(isAuthenticated()); // Check if the user is authenticated
+    setIsLoggedIn(isAuthenticated());
   }, []);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ const Home = () => {
     sections.forEach((section, index) => {
       setTimeout(() => {
         section.classList.add('visible');
-      }, index * 300); // Delay each element's appearance
+      }, index * 300);
     });
   }, []);
 
@@ -24,10 +24,10 @@ const Home = () => {
       {/* Hero Section */}
       <section className="hero-section fade-in">
         <div className="hero-content">
-          <h1>Work anywhere and whenever</h1>
-          <h2>iFit simplifies your dance practice, with a central place to track and improve your performance.</h2>
+          <h1>Work Anywhere, Anytime</h1>
+          <h2>iFit simplifies your dance practice, offering a central hub to track and improve your performance.</h2>
           <div className="hero-buttons">
-          <Link to="/video/list" className="btn btn-primary">
+            <Link to="/video/list" className="btn btn-primary">
               Get Started
             </Link>
           </div>
@@ -36,43 +36,67 @@ const Home = () => {
 
       {/* What is IFIT Section */}
       <section className="what-is-ifit fade-in">
-        <h2>What is iFit?</h2>
+        <h2>WHAT IS IFIT?</h2>
         <div className="content">
-          <p>iFit is an advanced interactive fitness technology designed to elevate your workout experience through virtual coaching, real-time performance tracking, and personalized training programs. Whether you're focusing on dance, cardio, strength training, or general fitness, iFit adapts to your goals by offering expert-led workouts tailored to your needs. The system seamlessly syncs with smart equipment, automatically adjusting settings such as speed, resistance, and incline to match your selected workout intensity. With access to a vast library of on-demand and live classes, iFit keeps you engaged, motivated, and constantly challenged, making every session both dynamic and effective.</p>
+          <p>iFit is an advanced interactive fitness technology designed to elevate your workout experience through virtual coaching, real-time performance tracking, and personalized training programs. Whether you're focusing on dance, cardio, strength training, or general fitness, iFit adapts to your goals by offering expert-led workouts tailored to your needs.</p>
           <img src="/images/HomeImage.gif" alt="iFit" className="ifit-image" />
+        </div>
+      </section>
+
+      {/* Mission and Vision Section */}
+      <section className="mission-vision fade-in">
+        <h2>VISION & MISSION</h2>
+        <p className="subtitle">What drives us and why we do it.</p>
+        <div className="content">
+          <div className="card">
+            <h3>Our Vision 👀</h3>
+            <p>To pioneer technological breakthroughs that blend science and art, creating a seamless fusion of innovation and creativity.</p>
+          </div>
+          <div className="card">
+            <h3>Our Mission 🎯</h3>
+            <p>To make cutting-edge technology accessible and usable for everyone, empowering individuals to achieve their fitness and artistic goals.</p>
+          </div>
         </div>
       </section>
 
       {/* How It Works Section */}
       <section className="how-it-works fade-in">
-        <h2>How It Works</h2>
+        <h2>HOW IT WORKS</h2>
         <div className="steps">
           <div className="step">
             <h3>Set Up</h3>
-            <p>Enhance your dance studio or home gym with the iFit system, an interactive fitness technology that offers virtual coaching, real-time performance tracking, and personalized workouts. Whether you're training for dance, cardio, or strength, iFit syncs with smart equipment to provide immersive on-demand and live classes, keeping you motivated and engaged.</p>
+            <p>Enhance your dance studio or home gym with the iFit system, offering virtual coaching and real-time performance tracking.</p>
           </div>
           <div className="step">
             <h3>Dance</h3>
-            <p>Simply dance in front of the motion detection camera, and let the system track your movements in real time for an interactive and engaging experience. Whether for fitness, training, or fun, the camera captures your performance and provides feedback to enhance your sessions.</p>
+            <p>Dance in front of the motion detection camera, and let the system track your movements in real time for an interactive experience.</p>
           </div>
           <div className="step">
             <h3>Track</h3>
-            <p>The system detects your movements with precision and instantly provides real-time feedback, helping you refine your technique, improve accuracy, and enhance overall performance effortlessly. Whether you're dancing, training, or exercising, it ensures you make the right adjustments for optimal results.</p>
+            <p>The system detects your movements with precision, providing real-time feedback to refine your technique and improve accuracy.</p>
           </div>
           <div className="step">
             <h3>Improve</h3>
-            <p>Gain valuable insights to refine your technique, improve your posture, and enhance your overall performance with real-time analysis and personalized feedback. Whether you're practicing dance or fitness routines, the system helps you make precise adjustments for better results.</p>
+            <p>Gain valuable insights to refine your technique, improve posture, and enhance overall performance with personalized feedback.</p>
           </div>
         </div>
       </section>
 
-      {/* CTA Section
-      <section className="cta fade-in">
-        <h2>Ready to Take Your Dance Skills to the Next Level?</h2>
-        <Link to="/signup" className="btn btn-dark text-light">
-          Join Now
-        </Link>
-      </section> */}
+      {/* Privacy Policy Section */}
+      <section className="privacy-policy fade-in">
+        <h2>PRIVACY POLICY</h2>
+        <div className="content">
+          <p>At iFit, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy outlines how we collect, use, and safeguard your data when you use our services.</p>
+          <div className="policy-details">
+            <h3>Information We Collect</h3>
+            <p>We collect personal information such as your name, email address, and payment details when you sign up for our services.</p>
+            <h3>How We Use Your Information</h3>
+            <p>Your information is used to deliver and improve our services, personalize your experience, and communicate with you about updates and offers.</p>
+            <h3>Data Security</h3>
+            <p>We implement industry-standard security measures to protect your data from unauthorized access, disclosure, or misuse.</p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

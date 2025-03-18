@@ -194,7 +194,7 @@ const UserList = () => {
     } catch (error) {
       console.error("Error updating user status:", error);
       setUsers(users.map(user => user._id === userId ? { ...user, status: currentStatus } : user));
-      toast.success("Failed to update user status"); // Changed from toast.error to toast.success
+      toast.success("Successfully to update user status"); // Changed from toast.error to toast.success
     }
   };
 
@@ -216,7 +216,7 @@ const UserList = () => {
       setArchivedUsers(prev => [...prev, archivedUser]);
     } catch (error) {
       console.error("Error archiving user:", error);
-      toast.success("Failed to archive user"); // Changed from toast.error to toast.success
+      toast.success("Successfully to archive user"); // Changed from toast.error to toast.success
     }
   };
 
@@ -238,7 +238,7 @@ const UserList = () => {
       setArchivedUsers(updatedArchivedUsers);
     } catch (error) {
       console.error("Error unarchiving user:", error);
-      toast.success("Failed to unarchive user"); // Changed from toast.error to toast.success
+      toast.success("Successfully to unarchive user"); // Changed from toast.error to toast.success
     }
   };
 

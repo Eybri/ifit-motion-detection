@@ -14,6 +14,8 @@ const App = () => {
   const [reply, setReply] = useState("");
   const [selectedFeedbackId, setSelectedFeedbackId] = useState(null);
   const [error, setError] = useState("");
+  const [showFeedback, setShowFeedback] = useState(false); // New state to control visibility
+  const [hoveredFeedbackId, setHoveredFeedbackId] = useState(null);
 
   // Fetch the logged-in user's email from localStorage if authenticated
   useEffect(() => {
@@ -99,8 +101,7 @@ const App = () => {
   };
 
   return (
-    <div style={styles.container}  className="fade-in">
-
+    <div style={styles.container} className="fade-in">
       {/* Feedback Submission Form */}
       <form onSubmit={handleSubmitFeedback} style={styles.form}>
         <h2 style={styles.formTitle}>Submit Feedback</h2>
@@ -130,66 +131,36 @@ const App = () => {
         </button>
       </form>
 
+      {/* Button to toggle feedback visibility */}
+      <button
+        onClick={() => setShowFeedback(!showFeedback)}
+        style={{ ...styles.button, marginTop: "20px" }} // Added marginTop to move the button down
+      >
+        {showFeedback ? "Hide Feedback" : "See All Feedback"}
+      </button>
+
       {/* Display All Feedback */}
-      <div style={styles.feedbackList}  className="fade-in">
-        <h2 style={styles.feedbackTitle}>All Feedback</h2>
-        {allFeedback.map((fb) => (
-          <div key={fb._id} style={styles.feedbackItem}>
-            <p style={styles.feedbackText}>
-              <strong>Feedback:</strong> {fb.feedback}
-            </p>
-            {fb.email && (
-              <p style={styles.feedbackText}>
-                <strong>Email:</strong> {fb.email}
-              </p>
-            )}
-            <div>
-              <strong>Replies:</strong>
-              {fb.replies.length > 0 ? (
-                fb.replies.map((reply, index) => (
-                  <div key={index} style={styles.replyContainer}>
-                    <p style={styles.replyText}>
-                      <FontAwesomeIcon icon={faReply} style={styles.replyIcon} /> {reply}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p>No replies yet.</p>
-              )}
-            </div>
-            {/* Reply Form */}
-            {selectedFeedbackId === fb._id ? (
-              <div style={styles.slideIn}>
-                <textarea
-                  value={reply}
-                  onChange={(e) => setReply(e.target.value)}
-                  placeholder="Write a reply..."
-                  style={styles.textarea}
-                />
-                <button
-                  onClick={() => handleSubmitReply(fb._id)}
-                  style={styles.button}
-                >
-                  Submit Reply
-                </button>
-                <button
-                  onClick={() => setSelectedFeedbackId(null)}
-                  style={styles.button}
-                >
-                  Cancel
-                </button>
+      {showFeedback && (
+        <div style={styles.feedbackList} className="fade-in">
+          <h2 style={styles.feedbackTitle}>All Feedback</h2>
+          {allFeedback.map((fb) => (
+            <div
+              key={fb._id}
+              style={{
+                ...styles.feedbackItem,
+                ...(hoveredFeedbackId === fb._id ? styles.feedbackItemHovered : {})
+              }}
+              onMouseEnter={() => setHoveredFeedbackId(fb._id)}
+              onMouseLeave={() => setHoveredFeedbackId(null)}
+            >
+              <div style={styles.feedbackHeader}>
+                <p style={styles.feedbackEmail}>{fb.email}</p>
               </div>
-            ) : (
-              <button
-                onClick={() => setSelectedFeedbackId(fb._id)}
-                style={styles.button}
-              >
-                <FontAwesomeIcon icon={faReply} style={styles.replyIcon} /> Reply
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
+              <p style={styles.feedbackText}>{fb.feedback}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Toast Container for Notifications */}
       <ToastContainer
@@ -207,7 +178,6 @@ const App = () => {
   );
 };
 
-// Styles (same as before)
 const styles = {
   container: {
     padding: "20px",
@@ -219,29 +189,19 @@ const styles = {
     backgroundRepeat: "no-repeat",
     minHeight: "100vh", // Ensures full height coverage
     borderRadius: "8px",
-    // boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
     paddingTop: "100px", // Moves content downward
   },
-  title: {
-    textAlign: "center",
-    color: "#333",
-    marginBottom: "20px",
-  },
-  // form: {
-  //   marginBottom: "20px",
-  //   backgroundColor: "transparent",
-  //   padding: "20px",
-  //   borderRadius: "8px",
-  //   boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-  // },
   formTitle: {
     color: "#333",
     marginBottom: "20px",
+    fontSize: "24px",
+    fontWeight: "bold",
   },
   label: {
     color: "#333",
     fontSize: "16px",
     marginBottom: "5px",
+    fontWeight: "500",
   },
   input: {
     width: "100%",
@@ -276,54 +236,45 @@ const styles = {
     alignItems: "center",
     gap: "8px",
   },
-
-    buttonHover: {
-    backgroundColor: "#7FA76C", // Darker green on hover
-  },
-  
-  "@keyframes fadeIn": {
-    from: { opacity: 0 },
-    to: { opacity: 1 },
-  },
-
   feedbackList: {
-    alignText: "center",
-
     marginTop: "20px",
   },
   feedbackTitle: {
-    color: "#fff",
+    color: "#333",
     marginBottom: "20px",
+    fontSize: "22px",
+    fontWeight: "bold",
   },
   feedbackItem: {
     border: "1px solid #ccc",
-    borderRadius: "5px",
-    padding: "15px",
-    marginBottom: "10px",
+    borderRadius: "10px",
+    padding: "20px",
+    marginBottom: "15px",
     backgroundColor: "#fff",
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    transition: "transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease",
+  },
+  feedbackItemHovered: {
+    transform: "translateY(-5px)",
+    boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
+    backgroundColor: "#f9f2f7", // Light purple tint that complements the #7E2553 theme
+    borderColor: "#7E2553", // Border color changes to match theme
+  },
+  feedbackHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "10px",
+  },
+  feedbackEmail: {
+    color: "#7E2553",
+    fontSize: "16px",
+    fontWeight: "600",
   },
   feedbackText: {
     color: "#333",
-    marginBottom: "10px",
-  },
-  replyContainer: {
-    marginLeft: "20px",
-    padding: "10px",
-    borderLeft: "3px solid #1D2B53",
-    backgroundColor: "#f1f1f1",
-    borderRadius: "5px",
-    marginBottom: "10px",
-  },
-  replyText: {
-    color: "#333",
-    margin: "0",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-  },
-  replyIcon: {
-    color: "#fff",
+    fontSize: "16px",
+    lineHeight: "1.5",
   },
   error: {
     color: "red",

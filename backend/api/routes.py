@@ -7,7 +7,11 @@ from cloudinary.uploader import upload, destroy
 from flask_mail import Message
 from services.mail_config import mail
 from bson.objectid import ObjectId
+import random
+import string
 
+def generate_otp(length=6):
+    return ''.join(random.choices(string.digits, k=length))
 routes = Blueprint("routes", __name__, url_prefix="/api")
 db = get_db()
 user_model = User(db)
@@ -22,23 +26,37 @@ def register():
     file = request.files.get("image")
     image_url = upload(file, folder="profile").get("secure_url") if file else ""
 
-    user_model.create_user({**data, "image": image_url})
+    otp = generate_otp()
+    user_data = {
+        **data,
+        "image": image_url,
+        "otp": otp,
+        "status": "Inactive"  # Set status to Inactive until OTP is verified
+    }
+    user_model.create_user(user_data)
 
     message = Message(
         "Welcome to Ifit!",
         sender="your-email@example.com",  
         recipients=[data["email"]]
     )
-    message.body = f"Hello {data['name']},\n\nThank you for registering on our platform! We're excited to have you.\n\nBest regards,\nIfit Team"
+    message.body = f"Hello {data['name']},\n\nThank you for registering on our platform! Please use the following OTP to verify your account: {otp}\n\nBest regards,\nIfit Team"
 
     try:
         mail.send(message)
     except Exception as e:
         return jsonify({"error": "Error sending email", "message": str(e)}), 500
 
-    return jsonify({"message": "User registered successfully, confirmation email sent"}), 201
+    return jsonify({"message": "User registered successfully, OTP sent to email"}), 201
 
-
+@routes.route("/verify-otp", methods=["POST"])
+def verify_otp():
+    data = request.json
+    user = user_model.find_user_by_email(data["email"])
+    if user and user["otp"] == data["otp"]:
+        user_model.update_user_status(str(user["_id"]), "Active")
+        return jsonify({"message": "OTP verified successfully"}), 200
+    return jsonify({"error": "Invalid OTP"}), 401
 @routes.route("/login", methods=["POST"])
 def login():
     data = request.json
@@ -58,7 +76,7 @@ def login():
                 }
             }), 200
         else:
-            return jsonify({"error": "Your account is deactivated. Please contact support."}), 403
+            return jsonify({"error": "Your account is not active. Please verify your email."}), 403
     return jsonify({"error": "Invalid email or password"}), 401
 
 @routes.route("/logout", methods=["POST"])

@@ -17,7 +17,7 @@ class User:
         self.collection = db["users"]
 
     def create_user(self, data):
-        """Insert a new user with status (default: Active)."""
+        """Insert a new user with status (default: Inactive)."""
         hashed_password = generate_password_hash(data["password"])
         user_data = {
             "name": data["name"],
@@ -29,12 +29,12 @@ class User:
             "weight": data["weight"],
             "is_admin": data.get("is_admin", False),
             "image": data.get("image", ""),
-            "status": "active" if data.get("status", "active") == "active" else "inactive",
+            "status": "Inactive",  # Set status to Inactive until OTP is verified
+            "otp": data.get("otp", ""),
             "created_at": datetime.utcnow(),
             "deactivated_at": None  # Initialize deactivated_at as None
         }
         return self.collection.insert_one(user_data)
-
     def find_user_by_email(self, email):
         """Find user by email."""
         return self.collection.find_one({"email": email})
@@ -47,7 +47,7 @@ class User:
         """Update user password."""
         hashed_password = generate_password_hash(new_password)
         self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": {"password": hashed_password}})
-        
+            
     def update_user_status(self, user_id, status):
         """
         Update user status to Active, Inactive, or Archived.
@@ -97,4 +97,3 @@ class User:
     def reactivate_user(self, user_id):
         """Reactivate the user and clear deactivated_at timestamp."""
         self.update_user_status(user_id, "Active")
-

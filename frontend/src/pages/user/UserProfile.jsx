@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Box, Typography, Paper, Modal, TextField } from '@mui/material';
+import { Button, Box, Typography, Paper, Modal, TextField, Grid } from '@mui/material';
 import { getToken } from '../../utils/auth';
 import axios from 'axios';
 import Loader from '../../components/Layout/Loader';
@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import HistoryResults from './HistoryResults'; // Import the HistoryResults component
+import Progress from './Progress'; // Import the Progress component
 
 const UserProfile = () => {
     const [user, setUser] = useState(null);
@@ -131,7 +132,7 @@ const UserProfile = () => {
     if (loading) return <Loader />;
 
     return (
-        <Box sx={{ padding: { xs: 2, sm: 3, md: 4 } }} style={{marginTop:'50px'}}> {/* Adjusted padding for responsiveness */}
+        <Box sx={{ padding: { xs: 2, sm: 3, md: 4 } }} style={{ marginTop: '50px' }}>
             <Paper elevation={6} sx={{ padding: { xs: 2, sm: 3, md: 4 }, borderRadius: 3, boxShadow: 10 }}>
                 <Box display="flex" alignItems="center">
                     {/* Image Section */}
@@ -189,6 +190,11 @@ const UserProfile = () => {
                     </Box>
                 </Box>
             </Paper>
+
+            {/* Progress Component */}
+            <Box sx={{ mt: 4 }}>
+                <Progress />
+            </Box>
 
             {/* Render HistoryResults Component */}
             <Box sx={{ mt: 4 }}>
