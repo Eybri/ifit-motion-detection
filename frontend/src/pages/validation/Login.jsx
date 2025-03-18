@@ -107,7 +107,7 @@ const Login = () => {
             </Box>
             <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
             <Box sx={{ flex: 1 }}>
-              <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#99BC85' }}>
+              <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#1D2B53' }}>
                 Login to Your Account
               </Typography>
 
@@ -155,7 +155,7 @@ const Login = () => {
                 />
 
                 <Typography align="right" sx={{ mt: 1 }}>
-                  <Link to="/password/forgot" style={{ textDecoration: 'underline', color: '#99BC85' }}>
+                  <Link to="/password/forgot" style={{ textDecoration: 'underline', color: '#1D2B53' }}>
                     Forgot Password?
                   </Link>
                 </Typography>
@@ -166,9 +166,9 @@ const Login = () => {
                   fullWidth
                   sx={{
                     mt: 3,
-                    bgcolor: '#99BC85',
+                    bgcolor: '#7E2553',
                     color: '#fff',
-                    '&:hover': { bgcolor: '#E4EFE7' },
+                    '&:hover': { bgcolor: '#FF004D' },
                     padding: 1.5,
                     fontSize: '1rem',
                     borderRadius: '40px',
@@ -181,9 +181,9 @@ const Login = () => {
                   {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Login'}
                 </Button>
 
-                <Typography align="center" sx={{ mt: 2, color: '#99BC85' }}>
+                <Typography align="center" sx={{ mt: 2, color: '#1D2B53' }}>
                   New User?{' '}
-                  <Link to="/register" style={{ textDecoration: 'underline', color: '#99BC85' }}>
+                  <Link to="/register" style={{ textDecoration: 'underline', color: '#1D2B53' }}>
                     Register Here
                   </Link>
                 </Typography>

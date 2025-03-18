@@ -1,10 +1,11 @@
 import React from "react";
 import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
+import Button from "react-bootstrap/Button"; // Import Button from react-bootstrap
 import { Radar } from "react-chartjs-2";
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from "chart.js";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable"; // Correctly import autoTable
+import styled from "styled-components";
 
 // Register ChartJS components
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
@@ -115,13 +116,13 @@ const ResultsModal = ({ show, onHide, results }) => {
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="xl" centered>
+    <StyledModal show={show} onHide={onHide} size="xl" centered>
       <Modal.Header closeButton className="modal-header-custom">
         <Modal.Title>Exercise Results</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <div className="results-container">
-          <div className="text-results">
+        <ResultsContainer>
+          <TextResults>
             <p><strong>Final Score:</strong> {results.final_score?.toFixed(2)}%</p>
             <p><strong>Calories Burned:</strong> {results.calories_burned?.toFixed(2)} kcal</p>
             <p><strong>Steps Taken:</strong> {results.steps_taken?.toFixed(2)}</p>
@@ -131,22 +132,101 @@ const ResultsModal = ({ show, onHide, results }) => {
             <p><strong>Performance Score:</strong> {results.performance_score?.toFixed(2)}</p>
             <p><strong>Energy Expenditure:</strong> {results.energy_expenditure?.toFixed(2)} J</p>
             <p><strong>Feedback:</strong> {results.user_feedback}</p>
-          </div>
-          <div className="chart-results">
+          </TextResults>
+          <ChartResults>
             <Radar data={radarData} options={radarOptions} />
-          </div>
-        </div>
+          </ChartResults>
+        </ResultsContainer>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
+        <StyledButton variant="secondary" onClick={onHide}>
           Close
-        </Button>
-        <Button variant="primary" onClick={generatePDF}>
+        </StyledButton>
+        <StyledButton variant="primary" onClick={generatePDF}>
           Download Report
-        </Button>
+        </StyledButton>
       </Modal.Footer>
-    </Modal>
+    </StyledModal>
   );
 };
 
 export default ResultsModal;
+
+// Styled Components
+const StyledModal = styled(Modal)`
+  .modal-header-custom {
+    background-color: #FAF1E6;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+
+  }
+
+  .modal-title {
+    color: #fff;
+  }
+
+  .modal-footer {
+    background-color: #FAF1E6;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+    // border-top: 1px solid #dee2e6;
+  }
+`;
+
+const ResultsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+`;
+
+const TextResults = styled.div`
+  flex: 1;
+  padding: 20px;
+  background-color: transparent;
+  border-radius: 10px;
+  max-width: 400px;
+
+  p {
+    margin: 10px 0;
+    font-size: 1rem;
+    color: #333;
+  }
+
+  strong {
+    color: #1D2B53;
+  }
+`;
+
+const ChartResults = styled.div`
+  flex: 2;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+`;
+
+const StyledButton = styled(Button)`
+  background: #7E2553;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 30px;
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Add transition for box-shadow */
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+
+  &:hover {
+    background: #FF004D;
+    color: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhance shadow effect on hover */
+  }
+`;

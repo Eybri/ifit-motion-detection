@@ -163,8 +163,6 @@ def compare_live_pose(video_id, user_id):
                 frame_score = calculate_similarity(reference_pose, live_keypoints)
                 total_score += frame_score
                 feedback, color = get_feedback(frame_score)
-                draw_stickman(frame_webcam, live_keypoints, color)
-                draw_stickman(frame_video_resized, reference_pose, (255, 255, 255))
 
                 # Calculate text position for feedback at the top
                 text_size = cv2.getTextSize(feedback, cv2.FONT_HERSHEY_SIMPLEX, 2, 5)[0]

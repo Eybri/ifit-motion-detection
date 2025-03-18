@@ -92,7 +92,7 @@ const UserVideoList = () => {
             modules={[Navigation, EffectCoverflow]}
             effect="coverflow"
             centeredSlides
-            slidesPerView={3}
+            slidesPerView={2} // Adjust the number of slides per view
             spaceBetween={30}
             navigation
             coverflowEffect={{
@@ -142,7 +142,7 @@ export default UserVideoList;
 const BackgroundContainer = styled.div`
   height: 100vh;
   width: 100vw;
-  background-image: url('/images/UserVideoListBG.jpg'); // Add your background image path here
+  background-image: url('/images/GifBG.gif'); // Add your background image path here
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -182,7 +182,7 @@ const Title = styled.h2`
   margin-bottom: 2rem;
   font-size: 3rem;
   font-weight: bold;
-  background: -webkit-linear-gradient(#569DAA, #569DAA);
+  background: -webkit-linear-gradient(#1D2B53, #1D2B53);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
@@ -216,20 +216,20 @@ const StyledSelect = styled.select`
 const StyledSwiper = styled(Swiper)`
   .swiper-button-next,
   .swiper-button-prev {
-    color: #fff; // Change this to your desired color
+    color: #1D2B53; // Change this to your desired color
     transition: color 0.3s ease;
   }
 
   .swiper-button-next:hover,
   .swiper-button-prev:hover {
-    color: #569DAA; // Change this to your desired hover color
+    color: #1D2B53; // Change this to your desired hover color
   }
 `;
 
 const VideoCard = styled.div`
   position: relative;
   width: 100%;
-  height: 300px;
+  height: 600px; // Increase the height
   cursor: pointer;
   transition: transform 0.3s ease;
   overflow: hidden;
@@ -237,7 +237,11 @@ const VideoCard = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
   &.selected {
-    transform: scale(1.05);
+    transform: scale(1.1); // Increase the scale for selected item
+    border: 3px solid #FF004D; // Add border for selected item
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); // Add shadow for selected item
+    background: linear-gradient(145deg, rgba(255,0,77,0.2), rgba(30,43,83,0.2)); // Add gradient background
+    animation: pulse 1.5s infinite; // Add pulse animation
   }
 
   &.blurred {
@@ -253,6 +257,18 @@ const VideoCard = styled.div`
 
   &:hover {
     transform: scale(1.05);
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1.1);
+    }
+    50% {
+      transform: scale(1.15);
+    }
+    100% {
+      transform: scale(1.1);
+    }
   }
 `;
 

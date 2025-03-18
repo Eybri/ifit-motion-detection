@@ -41,21 +41,21 @@ button {
 }
 
 .start-button {
-  background: #577D86;
+  background: #7E2553;
   color: white;
 }
 
 .start-button:hover {
-  background: #45a049;
+  background: #FF004D;
 }
 
 .stop-button {
-  background: #f44336;
+  background: #7E2553;
   color: white;
 }
 
 .stop-button:hover {
-  background: #e53935;
+  background: #FF004D;
 }
 
 .comparison-results {

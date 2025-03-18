@@ -1,11 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './../../../css/home.css';
 import { Link } from 'react-router-dom';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import { isAuthenticated } from '../../../utils/auth'; // Import the authentication utility
 
 const Home = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated()); // Check if the user is authenticated
+  }, []);
+
   useEffect(() => {
     const sections = document.querySelectorAll('.fade-in');
     sections.forEach((section, index) => {
@@ -15,52 +19,28 @@ const Home = () => {
     });
   }, []);
 
-  const settings = {
-    infinite: true,
-    speed: 1500,
-    slidesToShow: 5,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 2000,
-    pauseOnHover: false,
-    cssEase: 'linear',
-    centerMode: true,
-    centerPadding: '60px',
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 3,
-          centerPadding: '40px',
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-          centerPadding: '20px',
-        },
-      },
-    ],
-  };
-
-  const danceStyles = [
-    { img: 'https://cdn.usegalileo.ai/sdxl10/2c8322e5-718a-4560-8969-9fef3d2c6c2c.png' },
-    { img: 'https://cdn.usegalileo.ai/sdxl10/3bde3e72-3ca9-477b-a3ef-d0a218582831.png' },
-    { img: 'https://cdn.usegalileo.ai/sdxl10/afe72876-a785-475b-ab5e-2bdf3c0dc7ca.png' },
-    { img: 'https://cdn.usegalileo.ai/sdxl10/020526c8-c03e-4311-816c-fe632f0be2bc.png' },
-    { img: 'https://cdn.usegalileo.ai/sdxl10/3bde3e72-3ca9-477b-a3ef-d0a218582831.png' },
-  ];
-
   return (
     <div>
       {/* Hero Section */}
       <section className="hero-section fade-in">
-        <h1>Transform Your Dance Practice with Smart Motion Detection</h1>
-        <h2>Track your movements, improve your performance, and take your dance skills to the next level with cutting-edge motion detection technology.</h2>
-        <Link to="/video/list" className="btn btn-dark text-light">
-          Start Your Free Trial
-        </Link>
+        <div className="hero-content">
+          <h1>Work anywhere and whenever</h1>
+          <h2>iFit simplifies your dance practice, with a central place to track and improve your performance.</h2>
+          <div className="hero-buttons">
+          <Link to="/video/list" className="btn btn-primary">
+              Get Started
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* What is IFIT Section */}
+      <section className="what-is-ifit fade-in">
+        <h2>What is iFit?</h2>
+        <div className="content">
+          <p>iFit is an advanced interactive fitness technology designed to elevate your workout experience through virtual coaching, real-time performance tracking, and personalized training programs. Whether you're focusing on dance, cardio, strength training, or general fitness, iFit adapts to your goals by offering expert-led workouts tailored to your needs. The system seamlessly syncs with smart equipment, automatically adjusting settings such as speed, resistance, and incline to match your selected workout intensity. With access to a vast library of on-demand and live classes, iFit keeps you engaged, motivated, and constantly challenged, making every session both dynamic and effective.</p>
+          <img src="/images/HomeImage.gif" alt="iFit" className="ifit-image" />
+        </div>
       </section>
 
       {/* How It Works Section */}
@@ -68,42 +48,31 @@ const Home = () => {
         <h2>How It Works</h2>
         <div className="steps">
           <div className="step">
-            <h3>1. Set Up</h3>
-            <p>Install the iFit system in your dance studio or home.</p>
+            <h3>Set Up</h3>
+            <p>Enhance your dance studio or home gym with the iFit system, an interactive fitness technology that offers virtual coaching, real-time performance tracking, and personalized workouts. Whether you're training for dance, cardio, or strength, iFit syncs with smart equipment to provide immersive on-demand and live classes, keeping you motivated and engaged.</p>
           </div>
           <div className="step">
-            <h3>2. Dance</h3>
-            <p>Simply dance in front of the motion detection camera.</p>
+            <h3>Dance</h3>
+            <p>Simply dance in front of the motion detection camera, and let the system track your movements in real time for an interactive and engaging experience. Whether for fitness, training, or fun, the camera captures your performance and provides feedback to enhance your sessions.</p>
           </div>
           <div className="step">
-            <h3>3. Track</h3>
-            <p>The system detects your movements and provides real-time feedback.</p>
+            <h3>Track</h3>
+            <p>The system detects your movements with precision and instantly provides real-time feedback, helping you refine your technique, improve accuracy, and enhance overall performance effortlessly. Whether you're dancing, training, or exercising, it ensures you make the right adjustments for optimal results.</p>
           </div>
           <div className="step">
-            <h3>4. Improve</h3>
-            <p>Get insights to improve your technique, posture, and performance.</p>
+            <h3>Improve</h3>
+            <p>Gain valuable insights to refine your technique, improve your posture, and enhance your overall performance with real-time analysis and personalized feedback. Whether you're practicing dance or fitness routines, the system helps you make precise adjustments for better results.</p>
           </div>
         </div>
       </section>
 
-      {/* Infinite Autoplay Carousel */}
-      <div className="carousel-container fade-in">
-        <Slider {...settings}>
-          {danceStyles.map((item, index) => (
-            <div key={index} className="carousel-slide">
-              <img src={item.img} alt={`Dance style ${index + 1}`} className="carousel-img" />
-            </div>
-          ))}
-        </Slider>
-      </div>
-
-      {/* CTA Section */}
+      {/* CTA Section
       <section className="cta fade-in">
         <h2>Ready to Take Your Dance Skills to the Next Level?</h2>
         <Link to="/signup" className="btn btn-dark text-light">
           Join Now
         </Link>
-      </section>
+      </section> */}
     </div>
   );
 };

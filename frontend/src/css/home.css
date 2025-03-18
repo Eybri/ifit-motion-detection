@@ -1,161 +1,3 @@
-body {
-    font-family: "Be Vietnam Pro", "Noto Sans", sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #181115;
-    color: white;
-    scroll-behavior: smooth;
-  }
-
-  
-  /* Icon Styles */
-  .icons {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .search-button,
-  .login-button {
-    background-color: #382933;
-    border-radius: 50%;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-  }
-  
-  .search-button:hover,
-  .login-button:hover {
-    background-color: #e619a2;
-    transform: scale(1.1);
-  }
-  
-  /* Hero Section */
-  .hero-section {
-    background: url("https://cdn.usegalileo.ai/sdxl10/24db16d8-9f94-4554-81cd-c23eb95b405f.png") no-repeat center center/cover;
-    color: white;
-    padding: 80px 40px;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-    background-attachment: fixed;
-  }
-  
-  .hero-section h1 {
-    font-size: 3rem;
-    font-weight: 900;
-    margin-bottom: 20px;
-    animation: fadeIn 1s ease-in-out;
-  }
-  
-  .hero-section h2 {
-    font-size: 1.25rem;
-    font-weight: 400;
-    margin-bottom: 30px;
-  }
-  
-  /* Parallax Scrolling Effect */
-  @keyframes fadeIn {
-    0% {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  /* Grid Layout */
-  .grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-    padding: 40px;
-    position: relative;
-    perspective: 1000px;
-  }
-  
-  .grid-item {
-    position: relative;
-    background: #333;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    transform-style: preserve-3d;
-  }
-  
-  .grid-item:hover {
-    transform: rotateY(10deg) rotateX(10deg);
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
-  }
-  
-  .grid-item img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.3s ease;
-  }
-  
-  .grid-item:hover img {
-    transform: scale(1.1);
-  }
-  
-  /* Hover Effects on the Dance List */
-  .dance-list-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 1.5rem;
-    padding: 10px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .grid-item:hover .dance-list-overlay {
-    opacity: 1; /* Show overlay on hover */
-  }
-  
-  /* Footer */
-  
-  /* Animation for sections */
-  .hero-section h1,
-  .hero-section h2 {
-    animation: fadeIn 1s ease-in-out;
-  }
-
-  
-  body {
-    font-family: "Be Vietnam Pro", "Noto Sans", sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #181115;
-    color: white;
-    scroll-behavior: smooth;
-  }
-/* Fade-in and smooth transition for page load */
-.fade-in {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 1s ease-in-out, transform 1s ease-in-out;
-}
-
-.fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* Hero Section */
 .hero-section {
   background: url("https://cdn.usegalileo.ai/sdxl10/24db16d8-9f94-4554-81cd-c23eb95b405f.png") no-repeat center center/cover;
@@ -165,20 +7,21 @@ body {
   position: relative;
   z-index: 1;
   background-attachment: fixed;
-  opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 1s ease-in-out, transform 1.5s ease-in-out;
-}
-
-.hero-section.visible {
-  opacity: 1;
-  transform: scale(1);
+  height: 100vh; /* Full viewport height */
+  width: 100%; /* Full width */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0; /* Start with opacity 0 */
+  animation: fadeIn 1s forwards; /* Apply fade-in animation */
 }
 
 .hero-section h1 {
   font-size: 3rem;
   font-weight: 900;
   margin-bottom: 20px;
+  text-transform: uppercase; /* Make the text all caps */
 }
 
 .hero-section h2 {
@@ -187,134 +30,164 @@ body {
   margin-bottom: 30px;
 }
 
-/* How It Works Section */
+.hero-buttons .btn {
+  margin-right: 10px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s, transform 0.3s; /* Add transition for smooth hover effect */
+  border: none; /* Remove the border */
+}
+
+.hero-buttons .btn-primary {
+  background-color: #7E2553;
+  color: #fff;
+}
+
+.hero-buttons .btn-primary:hover {
+  background-color: #FF004D; /* Lighter green on hover */
+  transform: scale(1.05); /* Slightly enlarge the button on hover */
+}
+
+.hero-buttons .btn-secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.hero-buttons .btn-secondary:hover {
+  background-color: #5a6268; /* Darker gray on hover */
+  transform: scale(1.05); /* Slightly enlarge the button on hover */
+}
+
+/* What is IFIT Section */
+.what-is-ifit {
+  padding: 50px;
+  background-color: #fff;
+  text-align: center;
+  opacity: 0; /* Start with opacity 0 */
+  animation: fadeIn 1s forwards 0.5s; /* Apply fade-in animation with delay */
+}
+
+.what-is-ifit h2 {
+  font-size: 2rem;
+  font-weight: bold; /* Make the text bold */
+  text-transform: uppercase; /* Make the text all caps */
+  color: #1D2B53;
+  margin-bottom: 30px;
+}
+
+.what-is-ifit .content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.what-is-ifit p {
+  flex: 1;
+  font-size: 1rem;
+  color: #666;
+  margin-right: 20px;
+  border-right: 2px solid #ccc; /* Add a line between the text and the image */
+  padding-right: 20px;
+  font-style: italic;
+}
+
+.what-is-ifit .ifit-image {
+  flex: 1;
+  max-width: 35%; /* Enlarge the image to half of the screen */
+  border-radius: 10px;
+}
+
 /* How It Works Section */
 .how-it-works {
-  padding: 40px;
-  background-color: #222;
+  padding: 50px;
+  background-color: #fff;
   text-align: center;
+  opacity: 0; /* Start with opacity 0 */
+  animation: fadeIn 1s forwards 1s; /* Apply fade-in animation with delay */
 }
 
 .how-it-works h2 {
   font-size: 2rem;
-  margin-bottom: 20px;
+  font-weight: bold; /* Make the text bold */
+  text-transform: uppercase;
+  color: #1D2B53;
+  margin-bottom: 30px;
 }
 
 .steps {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
 }
 
 .step {
-  flex: 1 1 200px;
+  background-color: #FAF1E6;
   padding: 20px;
-  margin: 10px;
-  background-color: #333;
-  border-radius: 8px;
-  border: 2px solid #577D86; /* Added border with the specified color */
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  width: 100%; /* Ensure the step takes full width */
+  height: 100%; /* Ensure the step takes full height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.step:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .step h3 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
+  color: #1D2B53;
   margin-bottom: 10px;
+  text-transform: uppercase; /* Make the text all caps */
 }
 
 .step p {
   font-size: 1rem;
-}
-
-
-/* Carousel Styles */
-.carousel-container {
-  width: 90%;
-  margin: 3rem auto;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 1s ease-in-out, transform 1.5s ease-in-out;
-}
-
-.carousel-container.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.carousel-slide {
-  padding: 10px;
-  transition: transform 0.5s ease-in-out;
-  opacity: 0.7;
-}
-
-.carousel-img {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease-in-out, opacity 1s ease-in-out;
-}
-
-.carousel-img:hover {
-  transform: scale(1.2);
-  opacity: 1;
-}
-
-.slick-center .carousel-img {
-  transform: scale(1);
-}
-
-.slick-prev, .slick-next {
-  display: none !important;
+  color: #666;
 }
 
 /* CTA Section */
 .cta {
+  padding: 50px;
+  background-color: #fff;
   text-align: center;
-  padding: 40px;
-  background-color: #111;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 1s ease-in-out, transform 1.5s ease-in-out;
-}
-
-.cta.visible {
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 0; /* Start with opacity 0 */
+  animation: fadeIn 1s forwards 1.5s; /* Apply fade-in animation with delay */
 }
 
 .cta h2 {
   font-size: 2rem;
-  margin-bottom: 20px;
+  color: #333;
+  margin-bottom: 30px;
 }
 
 .cta .btn {
-  background-color: #577D86;
-  color: white;
   padding: 10px 20px;
-  text-decoration: none;
+  font-size: 1rem;
   border-radius: 5px;
-  font-size: 1.25rem;
-  transition: background-color 0.3s;
+  text-decoration: none;
+  background-color: #007bff;
+  color: #fff;
+  transition: background-color 0.3s, transform 0.3s; /* Add transition for smooth hover effect */
+  border: none; /* Remove the border */
 }
 
 .cta .btn:hover {
-  background-color: #ff4500;
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: scale(1.05); /* Slightly enlarge the button on hover */
 }
 
-  
-  /* Button Styling */
-  /* .btn {
-    text-decoration: none;
-    padding: 10px 20px;
-    background-color: #e619a2;
-    border-radius: 5px;
-    color: white;
-    font-weight: bold;
-    transition: background 0.3s ease-in-out;
-  } */
-  
-  /* .btn:hover {
-    background: #ff3cbe;
+/* Fade-in animation */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
   }
-   */
+}

@@ -134,14 +134,11 @@ const Header = () => {
                     <DropdownItem>
                       <Link className="dropdown-item" to="/me">Profile</Link>
                     </DropdownItem>
-                    {/* <DropdownItem>
-                      <Link className="dropdown-item" to="/history">My History</Link>
-                    </DropdownItem> */}
-                    {/* {user.is_admin && (
+                    {user.is_admin && (
                       <DropdownItem>
                         <Link className="dropdown-item" to="/admin/dashboard">Dashboard</Link>
                       </DropdownItem>
-                    )} */}
+                    )}
                     <DropdownItem>
                       <button className="dropdown-item text-danger" onClick={handleLogout}>Logout</button>
                     </DropdownItem>
@@ -167,9 +164,7 @@ const NavContainer = styled.nav`
   transition: all 0.3s ease-in-out;
   font-family: "Montserrat", sans-serif;
   padding: 10px 5%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); // Add this line for shadow
-  border-radius: 10px; // Optional: Add border-radius for a softer look
-  margin: 10px; // Optional: Add margin to ensure the shadow is visible
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow effect */
 `;
 
 const NavWrapper = styled.div`
@@ -193,22 +188,22 @@ const RightSection = styled.div`
 const Logo = styled.div`
   font-size: 32px;
   font-weight: 700;
-  color: #99BC85;
+  color: #1D2B53;
 
   &:hover {
-    color: black;
+    color: #FF004D;
   }
 `;
 
 const NavItem = styled.li`
   .nav-link {
     font-weight: 700;
-    color: #99BC85;
+    color: #1D2B53;
     text-transform: uppercase;
     transition: color 0.3s ease;
 
     &:hover {
-      color: black;
+      color: #FF004D;
     }
   }
 `;
@@ -217,28 +212,28 @@ const UserAvatar = styled.img`
   width: 35px;
   height: 35px;
   border-radius: 50%;
-  border: 2px solid #99BC85;
+  border: 2px solid #1D2B53;
   margin-right: 8px;
 `;
 
 const UserName = styled.span`
   font-weight: 700;
-  color: #99BC85;
+  color: #1D2B53;
 `;
 
 const DropdownItem = styled.li`
   .dropdown-item {
     font-weight: 700;
-    color: #99BC85;
+    color: #1D2B53;
     &:hover {
-      background: #99BC85;
+      background: #1D2B53;
       color: white;
     }
   }
 `;
 
 const LoginButton = styled(Link)`
-  background: #99BC85;
+  background: #7E2553;
   color: white;
   border: none;
   padding: 10px 25px;
@@ -246,11 +241,13 @@ const LoginButton = styled(Link)`
   font-weight: 700;
   text-transform: uppercase;
   border-radius: 30px;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Add transition for box-shadow */
   text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow effect */
 
   &:hover {
-    background: #000;
+    background: #FF004D;
     color: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhance shadow effect on hover */
   }
 `;

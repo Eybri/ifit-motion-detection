@@ -83,10 +83,10 @@ const Register = () => {
       case 0:
         return (
           <Box>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "#99BC85" }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "#1D2B53" }}>
               Profile Information
             </Typography>
-            <Button variant="contained" component="label" fullWidth sx={{ borderRadius: "40px", bgcolor: "#99BC85", color: "white", "&:hover": { bgcolor: "#000" } }}>
+            <Button variant="contained" component="label" fullWidth sx={{ borderRadius: "40px", bgcolor: "#7E2553", color: "#fff", "&:hover": { bgcolor: "#FF004D" } }}>
               Upload Profile Picture
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
@@ -99,7 +99,7 @@ const Register = () => {
       case 1:
         return (
           <Box>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "#99BC85" }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "#1D2B53" }}>
               Personal Details
             </Typography>
             <FormControl fullWidth margin="normal">
@@ -130,13 +130,13 @@ const Register = () => {
             </Stepper>
             <Box mt={4}>{renderStepContent(activeStep)}</Box>
             <Box mt={4} display="flex" justifyContent="space-between">
-              <Button variant="contained" onClick={handleBack} disabled={activeStep === 0} sx={{ bgcolor: "#99BC85", color: "white" }}>Back</Button>
+              <Button variant="contained" onClick={handleBack} disabled={activeStep === 0} sx={{ bgcolor: "#7E2553", color: "white" }}>Back</Button>
               {activeStep === steps.length - 1 ? (
-                <Button variant="contained" onClick={handleSubmit} disabled={loading} sx={{ bgcolor: "#99BC85", color: "white" }}>
+                <Button variant="contained" onClick={handleSubmit} disabled={loading} sx={{ bgcolor: "#7E2553", color: "white" }}>
                   {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Submit"}
                 </Button>
               ) : (
-                <Button variant="contained" onClick={handleNext} sx={{ bgcolor: "#99BC85", color: "white" }}>Next</Button>
+                <Button variant="contained" onClick={handleNext} sx={{ bgcolor: "#7E2553", color: "white" }}>Next</Button>
               )}
             </Box>
           </Paper>

@@ -79,7 +79,7 @@ const LeaderBoards = () => {
   }
 
   return (
-    <div className="leaderboard-container">
+    <div className="leaderboard-container" mt={20}>
       <TableContainer component={Paper} className="leaderboard-table">
         <Table>
           <TableHead>
@@ -91,7 +91,7 @@ const LeaderBoards = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {leaderboard.map((user, index) => (
+            {leaderboard.slice(0, 10).map((user, index) => ( // Only show top 10 users
               <TableRow key={user.user_id} className="leaderboard-row">
                 <TableCell>#{index + 1}</TableCell>
                 <TableCell>

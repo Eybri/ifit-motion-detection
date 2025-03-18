@@ -22,6 +22,8 @@ import AdminProfile from './pages/admin/AdminProfile';
 import UserMetrics from './pages/admin/UserMetrics';
 
 import Feedback from './pages/user/Feedback';
+import Progress from './pages/user/Progress';
+
 import VideoList from './pages/admin/video/VideoList';
 import PoseComparison from './pages/user/PoseComparison';
 import AboutUs from './pages/user/AboutUs';
@@ -49,6 +51,14 @@ const App = () => {
               element={
                 <ProtectedRoute isUser={true}>
                   <UserProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/progress"
+              element={
+                <ProtectedRoute isUser={true}>
+                  <Progress />
                 </ProtectedRoute>
               }
             />
