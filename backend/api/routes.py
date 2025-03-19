@@ -194,7 +194,7 @@ def update_user_image(user_id):
 
 @routes.route("/admin/update-status/<user_id>", methods=["PUT"])
 def update_user_status(user_id):
-    """Admin can change user status to Active or Inactive."""
+    """Admin can change user status to Active, Inactive, or Archived."""
     # Fetch the user whose status is being updated
     user_to_update = user_model.find_user_by_id(user_id)
     if not user_to_update:
@@ -205,8 +205,8 @@ def update_user_status(user_id):
     reason = data.get("reason", "")  # Get the reason for deactivation (optional)
 
     # Validate the new status
-    if new_status.lower() not in ["active", "inactive"]:
-        return jsonify({"error": "Invalid status. Must be 'active' or 'inactive'."}), 400
+    if new_status.lower() not in ["active", "inactive", "archived"]:  # Add "archived" to the list
+        return jsonify({"error": "Invalid status. Must be 'active', 'inactive', or 'archived'."}), 400
 
     new_status = new_status.title()  # Convert to title case (e.g., "active" -> "Active")
 
@@ -217,25 +217,26 @@ def update_user_status(user_id):
     user_email = user_to_update.get("email")
     user_name = user_to_update.get("name")
 
-    # Send email to the user
-    message = Message(
-        "Account Status Updated",
-        sender="your-email@example.com",  # Replace with your email
-        recipients=[user_email]
-    )
+    # Send email to the user (only for Active/Inactive status changes)
+    if new_status in ["Active", "Inactive"]:
+        message = Message(
+            "Account Status Updated",
+            sender="your-email@example.com",  # Replace with your email
+            recipients=[user_email]
+        )
 
-    # Customize the email body based on the status
-    if new_status == "Inactive":
-        message.body = f"Hello {user_name},\n\nYour account status has been updated to {new_status} for 15h."
-        if reason:
-            message.body += f"\n\nReason for deactivation: {reason}"
-        message.body += "\n\nBest regards,\nIfit Team"
-    else:
-        message.body = f"Hello {user_name},\n\nYour account status has been updated to {new_status}.\n\nBest regards,\nIfit Team"
+        # Customize the email body based on the status
+        if new_status == "Inactive":
+            message.body = f"Hello {user_name},\n\nYour account status has been updated to {new_status} for 15h."
+            if reason:
+                message.body += f"\n\nReason for deactivation: {reason}"
+            message.body += "\n\nBest regards,\nIfit Team"
+        else:
+            message.body = f"Hello {user_name},\n\nYour account status has been updated to {new_status}.\n\nBest regards,\nIfit Team"
 
-    try:
-        mail.send(message)
-    except Exception as e:
-        return jsonify({"error": "Error sending email", "message": str(e)}), 500
+        try:
+            mail.send(message)
+        except Exception as e:
+            return jsonify({"error": "Error sending email", "message": str(e)}), 500
 
     return jsonify({"message": f"User status updated to {new_status}"}), 200

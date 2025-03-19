@@ -240,21 +240,25 @@ const UserList = () => {
         { status: "Archived" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+  
       // Update the user's status in the local state
-      const updatedUsers = users.map(user => user._id === userId ? { ...user, status: "Archived" } : user);
-      setUsers(updatedUsers.filter(user => user.status !== "Archived")); // Remove archived user from main list
-      toast.success("User status updated to Archived");
-
-      // Update archived users list
+      const updatedUsers = users.map(user => 
+        user._id === userId ? { ...user, status: "Archived" } : user
+      );
+  
+      // Remove archived user from the main list
+      setUsers(updatedUsers.filter(user => user.status !== "Archived"));
+  
+      // Add the user to the archived list
       const archivedUser = users.find(user => user._id === userId);
       setArchivedUsers(prev => [...prev, archivedUser]);
+  
+      toast.success("User status updated to Archived");
     } catch (error) {
       console.error("Error archiving user:", error);
       toast.error("Failed to archive user");
     }
   };
-
   const handleUnarchiveUser = async (userId) => {
     try {
       await axios.put(
@@ -262,21 +266,20 @@ const UserList = () => {
         { status: "Active" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      // Update the user's status in the local state
+  
+      // Remove the user from the archived list
       const unarchivedUser = archivedUsers.find(user => user._id === userId);
-      setUsers(prev => [...prev, { ...unarchivedUser, status: "Active" }]); // Add unarchived user back to main list
+      setArchivedUsers(prev => prev.filter(user => user._id !== userId));
+  
+      // Add the user back to the main list
+      setUsers(prev => [...prev, { ...unarchivedUser, status: "Active" }]);
+  
       toast.success("User is Unarchived");
-
-      // Update archived users list
-      const updatedArchivedUsers = archivedUsers.filter(user => user._id !== userId);
-      setArchivedUsers(updatedArchivedUsers);
     } catch (error) {
       console.error("Error unarchiving user:", error);
       toast.error("Failed to unarchive user");
     }
   };
-
   const handleToggleClick = (user) => {
     setSelectedUser(user);
     setOpenDialog(true);
@@ -293,7 +296,8 @@ const UserList = () => {
 
   const filteredUsers = users.filter(user =>
     user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase().filter(user => user.status !== "Archived"))
+    
   );
 
   const paginatedUsers = filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -471,54 +475,53 @@ const UserList = () => {
 
       {/* Archived Users Modal */}
       <Modal open={openArchivedModal} onClose={handleCloseArchivedModal}>
-        <Box sx={modalStyle}>
-          <Typography variant="h6" gutterBottom sx={{ textAlign: 'center', fontWeight: 'bold', color: '#3B1E54' }}>
-            ARCHIVED USERS
-          </Typography>
-          <TableContainer component={Paper} sx={{ backgroundColor: '#EEEEEE' }}>
-            <Table sx={{ width: '100%' }} aria-label="archived users table">
-              <TableHead>
-                <TableRow sx={{ backgroundColor: '#3B1E54' }}>
-                  <TableCell sx={{ color: '#EEEEEE' }}>Image</TableCell>
-                  <TableCell sx={{ color: '#EEEEEE' }}>Name</TableCell>
-                  <TableCell sx={{ color: '#EEEEEE' }}>Email</TableCell>
-                  <TableCell sx={{ color: '#EEEEEE' }}>Status</TableCell>
-                  <TableCell align="center" sx={{ color: '#EEEEEE' }}>Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {archivedUsers.map((user) => (
-                  <TableRow key={user._id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#D4BEE4' } }}>
-                    <TableCell>
-                      <Avatar src={user.image || "/path/to/default-image.jpg"} alt={user.name} />
-                    </TableCell>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.status}</TableCell>
-                    <TableCell align="center">
-                      <Button
-                        variant="contained"
-                        onClick={() => handleUnarchiveUser(user._id)}
-                        sx={{ backgroundColor: '#9B7EBD', color: '#EEEEEE', '&:hover': { backgroundColor: '#3B1E54' } }}
-                      >
-                        Unarchive
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Button
-            variant="contained"
-            onClick={handleCloseArchivedModal}
-            sx={{ mt: 2, backgroundColor: '#A94A4A', color: '#EEEEEE', '&:hover': { backgroundColor: '#7A2E2E' } }}
-          >
-            Close
-          </Button>
-        </Box>
-      </Modal>
-
+  <Box sx={modalStyle}>
+    <Typography variant="h6" gutterBottom sx={{ textAlign: 'center', fontWeight: 'bold', color: '#3B1E54' }}>
+      ARCHIVED USERS
+    </Typography>
+    <TableContainer component={Paper} sx={{ backgroundColor: '#EEEEEE' }}>
+      <Table sx={{ width: '100%' }} aria-label="archived users table">
+        <TableHead>
+          <TableRow sx={{ backgroundColor: '#3B1E54' }}>
+            <TableCell sx={{ color: '#EEEEEE' }}>Image</TableCell>
+            <TableCell sx={{ color: '#EEEEEE' }}>Name</TableCell>
+            <TableCell sx={{ color: '#EEEEEE' }}>Email</TableCell>
+            <TableCell sx={{ color: '#EEEEEE' }}>Status</TableCell>
+            <TableCell align="center" sx={{ color: '#EEEEEE' }}>Action</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {archivedUsers.map((user) => (
+            <TableRow key={user._id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#D4BEE4' } }}>
+              <TableCell>
+                <Avatar src={user.image || "/path/to/default-image.jpg"} alt={user.name} />
+              </TableCell>
+              <TableCell>{user.name}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>{user.status}</TableCell>
+              <TableCell align="center">
+                <Button
+                  variant="contained"
+                  onClick={() => handleUnarchiveUser(user._id)}
+                  sx={{ backgroundColor: '#9B7EBD', color: '#EEEEEE', '&:hover': { backgroundColor: '#3B1E54' } }}
+                >
+                  Unarchive
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+    <Button
+      variant="contained"
+      onClick={handleCloseArchivedModal}
+      sx={{ mt: 2, backgroundColor: '#A94A4A', color: '#EEEEEE', '&:hover': { backgroundColor: '#7A2E2E' } }}
+    >
+      Close
+    </Button>
+  </Box>
+</Modal>
       {/* Reason Input Modal */}
       <Dialog open={openReasonModal} onClose={() => setOpenReasonModal(false)}>
         <DialogTitle>Select Reason for Deactivation</DialogTitle>
