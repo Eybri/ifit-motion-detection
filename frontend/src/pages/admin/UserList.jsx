@@ -26,6 +26,10 @@ import {
   DialogActions,
   Switch,
   Modal,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -37,6 +41,14 @@ const theme = createTheme({
     fontFamily: 'Poppins, sans-serif',
   },
 });
+
+const reasons = [
+  "Violation of terms of service",
+  "Inappropriate behavior",
+  "Suspicious activity",
+  "Account inactivity",
+  "Other",
+];  
 
 // CSS for the pop-in animation
 const modalStyle = {
@@ -74,9 +86,11 @@ const UserList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [remainingTime, setRemainingTime] = useState({}); // Track remaining time for each user
-  const [openArchivedModal, setOpenArchivedModal] = useState(false); // State for archived users modal
-  const [archivedUsers, setArchivedUsers] = useState([]); // State to store archived users
+  const [remainingTime, setRemainingTime] = useState({});
+  const [openArchivedModal, setOpenArchivedModal] = useState(false);
+  const [archivedUsers, setArchivedUsers] = useState([]);
+  const [openReasonModal, setOpenReasonModal] = useState(false); // New state for reason modal
+  const [reason, setReason] = useState(""); // New state for reason input
   const token = getToken();
 
   useEffect(() => {
@@ -168,15 +182,26 @@ const UserList = () => {
 
   const handleToggleStatus = async (userId, currentStatus) => {
     const newStatus = currentStatus === "Active" ? "Inactive" : "Active";
-    setUsers(users.map(user => user._id === userId ? { ...user, status: newStatus } : user));
 
+    if (newStatus === "Inactive") {
+      setOpenReasonModal(true); // Open reason modal for deactivation
+      setSelectedUser(users.find(user => user._id === userId)); // Set selected user
+    } else {
+      // If activating, no reason needed
+      updateStatus(userId, newStatus, "");
+    }
+  };
+
+  // Update status with reason
+  const updateStatus = async (userId, newStatus, reason) => {
     try {
       await axios.put(
         `http://localhost:5000/api/admin/update-status/${userId}`,
-        { status: newStatus },
+        { status: newStatus, reason },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success(`Email sent to user about status update to ${newStatus}`);
+      setUsers(users.map(user => user._id === userId ? { ...user, status: newStatus } : user));
 
       // If deactivated, start countdown
       if (newStatus === "Inactive") {
@@ -193,8 +218,18 @@ const UserList = () => {
       }
     } catch (error) {
       console.error("Error updating user status:", error);
-      setUsers(users.map(user => user._id === userId ? { ...user, status: currentStatus } : user));
-      toast.success("Successfully to update user status"); // Changed from toast.error to toast.success
+      toast.error("Failed to update user status");
+    }
+  };
+
+  // Handle reason submission
+  const handleReasonSubmit = () => {
+    if (selectedUser && reason) {
+      updateStatus(selectedUser._id, "Inactive", reason);
+      setOpenReasonModal(false);
+      setReason(""); // Clear reason input
+    } else {
+      toast.error("Please select a reason for deactivation.");
     }
   };
 
@@ -216,7 +251,7 @@ const UserList = () => {
       setArchivedUsers(prev => [...prev, archivedUser]);
     } catch (error) {
       console.error("Error archiving user:", error);
-      toast.success("Successfully to archive user"); // Changed from toast.error to toast.success
+      toast.error("Failed to archive user");
     }
   };
 
@@ -238,7 +273,7 @@ const UserList = () => {
       setArchivedUsers(updatedArchivedUsers);
     } catch (error) {
       console.error("Error unarchiving user:", error);
-      toast.success("Successfully to unarchive user"); // Changed from toast.error to toast.success
+      toast.error("Failed to unarchive user");
     }
   };
 
@@ -484,6 +519,32 @@ const UserList = () => {
         </Box>
       </Modal>
 
+      {/* Reason Input Modal */}
+      <Dialog open={openReasonModal} onClose={() => setOpenReasonModal(false)}>
+        <DialogTitle>Select Reason for Deactivation</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth variant="outlined" sx={{ marginTop: 2 }}>
+            <InputLabel>Reason</InputLabel>
+            <Select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              label="Reason"
+              required
+            >
+              {reasons.map((reasonOption, index) => (
+                <MenuItem key={index} value={reasonOption}>
+                  {reasonOption}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenReasonModal(false)}>Cancel</Button>
+          <Button onClick={handleReasonSubmit} color="primary">Submit</Button>
+        </DialogActions>
+      </Dialog>
+      {/* Confirm Status Change Dialog */}
       <Dialog open={openDialog} onClose={handleDialogClose}>
         <DialogTitle>Confirm Status Change</DialogTitle>
         <DialogContent>

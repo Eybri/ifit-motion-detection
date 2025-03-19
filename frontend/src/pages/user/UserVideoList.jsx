@@ -9,7 +9,7 @@ import "swiper/css/navigation";
 import "swiper/css/effect-coverflow";
 import { useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 const UserVideoList = () => {
   const [videos, setVideos] = useState([]);
@@ -48,8 +48,8 @@ const UserVideoList = () => {
     }
   };
 
-  const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value);
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategory(categoryId);
     setLoading(true);
   };
 
@@ -74,14 +74,26 @@ const UserVideoList = () => {
         <ToastContainer />
         <Title>Select Your Dance</Title>
 
-        <StyledSelect value={selectedCategory} onChange={handleCategoryChange}>
-          <option value="">All Categories</option>
+        <CategoryButtonsContainer>
+          <CategoryButton 
+            active={selectedCategory === ""}
+            onClick={() => handleCategoryChange("")}
+          >
+            All Genres
+            {selectedCategory === "" && <ActiveIndicator />}
+          </CategoryButton>
+          
           {categories.map((category) => (
-            <option key={category.id} value={category.id}>
+            <CategoryButton
+              key={category.id}
+              active={selectedCategory === category.id}
+              onClick={() => handleCategoryChange(category.id)}
+            >
               {category.name}
-            </option>
+              {selectedCategory === category.id && <ActiveIndicator />}
+            </CategoryButton>
           ))}
-        </StyledSelect>
+        </CategoryButtonsContainer>
 
         {loading ? (
           <p className="loading-text">Loading videos...</p>
@@ -139,6 +151,35 @@ const UserVideoList = () => {
 
 export default UserVideoList;
 
+const slideInFromTop = keyframes`
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
+
+const buttonHover = keyframes`
+  0% {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
 const BackgroundContainer = styled.div`
   height: 100vh;
   width: 100vw;
@@ -154,6 +195,7 @@ const BackgroundContainer = styled.div`
 const StyledContainer = styled(Container)`
   text-align: center;
   padding-top: 2rem;
+  animation: ${fadeIn} 0.8s ease-out;
 
   .loading-text {
     color: #fff;
@@ -186,31 +228,63 @@ const Title = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  animation: ${slideInFromTop} 0.5s ease-out;
 `;
 
-const StyledSelect = styled.select`
+const CategoryButtonsContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin-bottom: 2rem;
-  width: 50%;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid #ccc;
-  background-color: #f5f5f5;
-  color: #333;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  font-size: 1rem;
+  padding: 0.5rem;
+  overflow-x: auto;
+  animation: ${slideInFromTop} 0.7s ease-out;
+  
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: #1D2B53;
+    border-radius: 10px;
+  }
+`;
+
+const CategoryButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 2rem;
+  background-color: ${props => props.active ? "#1D2B53" : "rgba(255, 255, 255, 0.9)"};
+  color: ${props => props.active ? "#fff" : "#1D2B53"};
+  font-weight: ${props => props.active ? "bold" : "normal"};
+  cursor: pointer;
   transition: all 0.3s ease;
-
+  font-size: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  
   &:hover {
-    border-color: #577D86;
+    transform: translateY(-3px);
+    animation: ${buttonHover} 0.3s forwards;
+    background-color: ${props => props.active ? "#1D2B53" : "rgba(255, 255, 255, 1)"};
   }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+`;
 
-  &:focus {
-    outline: none;
-    border-color: #577D86;
-    box-shadow: 0 0 0 3px rgba(87, 125, 134, 0.2);
-  }
+const ActiveIndicator = styled.div`
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%;
+  height: 3px;
+  background-color: #FF004D;
+  border-radius: 1px;
 `;
 
 const StyledSwiper = styled(Swiper)`

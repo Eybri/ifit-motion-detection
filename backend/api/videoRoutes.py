@@ -58,10 +58,18 @@ def get_videos():
     """Get all videos or filter by category"""
     category_id = request.args.get("category_id")
     videos = video_model.get_all_videos(category_id)
-    
-    return jsonify([
-        {
-            "id": str(video["_id"]),
+
+    # Fetch motion data for each video to get the duration
+    video_list = []
+    for video in videos:
+        video_id = str(video["_id"])
+        motion_data = db["motion_data"].find_one({"video_id": ObjectId(video_id)})
+
+        # Include duration from motion_data if available
+        duration = motion_data["duration"] if motion_data else None
+
+        video_list.append({
+            "id": video_id,
             "title": video["title"],
             "description": video["description"],
             "video_url": video["video_url"],
@@ -69,9 +77,10 @@ def get_videos():
             "category_id": str(video["category_id"]), 
             "created_at": video["created_at"],
             "updated_at": video["updated_at"],
-        }
-        for video in videos
-    ]), 200
+            "duration": duration  # Add duration to the response
+        })
+
+    return jsonify(video_list), 200
 
 
 @video_routes.route("/<video_id>", methods=["GET"])

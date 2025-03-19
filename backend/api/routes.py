@@ -57,6 +57,7 @@ def verify_otp():
         user_model.update_user_status(str(user["_id"]), "Active")
         return jsonify({"message": "OTP verified successfully"}), 200
     return jsonify({"error": "Invalid OTP"}), 401
+
 @routes.route("/login", methods=["POST"])
 def login():
     data = request.json
@@ -201,6 +202,7 @@ def update_user_status(user_id):
 
     data = request.json
     new_status = data.get("status")
+    reason = data.get("reason", "")  # Get the reason for deactivation (optional)
 
     # Validate the new status
     if new_status.lower() not in ["active", "inactive"]:
@@ -221,7 +223,15 @@ def update_user_status(user_id):
         sender="your-email@example.com",  # Replace with your email
         recipients=[user_email]
     )
-    message.body = f"Hello {user_name},\n\nYour account status has been updated to {new_status}.\n\nBest regards,\nIfit Team"
+
+    # Customize the email body based on the status
+    if new_status == "Inactive":
+        message.body = f"Hello {user_name},\n\nYour account status has been updated to {new_status} for 15h."
+        if reason:
+            message.body += f"\n\nReason for deactivation: {reason}"
+        message.body += "\n\nBest regards,\nIfit Team"
+    else:
+        message.body = f"Hello {user_name},\n\nYour account status has been updated to {new_status}.\n\nBest regards,\nIfit Team"
 
     try:
         mail.send(message)
