@@ -101,6 +101,25 @@ def calculate_metrics(weight_kg, duration_minutes, steps_taken, accuracy_score, 
 
     return calories_burned, steps_per_minute, energy_expenditure, movement_efficiency, performance_score
 
+def calculate_euclidean_distance(ref_pose, live_pose):
+    if len(ref_pose) != len(live_pose):
+        return float('inf')  # Return infinity if the poses don't match
+
+    total_distance = 0
+    num_keypoints = len(ref_pose)
+
+    for i in range(num_keypoints):
+        ref_key = f"keypoint_{i}"
+        live_key = f"keypoint_{i}"
+
+        if ref_key in ref_pose and live_key in live_pose:
+            ref_coords = np.array([ref_pose[ref_key]['x'], ref_pose[ref_key]['y']])
+            live_coords = np.array([live_pose[live_key]['x'], live_pose[live_key]['y']])
+            distance = np.linalg.norm(ref_coords - live_coords)
+            total_distance += distance
+
+    return total_distance / num_keypoints  # Average distance
+
 def compare_live_pose(video_id, user_id):
     global comparison_running
     comparison_running = True
@@ -159,6 +178,17 @@ def compare_live_pose(video_id, user_id):
                 feedback, color = get_feedback(frame_score)
                 draw_stickman(frame_webcam, live_keypoints, color)
                 draw_stickman(frame_video_resized, reference_pose, (255, 255, 255))
+
+                # Calculate Euclidean distance
+                distance = calculate_euclidean_distance(reference_pose, live_keypoints)
+                distance_text = f"Distance: {distance:.2f}"
+                cv2.putText(frame_webcam, distance_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+                # Check if the user is in the correct starting position
+                if distance < 0.1:  # Threshold for correct position
+                    cv2.putText(frame_webcam, "Correct Position", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                else:
+                    cv2.putText(frame_webcam, "Adjust Position", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
                 # Calculate text position for feedback at the top
                 text_size = cv2.getTextSize(feedback, cv2.FONT_HERSHEY_SIMPLEX, 2, 5)[0]
@@ -232,6 +262,80 @@ def compare_live_pose(video_id, user_id):
     })
     print(f"Final Average Accuracy Score: {final_average_score:.2f}%")
 
+@app.route('/start_calibration', methods=['POST'])
+def start_calibration():
+    global comparison_running
+
+    video_id = request.json.get("video_id")
+    user_id = request.json.get("user_id")
+    if not video_id or not user_id:
+        return jsonify({"error": "Video ID and User ID are required"}), 400
+
+    with comparison_lock:
+        if comparison_running:
+            return jsonify({"error": "Comparison already running"}), 400
+        comparison_running = True
+
+    threading.Thread(target=calibrate_position, args=(video_id, user_id)).start()
+    return jsonify({"message": "Calibration started"}), 200
+
+def calibrate_position(video_id, user_id):
+    global comparison_running
+    comparison_running = True
+
+    video = video_model.find_video_by_id(video_id)
+    user = user_model.find_user_by_id(user_id)
+    if not video or not user:
+        socketio.emit('calibration_error', {'message': 'Video or User not found'})
+        comparison_running = False
+        return
+
+    motion_data = MotionData(db).get_motion_data(video_id)
+    if not motion_data or "frames" not in motion_data:
+        socketio.emit('calibration_error', {'message': 'No preprocessed motion data found'})
+        comparison_running = False
+        return
+
+    reference_poses = motion_data["frames"]
+    fps = motion_data["fps"]
+
+    cap_webcam = cv2.VideoCapture(0)
+    cap_video = cv2.VideoCapture(video["video_url"])
+
+    while cap_webcam.isOpened() and cap_video.isOpened():
+        ret_webcam, frame_webcam = cap_webcam.read()
+        ret_video, frame_video = cap_video.read()
+
+        if not ret_webcam or not ret_video:
+            break
+
+        frame_rgb = cv2.cvtColor(frame_webcam, cv2.COLOR_BGR2RGB)
+        results = pose.process(frame_rgb)
+
+        if results.pose_landmarks:
+            live_keypoints = {f"keypoint_{i}": {"x": lm.x, "y": lm.y, "z": lm.z} for i, lm in enumerate(results.pose_landmarks.landmark)}
+            reference_pose = reference_poses[0]["keypoints"]  # Use the first frame as reference
+            distance = calculate_euclidean_distance(reference_pose, live_keypoints)
+
+            socketio.emit('calibration_data', {'distance': distance})
+
+            if distance < 0.1:  # Threshold for correct position
+                socketio.emit('calibration_complete')
+                compare_live_pose(video_id, user_id)  # Automatically start the comparison
+                break
+
+        _, buffer = cv2.imencode('.jpg', frame_webcam)
+        frame_base64 = base64.b64encode(buffer).decode('utf-8')
+        socketio.emit('video_frame', {'frame': frame_base64})
+
+        delay = int(1000 / fps)
+        if cv2.waitKey(delay) & 0xFF == ord('q'):
+            break
+
+    cap_webcam.release()
+    cap_video.release()
+    cv2.destroyAllWindows()
+    comparison_running = False
 comparison_lock = threading.Lock()
 
 @app.route('/start_comparison', methods=['POST'])

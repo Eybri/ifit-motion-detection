@@ -25,6 +25,7 @@ import Feedback from './pages/user/Feedback';
 import Progress from './pages/user/Progress';
 
 import VideoList from './pages/admin/video/VideoList';
+import Calibration from './pages/user/CalibrationPage';
 import PoseComparison from './pages/user/PoseComparison';
 import AboutUs from './pages/user/AboutUs';
 import LeaderBoards from './pages/user/LeaderBoards';
@@ -83,6 +84,14 @@ const App = () => {
           />
           <Route
             path="/compare/:videoId"
+            element={
+              <ProtectedRoute isUser={true}>
+                <Calibration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pose-comparison/:videoId"
             element={
               <ProtectedRoute isUser={true}>
                 <PoseComparison />

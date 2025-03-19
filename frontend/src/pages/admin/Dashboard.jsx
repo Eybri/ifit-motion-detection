@@ -605,42 +605,41 @@ const Dashboard = () => {
 
         {/* Button to download overall PDF report */}
         <Grid item xs={12}>
-          <Button
-            variant="contained"
-            onClick={() =>
-              generateOverallPDF({
-                activeUsers,
-                inactiveUsers,
-                maleUsers,
-                femaleUsers,
-                underweightUsers,
-                normalUsers,
-                overweightUsers,
-                obeseUsers,
-                bmiData,
-                leaderboardData,
-                pieChartRef,
-                barChartGenderRef,
-                barChartBMIRef,
-                lineChartRef,
-                leaderboardChartRef,
-                totalDancesChartRef,
-                caloriesBurnedChartRef,
-              })
-            }
-            sx={{
-              mt: 2,
-              mb: 4,
-              fontFamily: "'Poppins', sans-serif",
-              backgroundColor: '#99BC85',
-              color: '#FDFAF6',
-              '&:hover': {
-                backgroundColor: '#88A876',
-              },
-            }}
-          >
-            Download Overall PDF Report
-          </Button>
+        <Button
+  variant="contained"
+  onClick={() =>
+    generateOverallPDF({
+      activeUsers,
+      inactiveUsers,
+      maleUsers,
+      femaleUsers,
+      underweightUsers,
+      normalUsers,
+      overweightUsers,
+      obeseUsers,
+      bmiData,
+      leaderboardData,
+      pieChartRef: pieChartRef.current, // Pass the current ref
+      barChartGenderRef: barChartGenderRef.current, // Pass the current ref
+      barChartBMIRef: barChartBMIRef.current, // Pass the current ref
+      lineChartRef: lineChartRef.current, // Pass the current ref
+      totalDancesChartRef: totalDancesChartRef.current, // Pass the current ref
+      caloriesBurnedChartRef: caloriesBurnedChartRef.current, // Pass the current ref
+    })
+  }
+  sx={{
+    mt: 2,
+    mb: 4,
+    fontFamily: "'Poppins', sans-serif",
+    backgroundColor: '#99BC85',
+    color: '#FDFAF6',
+    '&:hover': {
+      backgroundColor: '#88A876',
+    },
+  }}
+>
+  Download Overall PDF Report
+</Button>
         </Grid>
       </Grid>
     </Container>

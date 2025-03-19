@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getToken } from "../../utils/auth";
+import { getToken, getUserId } from "../../utils/auth"; // Import getUserId to fetch user_id
 import Loader from "../../components/Layout/Loader";
 import {
   Table,
@@ -27,6 +27,7 @@ const UserMetrics = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loggedInUser, setLoggedInUser] = useState(null); // State to store logged-in user details
 
   useEffect(() => {
     const fetchUserResults = async () => {
@@ -52,7 +53,31 @@ const UserMetrics = () => {
       }
     };
 
+    // Fetch logged-in user details
+    const fetchLoggedInUser = async () => {
+      const userId = getUserId(); // Get user_id from sessionStorage
+      if (userId) {
+        try {
+          const token = getToken();
+          const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) throw new Error("Failed to fetch logged-in user details");
+
+          const userData = await response.json();
+          setLoggedInUser(userData); // Set logged-in user details
+        } catch (error) {
+          console.error("Error fetching logged-in user details:", error);
+          toast.error("Failed to fetch logged-in user details");
+        }
+      }
+    };
+
     fetchUserResults();
+    fetchLoggedInUser(); // Fetch logged-in user details when the component mounts
   }, []);
 
   // Function to compute BMI
@@ -130,11 +155,27 @@ const UserMetrics = () => {
 
   const generatePDF = () => {
     const doc = new jsPDF();
+
+    // Add logos from the public/images folder
+    doc.addImage("/images/tup.png", "PNG", 10, 10, 30, 30); // tup.png on the left
+    doc.addImage("/images/1.png", "PNG", 170, 10, 30, 30); // 1.png on the right
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("User Metrics Report", 105, 20, null, null, "center");
+    doc.text("IFIT-MOTION-DETECTION", 105, 20, null, null, "center");
+    doc.setFontSize(14);
+    doc.text("Active Users Report", 105, 30, null, null, "center");
     doc.setFontSize(12);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 30, null, null, "center");
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 40, null, null, "center");
+
+    // Add "Prepared by" section with the logged-in user's name
+    doc.setFontSize(12);
+    doc.text("Prepared by:", 20, 60);
+    if (loggedInUser) {
+      doc.text(loggedInUser.name, 20, 70); // Display the logged-in user's name
+    } else {
+      doc.text("Eybri Admin", 20, 70); // Fallback if no user is logged in
+    }
 
     const headers = [
       "Name",
@@ -162,14 +203,14 @@ const UserMetrics = () => {
     autoTable(doc, {
       head: [headers],
       body: rows,
-      startY: 40,
+      startY: 80, // Adjusted startY to make space for the "Prepared by" section
       theme: "striped",
       styles: { fontSize: 10, textColor: [0, 0, 0], cellPadding: 3, lineColor: [200, 200, 200], lineWidth: 0.5 },
       headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0], fontStyle: "bold" },
       alternateRowStyles: { fillColor: [245, 245, 245] },
     });
 
-    doc.save("user-metrics-report.pdf");
+    doc.save("active-users-report.pdf");
   };
 
   if (loading) return <Loader />;

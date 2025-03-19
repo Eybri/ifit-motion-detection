@@ -61,3 +61,14 @@ export const setUserId = (userId) => {
 export const getUserId = () => {
   return sessionStorage.getItem("user_id");
 };
+
+// Store user info in localStorage
+export const setUserInfo = (userInfo) => {
+  localStorage.setItem("user", JSON.stringify(userInfo));
+};
+
+// Retrieve user info from localStorage
+export const getUserInfo = () => {
+  const userInfo = localStorage.getItem("user");
+  return userInfo ? JSON.parse(userInfo) : null;
+};

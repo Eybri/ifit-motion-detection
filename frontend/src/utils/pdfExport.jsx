@@ -456,6 +456,7 @@ export const generatePDF = async (chartRef, title, data) => {
 
 // Function to generate overall PDF report
 // Function to generate overall PDF report
+// Function to generate overall PDF report
 export const generateOverallPDF = async (data) => {
   // Initialize PDF document with better quality settings
   const pdf = new jsPDF({
@@ -540,77 +541,165 @@ export const generateOverallPDF = async (data) => {
   const titleX = (pageWidth - titleWidth) / 2;
   pdf.text(title, titleX, margin + 80);
 
-  // ===== ANALYSIS SECTION =====
-  // Section title
-  pdf.setFontSize(14);
+  // ===== CHARTS SECTION (FIRST) =====
+  pdf.setFontSize(16);
   pdf.setFont("helvetica", "bold");
-  pdf.setTextColor(0, 0, 0);
-  pdf.text("Data Analysis & Insights", margin, margin + 90);
-
-  // Underline section title
-  pdf.setDrawColor(150, 150, 150);
-  pdf.setLineWidth(0.2);
-  pdf.line(margin, margin + 92, margin + 70, margin + 92);
-
-  // Generate intelligent analysis for each chart
+  pdf.setTextColor(0, 51, 102);
+  pdf.text("Visual Data Representations", margin, margin + 95);
+  
+  // Add a short description
   pdf.setFontSize(11);
-  pdf.setFont("helvetica", "normal");
-  let analysisY = margin + 100;
+  pdf.setFont("helvetica", "italic");
+  pdf.setTextColor(0, 0, 0);
+  pdf.text("The following visualizations represent key metrics and user statistics.", margin, margin + 102);
 
+  // Define chart refs and their titles
+  const charts = [
+    { ref: data.pieChartRef, title: "Active vs Inactive Users" },
+    { ref: data.barChartGenderRef, title: "Users by Gender" },
+    { ref: data.barChartBMIRef, title: "Users by BMI Category" },
+    { ref: data.lineChartRef, title: "BMI Distribution" },
+    { ref: data.totalDancesChartRef, title: "Total Dances" },
+    { ref: data.caloriesBurnedChartRef, title: "Calories Burned" },
+  ];
+
+  let yOffset = margin + 110;
+  let chartCount = 0;
+
+  // Process and add each chart
+  for (const chart of charts) {
+    if (chart.ref) {
+      // Add a new page after 2 charts or if first page and yOffset is too high
+      if ((chartCount > 0 && chartCount % 2 === 0) || 
+          (chartCount === 0 && yOffset > margin + 110)) {
+        pdf.addPage();
+        yOffset = margin + 30;
+      }
+
+      const canvas = await html2canvas(chart.ref);
+      const imgData = canvas.toDataURL("image/png");
+      const imgWidth = contentWidth * 0.8; // Scale chart width to 80% of content width
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Add chart title with improved styling
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(0, 51, 102);
+      pdf.text(chart.title, margin, yOffset - 5);
+      
+      // Add decorative underline
+      pdf.setDrawColor(0, 51, 102);
+      pdf.setLineWidth(0.3);
+      pdf.line(margin, yOffset - 3, margin + chart.title.length * 3, yOffset - 3);
+
+      // Add chart image with border
+      pdf.rect(margin, yOffset, imgWidth, imgHeight); // Add border around chart
+      pdf.addImage(imgData, "PNG", margin, yOffset, imgWidth, imgHeight);
+
+      // Update yOffset for the next chart and increment chart count
+      yOffset += imgHeight + 30; // Add extra space between charts
+      chartCount++;
+    } else {
+      console.warn(`Chart ref for ${chart.title} is not available.`);
+    }
+  }
+
+  // ===== ANALYSIS SECTION (AT THE END) =====
+  pdf.addPage();
+  
+  // Section title with improved design
+  pdf.setFontSize(18);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(0, 51, 102);
+  const analysisTitle = "Comprehensive Data Analysis & Insights";
+  const analysisTitleWidth =
+    (pdf.getStringUnitWidth(analysisTitle) * 18) / pdf.internal.scaleFactor;
+  const analysisTitleX = (pageWidth - analysisTitleWidth) / 2;
+  pdf.text(analysisTitle, analysisTitleX, margin + 20);
+
+  // Add decorative element
+  pdf.setDrawColor(0, 51, 102);
+  pdf.setLineWidth(0.5);
+  pdf.line(margin, margin + 25, pageWidth - margin, margin + 25);
+
+  // Introduction to analysis
+  pdf.setFontSize(11);
+  pdf.setFont("helvetica", "italic");
+  pdf.text(
+    "This section provides detailed analysis of the collected data and recommendations for improvement.",
+    margin,
+    margin + 35
+  );
+
+  // Start position for analysis content
+  let analysisY = margin + 45;
+
+  // ===== ANALYSIS CONTENT =====
   // Analysis for Active vs Inactive Users
   const activeUsersCount = data.activeUsers.length;
   const inactiveUsersCount = data.inactiveUsers.length;
   const totalUsersCount = activeUsersCount + inactiveUsersCount;
-  const activePercentage = (
-    (activeUsersCount / totalUsersCount) *
-    100
-  ).toFixed(2);
-  const inactivePercentage = (
-    (inactiveUsersCount / totalUsersCount) *
-    100
-  ).toFixed(2);
+  const activePercentage = ((activeUsersCount / totalUsersCount) * 100).toFixed(2);
+  const inactivePercentage = ((inactiveUsersCount / totalUsersCount) * 100).toFixed(2);
 
+  // Add section icon/indicator
+  pdf.setDrawColor(0, 51, 102);
+  pdf.setFillColor(0, 51, 102);
+  pdf.circle(margin + 3, analysisY - 1, 2, 'F');
+  
   pdf.setFont("helvetica", "bold");
-  pdf.text("Active vs Inactive Users Analysis:", margin, analysisY);
+  pdf.setTextColor(0, 51, 102);
+  pdf.setFontSize(13);
+  pdf.text("Active vs Inactive Users Analysis:", margin + 8, analysisY);
   pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFontSize(11);
 
   const activeAnalysis = [
     `• Active Users: ${activeUsersCount} (${activePercentage}%)`,
     `• Inactive Users: ${inactiveUsersCount} (${inactivePercentage}%)`,
     `• Recommendation: Focus on re-engaging inactive users through targeted campaigns.`,
+    `• Impact: Increasing active users by just 10% could significantly improve overall engagement.`,
   ];
 
   activeAnalysis.forEach((line, index) => {
-    pdf.text(line, margin + 5, analysisY + 6 + index * 6);
+    pdf.text(line, margin + 8, analysisY + 7 + index * 6);
   });
 
-  analysisY += 25;
+  analysisY += 35;
 
   // Analysis for Users by Gender
   const maleUsersCount = data.maleUsers.length;
   const femaleUsersCount = data.femaleUsers.length;
   const totalGenderUsers = maleUsersCount + femaleUsersCount;
   const malePercentage = ((maleUsersCount / totalGenderUsers) * 100).toFixed(2);
-  const femalePercentage = (
-    (femaleUsersCount / totalGenderUsers) *
-    100
-  ).toFixed(2);
+  const femalePercentage = ((femaleUsersCount / totalGenderUsers) * 100).toFixed(2);
 
+  // Add section icon/indicator
+  pdf.setDrawColor(0, 51, 102);
+  pdf.setFillColor(0, 51, 102);
+  pdf.circle(margin + 3, analysisY - 1, 2, 'F');
+  
   pdf.setFont("helvetica", "bold");
-  pdf.text("Users by Gender Analysis:", margin, analysisY);
+  pdf.setTextColor(0, 51, 102);
+  pdf.setFontSize(13);
+  pdf.text("Users by Gender Analysis:", margin + 8, analysisY);
   pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFontSize(11);
 
   const genderAnalysis = [
     `• Male Users: ${maleUsersCount} (${malePercentage}%)`,
     `• Female Users: ${femaleUsersCount} (${femalePercentage}%)`,
     `• Recommendation: Ensure gender-balanced marketing strategies to engage all users.`,
+    `• Strategy: Consider implementing gender-specific workout programs to increase engagement.`,
   ];
 
   genderAnalysis.forEach((line, index) => {
-    pdf.text(line, margin + 5, analysisY + 6 + index * 6);
+    pdf.text(line, margin + 8, analysisY + 7 + index * 6);
   });
 
-  analysisY += 25;
+  analysisY += 35;
 
   // Analysis for Users by BMI Category
   const underweightCount = data.underweightUsers.length;
@@ -619,87 +708,128 @@ export const generateOverallPDF = async (data) => {
   const obeseCount = data.obeseUsers.length;
   const totalBMIUsers = underweightCount + normalCount + overweightCount + obeseCount;
 
+  // Check if analysis will fit on current page, add new page if needed
+  if (analysisY + 40 > pageHeight - margin) {
+    pdf.addPage();
+    analysisY = margin + 20;
+  }
+
+  // Add section icon/indicator
+  pdf.setDrawColor(0, 51, 102);
+  pdf.setFillColor(0, 51, 102);
+  pdf.circle(margin + 3, analysisY - 1, 2, 'F');
+  
   pdf.setFont("helvetica", "bold");
-  pdf.text("Users by BMI Category Analysis:", margin, analysisY);
+  pdf.setTextColor(0, 51, 102);
+  pdf.setFontSize(13);
+  pdf.text("Users by BMI Category Analysis:", margin + 8, analysisY);
   pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFontSize(11);
 
   const bmiAnalysis = [
-    `• Underweight Users: ${underweightCount} (${(
-      (underweightCount / totalBMIUsers) *
-      100
-    ).toFixed(2)}%)`,
-    `• Normal Users: ${normalCount} (${(
-      (normalCount / totalBMIUsers) *
-      100
-    ).toFixed(2)}%)`,
-    `• Overweight Users: ${overweightCount} (${(
-      (overweightCount / totalBMIUsers) *
-      100
-    ).toFixed(2)}%)`,
-    `• Obese Users: ${obeseCount} (${(
-      (obeseCount / totalBMIUsers) *
-      100
-    ).toFixed(2)}%)`,
+    `• Underweight Users: ${underweightCount} (${((underweightCount / totalBMIUsers) * 100).toFixed(2)}%)`,
+    `• Normal Weight Users: ${normalCount} (${((normalCount / totalBMIUsers) * 100).toFixed(2)}%)`,
+    `• Overweight Users: ${overweightCount} (${((overweightCount / totalBMIUsers) * 100).toFixed(2)}%)`,
+    `• Obese Users: ${obeseCount} (${((obeseCount / totalBMIUsers) * 100).toFixed(2)}%)`,
     `• Recommendation: Provide personalized health plans for overweight and obese users.`,
+    `• Focus Area: Create specialized workout routines targeting weight management.`,
   ];
 
   bmiAnalysis.forEach((line, index) => {
-    pdf.text(line, margin + 5, analysisY + 6 + index * 6);
+    pdf.text(line, margin + 8, analysisY + 7 + index * 6);
   });
 
-  analysisY += 35;
+  analysisY += 45;
 
   // Analysis for BMI Distribution
+  if (analysisY + 35 > pageHeight - margin) {
+    pdf.addPage();
+    analysisY = margin + 20;
+  }
+
   const averageBMI = (
     data.bmiData.reduce((sum, user) => sum + user.bmi, 0) / data.bmiData.length
   ).toFixed(2);
   const minBMI = Math.min(...data.bmiData.map((user) => user.bmi)).toFixed(2);
   const maxBMI = Math.max(...data.bmiData.map((user) => user.bmi)).toFixed(2);
 
+  // Add section icon/indicator
+  pdf.setDrawColor(0, 51, 102);
+  pdf.setFillColor(0, 51, 102);
+  pdf.circle(margin + 3, analysisY - 1, 2, 'F');
+  
   pdf.setFont("helvetica", "bold");
-  pdf.text("BMI Distribution Analysis:", margin, analysisY);
+  pdf.setTextColor(0, 51, 102);
+  pdf.setFontSize(13);
+  pdf.text("BMI Distribution Analysis:", margin + 8, analysisY);
   pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFontSize(11);
 
   const bmiDistributionAnalysis = [
-    `• Average BMI: ${averageBMI}`,
+    `• Average BMI: ${averageBMI} ${averageBMI < 18.5 ? "(Underweight)" : averageBMI < 25 ? "(Normal)" : averageBMI < 30 ? "(Overweight)" : "(Obese)"}`,
     `• Minimum BMI: ${minBMI}`,
     `• Maximum BMI: ${maxBMI}`,
+    `• Range: ${(maxBMI - minBMI).toFixed(2)} points`,
     `• Recommendation: Monitor users with extreme BMI values and provide tailored health advice.`,
+    `• Health Focus: Target personalized nutrition plans alongside exercise routines.`,
   ];
 
   bmiDistributionAnalysis.forEach((line, index) => {
-    pdf.text(line, margin + 5, analysisY + 6 + index * 6);
+    pdf.text(line, margin + 8, analysisY + 7 + index * 6);
   });
 
-  analysisY += 30;
+  analysisY += 45;
 
   // Analysis for Leaderboard - Average Accuracy
   if (data.leaderboardData.length > 0) {
+    if (analysisY + 35 > pageHeight - margin) {
+      pdf.addPage();
+      analysisY = margin + 20;
+    }
+
     const topUser = data.leaderboardData[0]; // Assuming data is sorted by average accuracy
     const averageAccuracy = (
       data.leaderboardData.reduce((sum, user) => sum + user.average_accuracy, 0) /
       data.leaderboardData.length
     ).toFixed(2);
 
+    // Add section icon/indicator
+    pdf.setDrawColor(0, 51, 102);
+    pdf.setFillColor(0, 51, 102);
+    pdf.circle(margin + 3, analysisY - 1, 2, 'F');
+    
     pdf.setFont("helvetica", "bold");
-    pdf.text("Leaderboard - Average Accuracy Analysis:", margin, analysisY);
+    pdf.setTextColor(0, 51, 102);
+    pdf.setFontSize(13);
+    pdf.text("Leaderboard - Average Accuracy Analysis:", margin + 8, analysisY);
     pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(11);
 
     const leaderboardAnalysis = [
-      `• Top User: ${topUser.name} with ${topUser.average_accuracy}% accuracy.`,
-      `• Average Accuracy: ${averageAccuracy}%`,
+      `• Top Performing User: ${topUser.name} with ${topUser.average_accuracy}% accuracy.`,
+      `• Average System Accuracy: ${averageAccuracy}%`,
+      `• Performance Gap: ${(topUser.average_accuracy - averageAccuracy).toFixed(2)}% between top user and average`,
       `• Recommendation: Recognize top performers and provide training for users with lower accuracy.`,
+      `• Engagement Strategy: Implement a rewards system for users who consistently achieve high accuracy.`,
     ];
 
     leaderboardAnalysis.forEach((line, index) => {
-      pdf.text(line, margin + 5, analysisY + 6 + index * 6);
+      pdf.text(line, margin + 8, analysisY + 7 + index * 6);
     });
 
-    analysisY += 25;
+    analysisY += 40;
   }
 
   // Analysis for Total Dances
   if (data.leaderboardData.length > 0) {
+    if (analysisY + 40 > pageHeight - margin) {
+      pdf.addPage();
+      analysisY = margin + 20;
+    }
+
     const totalDances = data.leaderboardData.reduce(
       (sum, user) => sum + user.total_dances,
       0
@@ -708,27 +838,43 @@ export const generateOverallPDF = async (data) => {
     const maxDances = Math.max(...data.leaderboardData.map((user) => user.total_dances));
     const minDances = Math.min(...data.leaderboardData.map((user) => user.total_dances));
 
+    // Add section icon/indicator
+    pdf.setDrawColor(0, 51, 102);
+    pdf.setFillColor(0, 51, 102);
+    pdf.circle(margin + 3, analysisY - 1, 2, 'F');
+    
     pdf.setFont("helvetica", "bold");
-    pdf.text("Total Dances Analysis:", margin, analysisY);
+    pdf.setTextColor(0, 51, 102);
+    pdf.setFontSize(13);
+    pdf.text("Total Dances Analysis:", margin + 8, analysisY);
     pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(11);
 
     const totalDancesAnalysis = [
-      `• Total Dances: ${totalDances}`,
+      `• Total Dances Performed: ${totalDances}`,
       `• Average Dances per User: ${averageDances}`,
-      `• Maximum Dances: ${maxDances}`,
-      `• Minimum Dances: ${minDances}`,
+      `• Most Active User: ${maxDances} dances`,
+      `• Least Active User: ${minDances} dances`,
+      `• Activity Range: ${maxDances - minDances} dances`,
       `• Recommendation: Encourage users with lower dance counts to participate more frequently.`,
+      `• Engagement Idea: Create "Dance Challenges" with rewards to boost participation.`,
     ];
 
     totalDancesAnalysis.forEach((line, index) => {
-      pdf.text(line, margin + 5, analysisY + 6 + index * 6);
+      pdf.text(line, margin + 8, analysisY + 7 + index * 6);
     });
 
-    analysisY += 25;
+    analysisY += 50;
   }
 
   // Analysis for Calories Burned
   if (data.leaderboardData.length > 0) {
+    if (analysisY + 40 > pageHeight - margin) {
+      pdf.addPage();
+      analysisY = margin + 20;
+    }
+
     const totalCalories = data.leaderboardData.reduce(
       (sum, user) => sum + (user.average_accuracy / 100) * (user.total_dances * 10),
       0
@@ -738,96 +884,88 @@ export const generateOverallPDF = async (data) => {
       ...data.leaderboardData.map(
         (user) => (user.average_accuracy / 100) * (user.total_dances * 10)
       )
-    );
+    ).toFixed(2);
     const minCalories = Math.min(
       ...data.leaderboardData.map(
         (user) => (user.average_accuracy / 100) * (user.total_dances * 10)
       )
-    );
+    ).toFixed(2);
 
+    // Add section icon/indicator
+    pdf.setDrawColor(0, 51, 102);
+    pdf.setFillColor(0, 51, 102);
+    pdf.circle(margin + 3, analysisY - 1, 2, 'F');
+    
     pdf.setFont("helvetica", "bold");
-    pdf.text("Calories Burned Analysis:", margin, analysisY);
+    pdf.setTextColor(0, 51, 102);
+    pdf.setFontSize(13);
+    pdf.text("Calories Burned Analysis:", margin + 8, analysisY);
     pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(11);
 
     const caloriesBurnedAnalysis = [
       `• Total Calories Burned: ${totalCalories.toFixed(2)}`,
       `• Average Calories Burned per User: ${averageCalories}`,
-      `• Maximum Calories Burned: ${maxCalories.toFixed(2)}`,
-      `• Minimum Calories Burned: ${minCalories.toFixed(2)}`,
+      `• Highest Individual Calories Burned: ${maxCalories}`,
+      `• Lowest Individual Calories Burned: ${minCalories}`,
+      `• Calorie Range: ${(maxCalories - minCalories).toFixed(2)}`,
       `• Recommendation: Encourage users to maintain consistent activity levels to burn more calories.`,
+      `• Health Strategy: Set personalized calorie-burning goals based on BMI category.`,
     ];
 
     caloriesBurnedAnalysis.forEach((line, index) => {
-      pdf.text(line, margin + 5, analysisY + 6 + index * 6);
+      pdf.text(line, margin + 8, analysisY + 7 + index * 6);
     });
 
-    analysisY += 25;
+    analysisY += 50;
   }
 
-  // ===== CHARTS SECTION =====
-  pdf.addPage();
-
-  // Add Pie Chart - Active vs. Inactive Users
-  if (data.pieChartRef.current) {
-    const pieChartCanvas = await html2canvas(data.pieChartRef.current);
-    const pieChartImgData = pieChartCanvas.toDataURL("image/png");
-    const pieChartImgWidth = contentWidth;
-    const pieChartImgHeight =
-      (pieChartCanvas.height * pieChartImgWidth) / pieChartCanvas.width;
-
-    pdf.addImage(
-      pieChartImgData,
-      "PNG",
-      margin,
-      margin + 25,
-      pieChartImgWidth,
-      pieChartImgHeight
-    );
-  } else {
-    console.error("Pie Chart ref is not available.");
+  // ===== CONCLUSION SECTION =====
+  if (analysisY + 40 > pageHeight - margin) {
+    pdf.addPage();
+    analysisY = margin + 20;
   }
 
-  // Add Line Chart - Total Dances
-  if (data.totalDancesChartRef.current) {
-    const totalDancesCanvas = await html2canvas(data.totalDancesChartRef.current);
-    const totalDancesImgData = totalDancesCanvas.toDataURL("image/png");
-    const totalDancesImgWidth = contentWidth;
-    const totalDancesImgHeight =
-      (totalDancesCanvas.height * totalDancesImgWidth) / totalDancesCanvas.width;
+  pdf.setFontSize(14);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(0, 51, 102);
+  pdf.text("Overall Summary & Recommendations", margin, analysisY);
+  pdf.setDrawColor(0, 51, 102);
+  pdf.setLineWidth(0.3);
+  pdf.line(margin, analysisY + 2, margin + 90, analysisY + 2);
 
-    pdf.addImage(
-      totalDancesImgData,
-      "PNG",
-      margin,
-      margin + 25,
-      totalDancesImgWidth,
-      totalDancesImgHeight
-    );
-  } else {
-    console.error("Total Dances Chart ref is not available.");
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFontSize(11);
+
+  const overallSummary = [
+    "Based on the comprehensive analysis of user data, the following key recommendations are provided:",
+    "",
+    "1. Implement targeted re-engagement campaigns for inactive users",
+    "2. Develop personalized health plans based on BMI categories",
+    "3. Create gender-specific workout programs to enhance engagement",
+    "4. Introduce a reward system to recognize top performers",
+    "5. Launch dance challenges to encourage more frequent participation",
+    "6. Set personalized calorie-burning goals for improved health outcomes",
+    "",
+    "By implementing these recommendations, the system can improve user engagement, health outcomes, and overall user satisfaction."
+  ];
+
+  overallSummary.forEach((line, index) => {
+    pdf.text(line, margin, analysisY + 10 + index * 6);
+  });
+
+  // Add a footer with page numbers
+  const totalPages = pdf.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    pdf.setPage(i);
+    pdf.setFontSize(9);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 28, pageHeight - 10);
+    pdf.text("IFIT-MOTION-DETECTION System Report", margin, pageHeight - 10);
   }
 
-  // Add Doughnut Chart - Calories Burned
-  if (data.caloriesBurnedChartRef.current) {
-    const caloriesBurnedCanvas = await html2canvas(data.caloriesBurnedChartRef.current);
-    const caloriesBurnedImgData = caloriesBurnedCanvas.toDataURL("image/png");
-    const caloriesBurnedImgWidth = contentWidth;
-    const caloriesBurnedImgHeight =
-      (caloriesBurnedCanvas.height * caloriesBurnedImgWidth) /
-      caloriesBurnedCanvas.width;
-
-    pdf.addImage(
-      caloriesBurnedImgData,
-      "PNG",
-      margin,
-      margin + 25,
-      caloriesBurnedImgWidth,
-      caloriesBurnedImgHeight
-    );
-  } else {
-    console.error("Calories Burned Chart ref is not available.");
-  }
-
-  // Add footer and save PDF...
+  // Save PDF
   pdf.save(`IFIT_Dashboard_Report_${new Date().toISOString().split("T")[0]}.pdf`);
 };

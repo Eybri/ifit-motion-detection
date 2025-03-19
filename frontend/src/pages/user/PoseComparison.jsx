@@ -1,42 +1,42 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import { io } from "socket.io-client";
 import axios from "axios";
 import { getUserId } from "../../utils/auth";
-import Loader from '../../components/Layout/Loader'; // Import the Loader component
-import ResultsModal from './ResultModal'; // Import the ResultsModal component
+import Loader from '../../components/Layout/Loader';
+import ResultsModal from './ResultModal';
 import "./../../css/PoseComparisonPage.css";
 
 const PoseComparisonPage = () => {
   const { videoId } = useParams();
+  const navigate = useNavigate(); // Initialize useNavigate
   const [comparisonStatus, setComparisonStatus] = useState(false);
   const [liveFrame, setLiveFrame] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [results, setResults] = useState({});
   const [socket, setSocket] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // State to manage loading status
-  const [showResultsModal, setShowResultsModal] = useState(false); // State to control modal visibility
-  const [results, setResults] = useState({}); // State to store comparison results
 
   useEffect(() => {
-    // Initialize SocketIO connection
     const newSocket = io("http://localhost:5000");
     setSocket(newSocket);
 
-    // Listen for video frames
     newSocket.on("video_frame", (data) => {
       setLiveFrame(data.frame);
-      setIsLoading(false); // Stop loading when the frame is received
+      setIsLoading(false);
     });
 
-    // Listen for comparison completion
     newSocket.on("comparison_complete", (data) => {
       setComparisonStatus(false);
-      setLiveFrame(null); // Clear the live frame
-      setIsLoading(false); // Stop loading when the comparison is complete
-      setResults(data); // Store the results
+      setLiveFrame(null);
+      setIsLoading(false);
+      setResults(data);
       setShowResultsModal(true); // Show the results modal
     });
 
-    // Cleanup on unmount
+    // Automatically start comparison when the component mounts
+    startComparison();
+
     return () => {
       newSocket.disconnect();
     };
@@ -49,7 +49,7 @@ const PoseComparisonPage = () => {
       return;
     }
 
-    setIsLoading(true); // Start loading when comparison starts
+    setIsLoading(true);
     try {
       const response = await axios.post("http://localhost:5000/start_comparison", {
         video_id: videoId,
@@ -61,7 +61,7 @@ const PoseComparisonPage = () => {
     } catch (error) {
       console.error("Error starting comparison", error);
       setComparisonStatus(false);
-      setIsLoading(false); // Stop loading if there's an error
+      setIsLoading(false);
     }
   };
 
@@ -69,54 +69,41 @@ const PoseComparisonPage = () => {
     if (socket) {
       socket.emit("stop_comparison");
       setComparisonStatus(false);
-      setLiveFrame(null); // Clear the live frame
-      setIsLoading(false); // Stop loading when comparison is stopped
+      setLiveFrame(null);
+      setIsLoading(false);
     }
   };
 
   const handleCloseModal = () => {
     setShowResultsModal(false); // Close the modal
+    navigate("/video/list"); // Navigate to /video/list after closing the modal
   };
 
   return (
     <div className="pose-comparison-page">
-      {!comparisonStatus ? (
-        <div className="header">
-          <h1>ARE YOU READY?</h1>
-          <div className="controls">
-            <button className="start-button" onClick={startComparison}>
-              START DANCING
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="controls">
-          <button className="stop-button" onClick={stopComparison}>
-            Stop Comparison
-          </button>
-        </div>
-      )}
+      <div className="controls">
+        <button className="stop-button" onClick={stopComparison}>
+          Stop Comparison
+        </button>
+      </div>
 
-      {comparisonStatus && (
-        <div className="comparison-results">
-          <div className="frame-container">
-            {isLoading ? (
-              <Loader /> // Display the Loader while loading
-            ) : liveFrame ? (
-              <img
-                src={`data:image/jpeg;base64,${liveFrame}`}
-                alt="Live Comparison"
-                className="live-frame"
-              />
-            ) : null}
-          </div>
+      <div className="comparison-results">
+        <div className="frame-container">
+          {isLoading ? (
+            <Loader />
+          ) : liveFrame ? (
+            <img
+              src={`data:image/jpeg;base64,${liveFrame}`}
+              alt="Live Comparison"
+              className="live-frame"
+            />
+          ) : null}
         </div>
-      )}
+      </div>
 
-      {/* Results Modal */}
       <ResultsModal
         show={showResultsModal}
-        onHide={handleCloseModal}
+        onHide={handleCloseModal} // Pass the handleCloseModal function
         results={results}
       />
     </div>
