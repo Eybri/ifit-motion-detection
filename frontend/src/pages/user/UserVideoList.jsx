@@ -11,6 +11,7 @@ import "swiper/css/effect-coverflow";
 import { useNavigate } from "react-router-dom";
 import { FaClock, FaPlay } from "react-icons/fa";
 import styled, { keyframes } from "styled-components";
+import Loader from '../../components/Layout/Loader'; // Import your Loader component
 
 const UserVideoList = () => {
   const [videos, setVideos] = useState([]);
@@ -92,7 +93,7 @@ const UserVideoList = () => {
 
         {loading ? (
           <LoadingContainer>
-            <Spinner />
+            <Loader /> {/* Replace the Spinner with your Loader component */}
             <p>Loading amazing dance videos...</p>
           </LoadingContainer>
         ) : videos.length === 0 ? (
@@ -578,15 +579,6 @@ const LoadingContainer = styled.div`
   gap: 20px;
   color: white;
   font-size: 1.2rem;
-`;
-
-const Spinner = styled.div`
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #FF004D;
-  animation: ${spin} 1s ease-in-out infinite;
 `;
 
 const EmptyStateContainer = styled.div`

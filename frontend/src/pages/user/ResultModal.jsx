@@ -1,11 +1,12 @@
 import React from "react";
 import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button"; // Import Button from react-bootstrap
+import Button from "react-bootstrap/Button";
 import { Radar } from "react-chartjs-2";
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from "chart.js";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable"; // Correctly import autoTable
+import autoTable from "jspdf-autotable";
 import styled from "styled-components";
+import { Chart } from "chart.js";
 
 // Register ChartJS components
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
@@ -74,19 +75,68 @@ const ResultsModal = ({ show, onHide, results }) => {
         right: 20,
       },
     },
+    animation: {
+      duration: 1, // Set a very short duration for the PDF export
+    },
   };
 
-  // Function to generate PDF report
-  const generatePDF = () => {
-    const doc = new jsPDF();
+  // Reference for the chart
+  const chartRef = React.useRef(null);
 
-    // Add title
-    doc.setFontSize(20);
-    doc.text("Exercise Results Report", 10, 20);
+  // Function to generate PDF report with improved design
+  const generatePDF = async () => {
+    // Create PDF with higher quality
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
 
-    // Add table for text results
+    // Add background color and header
+    doc.setFillColor(250, 241, 230); // Light background color that matches modal header
+    doc.rect(0, 0, 210, 30, "F"); // Header background
+    
+    // Add title with styling
+    doc.setTextColor(126, 37, 83); // #7E2553 color
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text("Exercise Results Report", 105, 15, { align: "center" });
+    
+    // Add date
+    const date = new Date().toLocaleDateString();
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on: ${date}`, 105, 22, { align: "center" });
+    
+    // Add summary box
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(200, 200, 200);
+    doc.roundedRect(15, 35, 180, 15, 3, 3, "FD");
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Overall Score: ${results.final_score?.toFixed(2)}%`, 105, 43, { align: "center" });
+    
+    // Add radar chart image with better quality
+    if (chartRef.current) {
+      // First ensure the chart is rendered with animation disabled
+      const chartInstance = chartRef.current;
+      
+      // Get the chart as a base64 image
+      const chartImage = chartInstance.toBase64Image('image/png', 1.0);
+      
+      // Add the chart to the PDF
+      doc.addImage(chartImage, 'PNG', 55, 55, 100, 100);
+      
+      // Add chart title
+      doc.setTextColor(126, 37, 83); // #7E2553 color
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Performance Metrics Visualization", 105, 165, { align: "center" });
+    }
+    
+    // Add detailed results table with improved styling
     const tableData = [
-      ["Final Score", `${results.final_score?.toFixed(2)}%`],
       ["Calories Burned", `${results.calories_burned?.toFixed(2)} kcal`],
       ["Steps Taken", results.steps_taken?.toFixed(2)],
       ["Steps Per Minute", results.steps_per_minute?.toFixed(2)],
@@ -94,22 +144,55 @@ const ResultsModal = ({ show, onHide, results }) => {
       ["Movement Efficiency", results.movement_efficiency?.toFixed(2)],
       ["Performance Score", results.performance_score?.toFixed(2)],
       ["Energy Expenditure", `${results.energy_expenditure?.toFixed(2)} J`],
-      ["Feedback", results.user_feedback],
     ];
 
-    // Use autoTable plugin
+    // Use autoTable plugin with custom styling
     autoTable(doc, {
-      startY: 30,
+      startY: 170,
       head: [["Metric", "Value"]],
       body: tableData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [126, 37, 83], // #7E2553 color
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        halign: 'center',
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
+      columnStyles: {
+        0: { fontStyle: 'bold' }
+      },
+      margin: { left: 30, right: 30 },
     });
-
-    // Add radar chart image
-    const radarChart = document.querySelector(".chart-results canvas");
-    if (radarChart) {
-      const chartImage = radarChart.toDataURL("image/png");
-      doc.addImage(chartImage, "PNG", 10, doc.lastAutoTable.finalY + 10, 180, 100);
-    }
+    
+    // Add feedback section
+    const finalY = doc.lastAutoTable.finalY + 10;
+    
+    doc.setFillColor(250, 241, 230); // Light background color
+    doc.roundedRect(30, finalY, 150, 30, 3, 3, "F");
+    
+    doc.setTextColor(126, 37, 83); // #7E2553 color
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Feedback:", 35, finalY + 7);
+    
+    doc.setTextColor(80, 80, 80);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    
+    // Handle multiline feedback with text wrapping
+    const splitFeedback = doc.splitTextToSize(results.user_feedback || "No feedback provided.", 140);
+    doc.text(splitFeedback, 35, finalY + 15);
+    
+    // Add footer
+    doc.setFillColor(250, 241, 230); // Light background color for footer
+    doc.rect(0, 277, 210, 20, "F");
+    
+    doc.setTextColor(100, 100, 100);
+    doc.setFontSize(8);
+    doc.text("© 2025 Exercise Tracker App. All rights reserved.", 105, 285, { align: "center" });
 
     // Save the PDF
     doc.save("exercise_results_report.pdf");
@@ -134,7 +217,7 @@ const ResultsModal = ({ show, onHide, results }) => {
             <p><strong>Feedback:</strong> {results.user_feedback}</p>
           </TextResults>
           <ChartResults>
-            <Radar data={radarData} options={radarOptions} />
+            <Radar ref={chartRef} data={radarData} options={radarOptions} />
           </ChartResults>
         </ResultsContainer>
       </Modal.Body>

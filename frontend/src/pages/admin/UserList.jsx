@@ -304,72 +304,127 @@ const UserList = () => {
 
   const generatePDF = async () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth(); // Get page width
+    const margin = 15; // Left and right margins
 
+    // Convert images to base64
     const productLogoBase64 = await toBase64("/images/tup.png");
     const schoolLogoBase64 = await toBase64("/images/1.png");
 
-    doc.addImage(productLogoBase64, "PNG", 10, 10, 20, 20);
-    doc.addImage(schoolLogoBase64, "PNG", 170, 10, 30, 15);
+    // Add logos with better alignment
+    doc.addImage(productLogoBase64, "PNG", margin, 10, 25, 25);
+    doc.addImage(schoolLogoBase64, "PNG", pageWidth - 45, 10, 30, 20);
 
+    // Title Block with improved styling
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text("IFIT-MOTION-DETECTION", 105, 20, null, null, "center");
-    doc.setFontSize(18);
-    doc.text("Active Users Report", 105, 30, null, null, "center");
-    doc.setFontSize(12);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 40, null, null, "center");
+    doc.setFontSize(20);
+    doc.setTextColor(40, 40, 40); // Dark gray for better readability
+    doc.text("IFIT-MOTION-DETECTION", pageWidth / 2, 40, null, null, "center");
 
-    doc.setFontSize(10);
-    doc.text("Prepared by:", 20, 50);
-    ["Avery Macasa.", "Bryan James Batan", "Gelgin Delos Santos", "Tyron Justine Medina"].forEach((name, i) => {
-      doc.text(name, 20, 55 + i * 5);
+    doc.setFontSize(16);
+    doc.text("Active Users Report", pageWidth / 2, 50, null, null, "center");
+
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100); // Lighter gray for secondary text
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 58, null, null, "center");
+
+    // Prepared by section with better spacing
+    doc.setFontSize(12);
+    doc.setTextColor(40, 40, 40); // Reset to dark gray
+    doc.text("Prepared by:", margin, 70);
+    const authors = ["Eybri Admin"];
+    authors.forEach((name, i) => {
+        doc.text(name, margin + 20, 70 + i * 8); // Indent author names
     });
 
-    doc.setDrawColor(200, 200, 200);
-    doc.line(10, 75, 200, 75);
+    // Horizontal Line with better styling
+    doc.setDrawColor(200, 200, 200); // Light gray line
+    doc.setLineWidth(0.5);
+    doc.line(margin, 85, pageWidth - margin, 85);
 
-    const headers = ["Name", "Email", "Gender", "Date of Birth", "BMI Category", "Status", "Time Remaining"];
+    // Table Data with improved design
+    const headers = ["Name", "Email", "Gender", "DOB", "BMI", "Status", "Time Left"];
+    
+    // Calculate column width dynamically based on the page size
+    const colWidths = [
+        0.15 * pageWidth, // Name
+        0.25 * pageWidth, // Email
+        0.10 * pageWidth, // Gender
+        0.10 * pageWidth, // DOB
+        0.10 * pageWidth, // BMI
+        0.10 * pageWidth, // Status
+        0.10 * pageWidth  // Time Left
+    ];
+
     const rows = filteredUsers.map(user => [
-      user.name,
-      user.email,
-      user.gender,
-      user.date_of_birth,
-      user.bmiCategory,
-      user.status,
-      user.status === "Inactive" ? formatRemainingTime(remainingTime[user._id] || 0) : "N/A",
+        user.name,
+        user.email,
+        user.gender,
+        user.date_of_birth,
+        user.bmiCategory,
+        user.status,
+        user.status === "Inactive" ? formatRemainingTime(remainingTime[user._id] || 0) : "N/A",
     ]);
 
     autoTable(doc, {
-      head: [headers],
-      body: rows,
-      startY: 80,
-      theme: "striped",
-      styles: { fontSize: 10, textColor: [0, 0, 0], cellPadding: 3, lineColor: [200, 200, 200], lineWidth: 0.5 },
-      headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0], fontStyle: "bold" },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
-      columnStyles: { 0: { cellWidth: 40 }, 1: { cellWidth: 60 }, 2: { cellWidth: 30 }, 3: { cellWidth: 40 }, 4: { cellWidth: 40 }, 5: { cellWidth: 30 }, 6: { cellWidth: 40 } },
+        head: [headers],
+        body: rows,
+        startY: 95,
+        theme: "striped", // Use striped theme for better readability
+        styles: { 
+            fontSize: 10, 
+            textColor: [50, 50, 50], 
+            cellPadding: 5, 
+            lineColor: [200, 200, 200], 
+            lineWidth: 0.3 
+        },
+        headStyles: { 
+            fillColor: [50, 50, 50], // Darker header
+            textColor: [255, 255, 255], 
+            fontStyle: "bold",
+            halign: "center" // Center align header text
+        },
+        bodyStyles: { halign: "center" }, // Center align body text
+        alternateRowStyles: { fillColor: [245, 245, 245] }, // Light gray for alternate rows
+        columnStyles: {
+            0: { cellWidth: colWidths[0], halign: "left" }, // Left align name
+            1: { cellWidth: colWidths[1], halign: "left" }, // Left align email
+            2: { cellWidth: colWidths[2] },
+            3: { cellWidth: colWidths[3] },
+            4: { cellWidth: colWidths[4] },
+            5: { cellWidth: colWidths[5] },
+            6: { cellWidth: colWidths[6] }
+        }
     });
 
+    // Footer with improved design
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.text("Generated by IFit Motion Detection", 105, 285, null, null, "center");
-      doc.text(`Page ${i} of ${pageCount}`, 105, 290, null, null, "center");
-      doc.setDrawColor(200, 200, 200);
-      doc.line(10, 280, 200, 280);
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+
+        // Footer Text
+        doc.text("Generated by IFit Motion Detection", pageWidth / 2, 285, null, null, "center");
+        doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, 290, null, null, "center");
+
+        // Footer Line with better styling
+        doc.setDrawColor(200, 200, 200); // Light gray line
+        doc.setLineWidth(0.5);
+        doc.line(margin, 280, pageWidth - margin, 280);
     }
 
     doc.save("users-list.pdf");
-  };
+};
 
-  const toBase64 = (url) => fetch(url)
+// Convert image URL to Base64
+const toBase64 = (url) => fetch(url)
     .then(response => response.blob())
     .then(blob => new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
     }));
 
   if (loading) return <Loader />;

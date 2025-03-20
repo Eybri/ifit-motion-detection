@@ -62,7 +62,7 @@ export const getUserId = () => {
   return sessionStorage.getItem("user_id");
 };
 
-// Store user info in localStorage
+// Store user info in localStorageYY
 export const setUserInfo = (userInfo) => {
   localStorage.setItem("user", JSON.stringify(userInfo));
 };

@@ -27,6 +27,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 configure_mail(app)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app) 
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 db = get_db()
@@ -176,8 +177,8 @@ def compare_live_pose(video_id, user_id):
                 frame_score = calculate_similarity(reference_pose, live_keypoints)
                 total_score += frame_score
                 feedback, color = get_feedback(frame_score)
-                draw_stickman(frame_webcam, live_keypoints, color)
-                draw_stickman(frame_video_resized, reference_pose, (255, 255, 255))
+                # draw_stickman(frame_webcam, live_keypoints, color)
+                # draw_stickman(frame_video_resized, reference_pose, (255, 255, 255))
 
                 # Calculate Euclidean distance
                 distance = calculate_euclidean_distance(reference_pose, live_keypoints)
@@ -185,16 +186,16 @@ def compare_live_pose(video_id, user_id):
                 cv2.putText(frame_webcam, distance_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                 # Check if the user is in the correct starting position
-                if distance < 0.1:  # Threshold for correct position
-                    cv2.putText(frame_webcam, "Correct Position", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                else:
-                    cv2.putText(frame_webcam, "Adjust Position", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                # if distance < 0.10:  # Threshold for correct position
+                #     cv2.putText(frame_webcam, "Correct Position", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                # else:
+                #     cv2.putText(frame_webcam, "Adjust Position", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
                 # Calculate text position for feedback at the top
-                text_size = cv2.getTextSize(feedback, cv2.FONT_HERSHEY_SIMPLEX, 2, 5)[0]
+                text_size = cv2.getTextSize(feedback, cv2.FONT_HERSHEY_SIMPLEX, 1, 5)[0]
                 text_x = (frame_webcam.shape[1] - text_size[0]) // 2  # Center horizontally
                 text_y = text_size[1] + 10  # Place at the top with a small margin
-                cv2.putText(frame_webcam, feedback, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 2, color, 5)
+                cv2.putText(frame_webcam, feedback, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 5)
 
                 # Place the score below the feedback
                 cv2.putText(frame_webcam, f"Score: {frame_score:.2f}%", (10, text_y + text_size[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)

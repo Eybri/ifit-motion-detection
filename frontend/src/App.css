@@ -519,3 +519,79 @@ footer {
 
 
 
+/* Add this to your loader.css file */
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fitness-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+}
+
+.fitness-icon {
+  font-size: 38px;
+  margin-bottom: 16px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.boxes {
+  display: flex;
+  gap: 8px;
+}
+
+.box {
+  width: 12px;
+  height: 12px;
+  background-color: #121212;
+  border-radius: 2px;
+  border-color: solid #121212 ;
+}
+
+.box:nth-child(1) {
+  animation: jump 0.6s infinite 0.1s;
+}
+
+.box:nth-child(2) {
+  animation: jump 0.6s infinite 0.3s;
+}
+
+.box:nth-child(3) {
+  animation: jump 0.6s infinite 0.5s;
+}
+
+@keyframes jump {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}

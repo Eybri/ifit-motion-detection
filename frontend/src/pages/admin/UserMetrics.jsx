@@ -155,28 +155,34 @@ const UserMetrics = () => {
 
   const generatePDF = () => {
     const doc = new jsPDF();
-
-    // Add logos from the public/images folder
-    doc.addImage("/images/tup.png", "PNG", 10, 10, 30, 30); // tup.png on the left
-    doc.addImage("/images/1.png", "PNG", 170, 10, 30, 30); // 1.png on the right
-
+    const pageWidth = doc.internal.pageSize.width;
+    
+    // Add logos with better positioning
+    doc.addImage("/images/tup.png", "PNG", 15, 15, 25, 25); // Left logo
+    doc.addImage("/images/1.png", "PNG", pageWidth - 40, 15, 25, 25); // Right logo
+    
+    // Centered title with better spacing
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("IFIT-MOTION-DETECTION", 105, 20, null, null, "center");
+    doc.text("IFIT-MOTION-DETECTION", pageWidth / 2, 25, { align: "center" });
+    
     doc.setFontSize(14);
-    doc.text("Active Users Report", 105, 30, null, null, "center");
-    doc.setFontSize(12);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 40, null, null, "center");
-
-    // Add "Prepared by" section with the logged-in user's name
-    doc.setFontSize(12);
-    doc.text("Prepared by:", 20, 60);
+    doc.text("User Metrics Report", pageWidth / 2, 35, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 45, { align: "center" });
+    
+    // Improved "Prepared by" section
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Prepared by:", 15, 55);
+    doc.setFont("helvetica", "normal");
     if (loggedInUser) {
-      doc.text(loggedInUser.name, 20, 70); // Display the logged-in user's name
+      doc.text(loggedInUser.name, 50, 55);
     } else {
-      doc.text("Eybri Admin", 20, 70); // Fallback if no user is logged in
+      doc.text("Eybri Admin", 50, 55);
     }
-
+    
     const headers = [
       "Name",
       "Email",
@@ -188,6 +194,7 @@ const UserMetrics = () => {
       "Weight Lost (kg)",
       "BMI Classification",
     ];
+    
     const rows = filteredUsers.map((user) => [
       user.name,
       user.email,
@@ -199,18 +206,39 @@ const UserMetrics = () => {
       user.weightLost,
       user.bmiClassification,
     ]);
-
+    
     autoTable(doc, {
       head: [headers],
       body: rows,
-      startY: 80, // Adjusted startY to make space for the "Prepared by" section
+      startY: 65, // Start table closer to the "Prepared by" section
       theme: "striped",
-      styles: { fontSize: 10, textColor: [0, 0, 0], cellPadding: 3, lineColor: [200, 200, 200], lineWidth: 0.5 },
-      headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0], fontStyle: "bold" },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
+      styles: { 
+        fontSize: 9, // Slightly smaller font for better fit
+        textColor: [0, 0, 0], 
+        cellPadding: 2, // Reduced padding for better fit
+        lineColor: [200, 200, 200], 
+        lineWidth: 0.5 
+      },
+      headStyles: { 
+        fillColor: [59, 30, 84], // Matching the table header color in the UI
+        textColor: [238, 238, 238], // Light text color for dark background
+        fontStyle: "bold" 
+      },
+      alternateRowStyles: { fillColor: [212, 190, 228] }, // Light purple for alternating rows
+      columnStyles: {
+        0: { cellWidth: 25 }, // Name column
+        1: { cellWidth: 35 }, // Email column
+        2: { cellWidth: 20 }, // Calories column
+        3: { cellWidth: 20 }, // Duration column
+        4: { cellWidth: 15 }, // Accuracy column
+        5: { cellWidth: 15 }, // Initial BMI column
+        6: { cellWidth: 15 }, // Current BMI column
+        7: { cellWidth: 15 }, // Weight lost column
+        8: { cellWidth: 30 }, // BMI Classification column
+      },
     });
-
-    doc.save("active-users-report.pdf");
+    
+    doc.save("User Metrics.pdf");
   };
 
   if (loading) return <Loader />;
