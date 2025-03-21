@@ -296,8 +296,8 @@ const UserList = () => {
 
   const filteredUsers = users.filter(user =>
     (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (user.email?.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    user.status !== "Archived")
+    (user.email?.toLowerCase().includes(searchTerm.toLowerCase())))
+    && user.status !== "Archived"
   );
   
   const paginatedUsers = filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
