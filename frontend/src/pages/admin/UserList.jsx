@@ -295,13 +295,12 @@ const UserList = () => {
   const handleCloseArchivedModal = () => setOpenArchivedModal(false);
 
   const filteredUsers = users.filter(user =>
-    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase().filter(user => user.status !== "Archived"))
-    
+    (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.email?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    user.status !== "Archived")
   );
-
+  
   const paginatedUsers = filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
   const generatePDF = async () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth(); // Get page width
