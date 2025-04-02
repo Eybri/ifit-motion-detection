@@ -4,15 +4,13 @@ import { Filter } from "bad-words";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faReply, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { isAuthenticated } from "../../utils/auth";
 
 const App = () => {
   const [feedback, setFeedback] = useState("");
   const [email, setEmail] = useState("");
   const [allFeedback, setAllFeedback] = useState([]);
-  const [reply, setReply] = useState("");
-  const [selectedFeedbackId, setSelectedFeedbackId] = useState(null);
   const [error, setError] = useState("");
   const [expandedFeedbacks, setExpandedFeedbacks] = useState({});
   const [visibleFeedbackCount, setVisibleFeedbackCount] = useState(3);
@@ -66,20 +64,6 @@ const App = () => {
     } catch (error) {
       console.error("Error submitting feedback:", error);
       toast.error("Failed to submit feedback. Please try again.");
-    }
-  };
-
-  const handleSubmitReply = async (feedbackId) => {
-    try {
-      const filteredReply = filterBadWords(reply);
-      await axios.post(`http://localhost:5000/api/feedback/${feedbackId}/reply`, { reply: filteredReply });
-      toast.success("Reply submitted successfully!");
-      setReply("");
-      setSelectedFeedbackId(null);
-      fetchAllFeedback();
-    } catch (error) {
-      console.error("Error submitting reply:", error);
-      toast.error("Failed to submit reply. Please try again.");
     }
   };
 
@@ -137,7 +121,7 @@ const App = () => {
             {fb.replies.length > 0 && (
               <div>
                 <div style={styles.repliesHeader} onClick={() => toggleFeedbackExpansion(fb._id)}>
-                  <strong>Replies ({fb.replies.length})</strong>
+                  <strong>Admin Replies ({fb.replies.length})</strong>
                   <FontAwesomeIcon 
                     icon={expandedFeedbacks[fb._id] ? faChevronUp : faChevronDown} 
                     style={styles.expandIcon} 
@@ -148,37 +132,13 @@ const App = () => {
                   <div style={styles.repliesContainer}>
                     {fb.replies.map((reply, index) => (
                       <div key={index} style={styles.replyContainer}>
-                        <p style={styles.replyText}>
-                          <FontAwesomeIcon icon={faReply} style={styles.replyIcon} /> {reply}
-                        </p>
+                        <div style={styles.adminBadge}>Ifit Admin</div>
+                        <p style={styles.replyText}>{reply}</p>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            )}
-            
-            {selectedFeedbackId === fb._id ? (
-              <div style={styles.replyFormContainer}>
-                <textarea 
-                  value={reply} 
-                  onChange={(e) => setReply(e.target.value)} 
-                  placeholder="Write a reply..." 
-                  style={styles.replyTextarea} 
-                />
-                <div style={styles.buttonGroup}>
-                  <button onClick={() => handleSubmitReply(fb._id)} style={styles.actionButton}>
-                    Submit Reply
-                  </button>
-                  <button onClick={() => setSelectedFeedbackId(null)} style={styles.cancelButton}>
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button onClick={() => setSelectedFeedbackId(fb._id)} style={styles.replyButton}>
-                <FontAwesomeIcon icon={faReply} /> Reply
-              </button>
             )}
           </div>
         ))}
@@ -273,19 +233,6 @@ const styles = {
     boxSizing: "border-box",
     resize: "vertical",
   },
-  replyTextarea: {
-    width: "100%", 
-    padding: "12px 15px", 
-    borderRadius: "6px", 
-    border: "1px solid #ddd", 
-    minHeight: "80px", 
-    fontSize: "15px", 
-    color: "#333",
-    backgroundColor: "#f8f8f8",
-    marginBottom: "10px",
-    boxSizing: "border-box",
-    resize: "vertical",
-  },
   submitButton: { 
     padding: "12px 25px", 
     backgroundColor: "#7E2553", 
@@ -299,48 +246,6 @@ const styles = {
     display: "inline-block",
     textAlign: "center",
     boxShadow: "0 4px 6px rgba(126, 37, 83, 0.15)",
-  },
-  actionButton: {
-    padding: "10px 20px", 
-    backgroundColor: "#7E2553", 
-    color: "#fff", 
-    border: "none", 
-    borderRadius: "6px", 
-    cursor: "pointer", 
-    fontSize: "14px", 
-    fontWeight: "500",
-    transition: "background-color 0.3s ease, transform 0.2s ease", 
-    marginRight: "10px",
-    boxShadow: "0 2px 4px rgba(126, 37, 83, 0.15)",
-  },
-  cancelButton: {
-    padding: "10px 20px",
-    backgroundColor: "#f1f1f1",
-    color: "#333", 
-    border: "1px solid #ddd",
-    borderRadius: "6px", 
-    cursor: "pointer", 
-    fontSize: "14px", 
-    fontWeight: "500",
-    transition: "background-color 0.3s ease", 
-  },
-  replyButton: {
-    padding: "8px 16px",
-    backgroundColor: "#f1f1f1",
-    color: "#555", 
-    border: "1px solid #ddd",
-    borderRadius: "4px", 
-    cursor: "pointer", 
-    fontSize: "14px", 
-    fontWeight: "500",
-    transition: "background-color 0.3s ease",
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-    marginTop: "10px",
-  },
-  feedbackList: { 
-    marginTop: "30px" 
   },
   feedbackItem: { 
     border: "1px solid #eee", 
@@ -382,35 +287,29 @@ const styles = {
     borderLeft: "3px solid #7E2553", 
     backgroundColor: "#f8f8f8", 
     borderRadius: "4px", 
-    marginBottom: "10px" 
+    marginBottom: "10px",
+    position: "relative",
+  },
+  adminBadge: {
+    position: "absolute",
+    top: "-10px",
+    left: "10px",
+    backgroundColor: "#7E2553",
+    color: "white",
+    padding: "2px 8px",
+    borderRadius: "10px",
+    fontSize: "12px",
+    fontWeight: "bold",
   },
   replyText: { 
     color: "#333", 
-    margin: "0", 
-    display: "flex", 
-    alignItems: "center", 
-    gap: "10px",
+    margin: "0",
+    paddingTop: "10px",
     fontSize: "15px",
-  },
-  replyIcon: { 
-    color: "#7E2553",
-    fontSize: "12px",
   },
   expandIcon: {
     color: "#7E2553",
     fontSize: "14px",
-  },
-  replyFormContainer: {
-    marginTop: "15px",
-    padding: "15px",
-    backgroundColor: "#f8f8f8",
-    borderRadius: "6px",
-    transition: "all 0.3s ease",
-    animation: "slideDown 0.3s ease",
-  },
-  buttonGroup: {
-    display: "flex",
-    gap: "10px",
   },
   error: { 
     color: "#e74c3c", 

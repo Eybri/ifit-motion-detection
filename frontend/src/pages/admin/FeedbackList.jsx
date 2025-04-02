@@ -137,8 +137,19 @@ const FeedbackList = () => {
   const renderReplyItem = (reply, index) => (
     <List.Item key={index} className="reply-item">
       <div className="reply-content">
-        <Avatar size="small" icon={<UserOutlined />} className="reply-avatar" />
-        <Text>{reply}</Text>
+        <Avatar 
+          size="small" 
+          style={{ 
+            backgroundColor: colors.primary,
+            color: 'white'
+          }}
+        >
+          IA
+        </Avatar>
+        <div className="reply-text-container">
+          <Text strong style={{ color: colors.primary }}>Ifit Admin</Text>
+          <Text>{reply}</Text>
+        </div>
       </div>
     </List.Item>
   );
@@ -400,6 +411,18 @@ const FeedbackList = () => {
           resize: vertical;
           margin-bottom: 12px;
         }
+            .reply-content {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .reply-text-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
       `}</style>
     </div>
   );
