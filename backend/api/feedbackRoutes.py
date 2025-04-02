@@ -24,7 +24,7 @@ def submit_feedback():
 
     return jsonify({"message": "Feedback submitted successfully", "feedback_id": str(inserted_feedback.inserted_id)}), 201
 
-@feedback_routes.route("/<feedback_id>/reply", methods=["POST"])
+@feedback_routes.route("/<feedback_id>/reply/", methods=["POST"])
 def reply_to_feedback(feedback_id):
     """Admin reply to feedback."""
     data = request.json
@@ -54,3 +54,23 @@ def get_all_feedback():
         feedback["_id"] = str(feedback["_id"])
 
     return jsonify(feedbacks), 200
+
+@feedback_routes.route("/<feedback_id>/", methods=["DELETE"])
+def delete_feedback(feedback_id):
+    """Delete a feedback entry."""
+    try:
+        # Verify the feedback exists first
+        feedback = db.feedback.find_one({"_id": ObjectId(feedback_id)})
+        if not feedback:
+            return jsonify({"error": "Feedback not found"}), 404
+
+        # Delete the feedback
+        result = db.feedback.delete_one({"_id": ObjectId(feedback_id)})
+        
+        if result.deleted_count == 1:
+            return jsonify({"message": "Feedback deleted successfully"}), 200
+        else:
+            return jsonify({"error": "Failed to delete feedback"}), 500
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400

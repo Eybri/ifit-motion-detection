@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getToken, clearAuth, isAuthenticated } from "../../../utils/auth";
 import { jwtDecode } from "jwt-decode";
-import { FaHome, FaChartBar, FaUser, FaSignOutAlt, FaPlayCircle, FaBars, FaUsers, FaChartLine } from "react-icons/fa";
+import { FaHome, FaChartBar, FaUser, FaSignOutAlt, FaPlayCircle, FaBars, FaUsers, FaChartLine, FaCommentAlt } from "react-icons/fa";
 import Loader from "../Loader";
 import { Menu, MenuItem, IconButton, Avatar } from "@mui/material";
 import { useState as useMUIState } from "react";
@@ -207,6 +207,11 @@ const Sidenav = ({ isMinimized, toggleMinimize }) => {
               { to: "/admin/user/metrics", label: "User Metrics", icon: <FaChartLine /> },
               { to: "/admin/category/list", label: "Categories", icon: <FaChartBar /> },
               { to: "/admin/video/list", label: "Videos", icon: <FaPlayCircle /> },
+              { 
+                to: "/admin/feedback", 
+                label: "Feedback", 
+                icon: <FaCommentAlt />  
+              }
             ].map(({ to, label, icon }) => (
               <Link
                 key={to}

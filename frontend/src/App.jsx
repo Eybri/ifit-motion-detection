@@ -20,7 +20,7 @@ import CategoryList from './pages/admin/category/CategoryList';
 import UserList from './pages/admin/UserList';
 import AdminProfile from './pages/admin/AdminProfile';
 import UserMetrics from './pages/admin/UserMetrics';
-
+import FeedbackList from './pages/admin/FeedbackList';
 import Feedback from './pages/user/Feedback';
 import Progress from './pages/user/Progress';
 
@@ -123,6 +123,14 @@ const App = () => {
             element={
               <ProtectedRoute isAdmin={true}>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+            <Route
+            path="/admin/feedback"
+            element={
+              <ProtectedRoute isAdmin={true}>
+                <FeedbackList />
               </ProtectedRoute>
             }
           />
